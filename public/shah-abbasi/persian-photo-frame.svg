@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 380" fill="none">
+  <!-- Classic Persian pointed arch (mihrab)  elegant border only -->
+  <defs>
+    <clipPath id="mihrabClip">
+      <path d="M140 28
+        C140 28 52 95 52 190
+        L52 340
+        Q52 352 64 352
+        L216 352
+        Q228 352 228 340
+        L228 190
+        C228 95 140 28 140 28Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- Deep navy outer band -->
+  <path
+    fill="#1E3A5F"
+    d="M140 8
+      C140 8 28 88 28 192
+      L28 348
+      Q28 372 52 372
+      L228 372
+      Q252 372 252 348
+      L252 192
+      C252 88 140 8 140 8Z"
+  />
+
+  <!-- Cream middle band -->
+  <path
+    fill="#E8DFD2"
+    d="M140 20
+      C140 20 42 96 42 194
+      L42 346
+      Q42 360 56 360
+      L224 360
+      Q238 360 238 346
+      L238 194
+      C238 96 140 20 140 20Z"
+  />
+
+  <!-- Navy inner band -->
+  <path
+    fill="#1E3A5F"
+    d="M140 32
+      C140 32 54 104 54 196
+      L54 342
+      Q54 352 64 352
+      L216 352
+      Q226 352 226 342
+      L226 196
+      C226 104 140 32 140 32Z"
+  />
+
+  <!-- Gold outer line -->
+  <path
+    fill="none"
+    stroke="#C9A227"
+    stroke-width="2"
+    opacity="0.85"
+    d="M140 12
+      C140 12 34 90 34 192
+      L34 348
+      Q34 366 52 366
+      L228 366
+      Q246 366 246 348
+      L246 192
+      C246 90 140 12 140 12Z"
+  />
+
+  <!-- Gold inner line -->
+  <path
+    fill="none"
+    stroke="#C9A227"
+    stroke-width="1.4"
+    opacity="0.65"
+    d="M140 36
+      C140 36 58 106 58 196
+      L58 340
+      Q58 348 66 348
+      L214 348
+      Q222 348 222 340
+      L222 196
+      C222 106 140 36 140 36Z"
+  />
+
+  <!-- Apex ornament -->
+  <path
+    fill="#C9A227"
+    opacity="0.9"
+    d="M140 4 L146 16 L140 14 L134 16 Z"
+  />
+  <circle cx="140" cy="22" r="3.5" fill="#C9A227" opacity="0.8"/>
+
+  <!-- Corner eslimi flourishes (bottom) -->
+  <path fill="none" stroke="#C9A227" stroke-width="1.2" opacity="0.55"
+    d="M48 330 C58 318 72 322 76 334 M232 330 C222 318 208 322 204 334"/>
+  <!-- Side knots -->
+  <circle cx="34" cy="200" r="3" fill="#C9A227" opacity="0.5"/>
+  <circle cx="246" cy="200" r="3" fill="#C9A227" opacity="0.5"/>
+</svg>

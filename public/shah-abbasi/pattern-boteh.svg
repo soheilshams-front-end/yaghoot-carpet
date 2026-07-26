@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 140 140" fill="none">
+  <!-- Paisley / boteh lattice  traditional carpet motif -->
+  <g stroke="#1E3A5F" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M36 28 C22 42 20 66 34 82 C48 98 70 100 84 88 C76 78 70 64 72 48 C74 36 66 24 52 22 C46 21 40 23 36 28Z" opacity="0.85"/>
+    <path d="M48 40 C40 50 40 64 48 74 C56 84 70 86 78 78 C72 70 68 60 70 50 C71 42 64 36 56 36 C52 36 50 38 48 40Z" opacity="0.65"/>
+    <circle cx="58" cy="54" r="2.5" opacity="0.8"/>
+    <path d="M58 54 C58 48 62 46 58 40 C54 46 58 48 58 54Z" opacity="0.75"/>
+    <path d="M58 54 C58 48 62 46 58 40 C54 46 58 48 58 54Z" transform="rotate(90 58 54)" opacity="0.75"/>
+
+    <path d="M106 98 C92 112 90 136 104 152" opacity="0"/>
+    <path d="M106 98 C92 112 90 136 104 152 C118 168 140 170 154 158" opacity="0"/>
+    <!-- mirrored boteh bottom-right for seamless feel -->
+    <path d="M104 112 C118 98 120 74 106 58 C92 42 70 40 56 52 C64 62 70 76 68 92 C66 104 74 116 88 118 C94 119 100 117 104 112Z" opacity="0.8" transform="translate(0 -10)"/>
+    <g transform="translate(70 70)" opacity="0.75">
+      <path d="M-10 -42 C-24 -28 -26 -4 -12 12 C2 28 24 30 38 18 C30 8 24 -6 26 -22 C28 -34 20 -46 6 -48 C0 -49 -6 -47 -10 -42Z"/>
+      <circle cx="8" cy="-18" r="2.2"/>
+    </g>
+    <!-- connecting scrolls -->
+    <path d="M0 70 C20 60 30 50 40 48" opacity="0.45"/>
+    <path d="M100 92 C120 100 130 110 140 112" opacity="0.4"/>
+    <path d="M70 0 C60 20 50 30 48 40" opacity="0.4"/>
+    <path d="M92 100 C100 120 110 130 112 140" opacity="0.4"/>
+    <!-- tiny filler blooms -->
+    <g opacity="0.55">
+      <circle cx="20" cy="20" r="1.8"/>
+      <circle cx="120" cy="20" r="1.8"/>
+      <circle cx="20" cy="120" r="1.8"/>
+      <circle cx="120" cy="120" r="1.8"/>
+    </g>
+  </g>
+</svg>

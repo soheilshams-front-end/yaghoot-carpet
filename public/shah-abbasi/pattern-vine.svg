@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" fill="none">
+  <!-- Continuous eslimi vine  seamless tile -->
+  <g stroke="#1E3A5F" stroke-width="1.05" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0 80 C28 80 36 48 60 48 C84 48 92 80 120 80 C140 80 148 64 160 64" opacity="0.85"/>
+    <path d="M0 96 C28 96 36 128 60 128 C84 128 92 96 120 96 C140 96 148 112 160 112" opacity="0.7"/>
+    <path d="M80 0 C80 28 48 36 48 60 C48 84 80 92 80 120 C80 140 64 148 64 160" opacity="0.75"/>
+    <path d="M96 0 C96 28 128 36 128 60 C128 84 96 92 96 120 C96 140 112 148 112 160" opacity="0.65"/>
+    <!-- Shah Abbasi blooms along vines -->
+    <g opacity="0.9">
+      <circle cx="60" cy="48" r="3.2"/>
+      <path d="M60 48 C60 38 66 34 60 26 C54 34 60 38 60 48Z"/>
+      <path d="M60 48 C60 38 66 34 60 26 C54 34 60 38 60 48Z" transform="rotate(72 60 48)"/>
+      <path d="M60 48 C60 38 66 34 60 26 C54 34 60 38 60 48Z" transform="rotate(144 60 48)"/>
+      <path d="M60 48 C60 38 66 34 60 26 C54 34 60 38 60 48Z" transform="rotate(216 60 48)"/>
+      <path d="M60 48 C60 38 66 34 60 26 C54 34 60 38 60 48Z" transform="rotate(288 60 48)"/>
+    </g>
+    <g opacity="0.85">
+      <circle cx="120" cy="96" r="3"/>
+      <path d="M120 96 C120 87 125 84 120 76 C115 84 120 87 120 96Z"/>
+      <path d="M120 96 C120 87 125 84 120 76 C115 84 120 87 120 96Z" transform="rotate(60 120 96)"/>
+      <path d="M120 96 C120 87 125 84 120 76 C115 84 120 87 120 96Z" transform="rotate(120 120 96)"/>
+      <path d="M120 96 C120 87 125 84 120 76 C115 84 120 87 120 96Z" transform="rotate(180 120 96)"/>
+      <path d="M120 96 C120 87 125 84 120 76 C115 84 120 87 120 96Z" transform="rotate(240 120 96)"/>
+      <path d="M120 96 C120 87 125 84 120 76 C115 84 120 87 120 96Z" transform="rotate(300 120 96)"/>
+    </g>
+    <g opacity="0.8">
+      <circle cx="48" cy="60" r="2.4"/>
+      <path d="M48 60 C48 54 52 52 48 46 C44 52 48 54 48 60Z"/>
+      <path d="M48 60 C48 54 52 52 48 46 C44 52 48 54 48 60Z" transform="rotate(90 48 60)"/>
+      <path d="M48 60 C48 54 52 52 48 46 C44 52 48 54 48 60Z" transform="rotate(180 48 60)"/>
+      <path d="M48 60 C48 54 52 52 48 46 C44 52 48 54 48 60Z" transform="rotate(270 48 60)"/>
+    </g>
+    <!-- leaf pairs -->
+    <path d="M28 72 C34 66 42 68 44 74 C38 76 32 76 28 72Z" opacity="0.55"/>
+    <path d="M100 108 C106 102 114 104 116 110 C110 112 104 112 100 108Z" opacity="0.5"/>
+    <path d="M72 28 C78 34 76 42 70 44 C68 38 68 32 72 28Z" opacity="0.5"/>
+  </g>
+</svg>

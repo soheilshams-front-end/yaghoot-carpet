@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none">
+  <g stroke="#1E3A5F" stroke-width="0.75" fill="none">
+    <!-- center medallion -->
+    <circle cx="48" cy="48" r="4.5"/>
+    <path d="M48 48C48 39 52.5 34.5 48 27C43.5 34.5 48 39 48 48Z"/>
+    <path d="M48 48C48 39 52.5 34.5 48 27C43.5 34.5 48 39 48 48Z" transform="rotate(45 48 48)"/>
+    <path d="M48 48C48 39 52.5 34.5 48 27C43.5 34.5 48 39 48 48Z" transform="rotate(90 48 48)"/>
+    <path d="M48 48C48 39 52.5 34.5 48 27C43.5 34.5 48 39 48 48Z" transform="rotate(135 48 48)"/>
+    <path d="M48 48C48 39 52.5 34.5 48 27C43.5 34.5 48 39 48 48Z" transform="rotate(180 48 48)"/>
+    <path d="M48 48C48 39 52.5 34.5 48 27C43.5 34.5 48 39 48 48Z" transform="rotate(225 48 48)"/>
+    <path d="M48 48C48 39 52.5 34.5 48 27C43.5 34.5 48 39 48 48Z" transform="rotate(270 48 48)"/>
+    <path d="M48 48C48 39 52.5 34.5 48 27C43.5 34.5 48 39 48 48Z" transform="rotate(315 48 48)"/>
+    <circle cx="48" cy="48" r="16" opacity="0.45"/>
+    <!-- corner buds — denser tiling -->
+    <g opacity="0.55">
+      <circle cx="12" cy="12" r="2.2"/>
+      <path d="M12 12C12 8 14 6.5 12 4C10 6.5 12 8 12 12Z"/>
+      <path d="M12 12C12 8 14 6.5 12 4C10 6.5 12 8 12 12Z" transform="rotate(90 12 12)"/>
+      <path d="M12 12C12 8 14 6.5 12 4C10 6.5 12 8 12 12Z" transform="rotate(180 12 12)"/>
+      <path d="M12 12C12 8 14 6.5 12 4C10 6.5 12 8 12 12Z" transform="rotate(270 12 12)"/>
+    </g>
+    <g opacity="0.55">
+      <circle cx="84" cy="12" r="2.2"/>
+      <path d="M84 12C84 8 86 6.5 84 4C82 6.5 84 8 84 12Z"/>
+      <path d="M84 12C84 8 86 6.5 84 4C82 6.5 84 8 84 12Z" transform="rotate(90 84 12)"/>
+      <path d="M84 12C84 8 86 6.5 84 4C82 6.5 84 8 84 12Z" transform="rotate(180 84 12)"/>
+      <path d="M84 12C84 8 86 6.5 84 4C82 6.5 84 8 84 12Z" transform="rotate(270 84 12)"/>
+    </g>
+    <g opacity="0.55">
+      <circle cx="12" cy="84" r="2.2"/>
+      <path d="M12 84C12 80 14 78.5 12 76C10 78.5 12 80 12 84Z"/>
+      <path d="M12 84C12 80 14 78.5 12 76C10 78.5 12 80 12 84Z" transform="rotate(90 12 84)"/>
+      <path d="M12 84C12 80 14 78.5 12 76C10 78.5 12 80 12 84Z" transform="rotate(180 12 84)"/>
+      <path d="M12 84C12 80 14 78.5 12 76C10 78.5 12 80 12 84Z" transform="rotate(270 12 84)"/>
+    </g>
+    <g opacity="0.55">
+      <circle cx="84" cy="84" r="2.2"/>
+      <path d="M84 84C84 80 86 78.5 84 76C82 78.5 84 80 84 84Z"/>
+      <path d="M84 84C84 80 86 78.5 84 76C82 78.5 84 80 84 84Z" transform="rotate(90 84 84)"/>
+      <path d="M84 84C84 80 86 78.5 84 76C82 78.5 84 80 84 84Z" transform="rotate(180 84 84)"/>
+      <path d="M84 84C84 80 86 78.5 84 76C82 78.5 84 80 84 84Z" transform="rotate(270 84 84)"/>
+    </g>
+    <!-- edge mid buds -->
+    <circle cx="48" cy="8" r="1.8" opacity="0.4"/>
+    <circle cx="48" cy="88" r="1.8" opacity="0.4"/>
+    <circle cx="8" cy="48" r="1.8" opacity="0.4"/>
+    <circle cx="88" cy="48" r="1.8" opacity="0.4"/>
+  </g>
+</svg>

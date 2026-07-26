@@ -1,0 +1,226 @@
+@import "tailwindcss";
+
+:root {
+  /* Soft cream — less yellow, a touch lighter */
+  --sa-cream: #e8dfd2;
+  --sa-bg: #f1ebe3;
+  --sa-bone: #e8dfd2;
+  --sa-bone-deep: #d9cfc0;
+  --sa-navy: #1e3a5f;
+  --sa-navy-deep: #162c48;
+  --sa-navy-muted: #3d5a7a;
+  --sa-gold: #c9a227;
+  --sa-text: #1c1c1c;
+  --sa-text-muted: #5c5348;
+  --sa-text-on-navy: #f1ebe3;
+  --sa-text-on-bone: #1c1c1c;
+  --sa-border: #d2c6b4;
+  --sa-radius-btn: 6px;
+  --sa-radius-card: 16px;
+  --sa-radius-section: 4px;
+  --sa-gutter: 8px;
+  --sa-font: var(--font-vazir), Tahoma, sans-serif;
+  --background: var(--sa-cream);
+  --foreground: var(--sa-text);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sa-navy: var(--sa-navy);
+  --color-sa-deep: var(--sa-navy-deep);
+  --color-sa-muted: var(--sa-navy-muted);
+  --color-sa-bone: var(--sa-bone);
+  --color-sa-cream: var(--sa-cream);
+  --color-sa-bg: var(--sa-bg);
+  --color-sa-border: var(--sa-border);
+  --color-sa-gold: var(--sa-gold);
+  --font-sans: var(--sa-font);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--sa-navy) 35%, var(--sa-border))
+    transparent;
+}
+
+body {
+  background: var(--sa-cream);
+  color: var(--sa-text);
+  font-family: var(--sa-font);
+  line-height: 1.8;
+}
+
+/* Minimal themed scrollbar — WebKit */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--sa-navy) 28%, var(--sa-border));
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--sa-navy) 55%, var(--sa-gold));
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Homepage section rail (desktop): hide native bar so the dots lead */
+@media (min-width: 1024px) {
+  html.sa-section-rail {
+    scrollbar-width: none;
+  }
+
+  html.sa-section-rail::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+::selection {
+  background: color-mix(in srgb, var(--sa-gold) 40%, transparent);
+  color: var(--sa-text);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--sa-font);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+a,
+button {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease;
+}
+
+.sa-section {
+  background: var(--sa-cream);
+  position: relative;
+}
+
+.sa-section-navy {
+  background: var(--sa-navy);
+  color: var(--sa-text-on-navy);
+  position: relative;
+}
+
+.sa-card {
+  background: var(--sa-bg);
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-card);
+  box-shadow: 0 10px 28px rgba(30, 58, 95, 0.1);
+}
+
+.sa-panel {
+  background: color-mix(in srgb, var(--sa-bg) 88%, white);
+  border: 1px solid var(--sa-border);
+  border-radius: var(--sa-radius-card);
+}
+
+.sa-page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 100%;
+}
+
+/* Dashboard rail: header + content + footer shift together */
+html.sa-dash-active .sa-page {
+  padding-right: var(--sa-dash-rail, 0px);
+  transition: padding-right 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sa-framed {
+  background: var(--sa-navy);
+  padding: var(--sa-gutter);
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 26px 26px;
+}
+
+@media (min-width: 640px) {
+  .sa-framed {
+    border-radius: 0 0 32px 32px;
+  }
+}
+
+/* Fully rounded frame (e.g. mid-page color section) */
+.sa-framed-round {
+  border-radius: 26px;
+}
+
+@media (min-width: 640px) {
+  .sa-framed-round {
+    border-radius: 32px;
+  }
+}
+
+.sa-framed-inner {
+  background: var(--sa-cream);
+  overflow: hidden;
+  position: relative;
+  border-radius: 22px;
+}
+
+@media (min-width: 640px) {
+  .sa-framed-inner {
+    border-radius: 28px;
+  }
+}
+
+.sa-motif {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  background-image: url("/shah-abbasi/motif-corner.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.28;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sa-motif-tl { top: 2px; right: 2px; }
+.sa-motif-tr { top: 2px; left: 2px; transform: scaleX(-1); }
+.sa-motif-bl { bottom: 2px; right: 2px; transform: scaleY(-1); }
+.sa-motif-br { bottom: 2px; left: 2px; transform: scale(-1); }
+
+.sa-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Unified top (header + hero) */
+.sa-top {
+  position: relative;
+  background: var(--sa-cream);
+  overflow: hidden;
+}
+
+/* Ensure pattern layer is visible behind header/hero content */
+.sa-top > [aria-hidden="true"],
+.sa-framed-inner > [aria-hidden="true"] {
+  z-index: 0;
+}

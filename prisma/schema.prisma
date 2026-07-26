@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PREPARING
+  SHIPPING
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String?        @unique
+  phone        String         @unique
+  name         String?
+  passwordHash String
+  role         Role           @default(USER)
+  city         String?
+  address      String?
+  orders       Order[]
+  wishlist     WishlistItem[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Product {
+  id          String            @id
+  title       String
+  code        String
+  price       Int
+  shaneh      Int
+  collection  String
+  image       String
+  stock       Int               @default(0)
+  description String
+  active      Boolean           @default(true)
+  orderItems  OrderItem[]
+  wishlist    WishlistItem[]
+  categories  ProductCategory[]
+  images      ProductImage[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([active, collection])
+  @@index([createdAt])
+}
+
+model Category {
+  id         String            @id @default(cuid())
+  slug       String            @unique
+  title      String
+  image      String            @default("")
+  sortOrder  Int               @default(0)
+  active     Boolean           @default(true)
+  showInHome Boolean           @default(true)
+  showInShop Boolean           @default(true)
+  products   ProductCategory[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@index([sortOrder])
+}
+
+model ProductCategory {
+  productId  String
+  categoryId String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  code       String      @unique
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  status     OrderStatus @default(PENDING_PAYMENT)
+  address    String
+  city       String
+  phone      String
+  total      Int
+  paymentRef String?     @unique
+  paidAt     DateTime?
+  items      OrderItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  sizeId    String
+  sizeLabel String
+  factor    Float
+  qty       Int
+  unitPrice Int
+  lineTotal Int
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([userId])
+}
+
+model HomepageSection {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  title     String
+  enabled   Boolean  @default(true)
+  sortOrder Int      @default(0)
+  payload   String   @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @default("{}")
+  updatedAt DateTime @updatedAt
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String   @default("")
+  createdAt DateTime @default(now())
+}

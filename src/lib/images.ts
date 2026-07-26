@@ -1,0 +1,22 @@
+/** Local carpet images (downloaded) — no broken remote URLs */
+export const img = {
+  hero: "/shah-abbasi/hero.jpg",
+  rug1: "/shah-abbasi/rug-1.jpg",
+  rug2: "/shah-abbasi/rug-2.jpg",
+  rug3: "/shah-abbasi/rug-3.jpg",
+  rug4: "/shah-abbasi/rug-4.jpg",
+  rug5: "/shah-abbasi/rug-5.jpg",
+  rug6: "/shah-abbasi/rug-6.jpg",
+  living1: "/shah-abbasi/rug-5.jpg",
+  living2: "/shah-abbasi/rug-6.jpg",
+  living3: "/shah-abbasi/rug-3.jpg",
+  living4: "/shah-abbasi/rug-4.jpg",
+  living5: "/shah-abbasi/rug-2.jpg",
+  living6: "/shah-abbasi/rug-1.jpg",
+  kitchen: "/shah-abbasi/rug-6.jpg",
+  kids: "/shah-abbasi/rug-5.jpg",
+  shaneh1500: "/shah-abbasi/hero.jpg",
+  shaneh1200: "/shah-abbasi/rug-2.jpg",
+  shaneh1000: "/shah-abbasi/rug-3.jpg",
+  shaneh700: "/shah-abbasi/rug-4.jpg",
+} as const;

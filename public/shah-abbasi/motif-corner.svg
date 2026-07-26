@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Tiny traditional motif for navy gutters  use with low opacity -->
+  <g stroke="#F5F1E8" stroke-width="1" opacity="0.55">
+    <circle cx="60" cy="60" r="8"/>
+    <path d="M60 60C60 42 70 34 60 22C50 34 60 42 60 60Z"/>
+    <path d="M60 60C60 42 70 34 60 22C50 34 60 42 60 60Z" transform="rotate(45 60 60)"/>
+    <path d="M60 60C60 42 70 34 60 22C50 34 60 42 60 60Z" transform="rotate(90 60 60)"/>
+    <path d="M60 60C60 42 70 34 60 22C50 34 60 42 60 60Z" transform="rotate(135 60 60)"/>
+    <path d="M60 60C60 42 70 34 60 22C50 34 60 42 60 60Z" transform="rotate(180 60 60)"/>
+    <path d="M60 60C60 42 70 34 60 22C50 34 60 42 60 60Z" transform="rotate(225 60 60)"/>
+    <path d="M60 60C60 42 70 34 60 22C50 34 60 42 60 60Z" transform="rotate(270 60 60)"/>
+    <path d="M60 60C60 42 70 34 60 22C50 34 60 42 60 60Z" transform="rotate(315 60 60)"/>
+    <circle cx="60" cy="60" r="28" opacity="0.45"/>
+  </g>
+</svg>
