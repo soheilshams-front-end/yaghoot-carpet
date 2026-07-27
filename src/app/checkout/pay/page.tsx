@@ -58,6 +58,21 @@ function PayView() {
     <section className="relative overflow-hidden px-4 py-10 sm:px-6">
       <PatternFill motif="islimi" opacity={0.03} />
       <div className="relative z-10 mx-auto max-w-md rounded-2xl border border-[var(--sa-border)] bg-[var(--sa-bg)] p-6 text-center">
+        {!authority ? (
+          <>
+            <h1 className="text-xl font-bold text-[var(--sa-navy)]">لینک پرداخت نامعتبر است</h1>
+            <p className="mt-3 text-sm leading-7 text-[var(--sa-text-muted)]">
+              شناسه پرداخت یافت نشد. لطفاً از صفحه تسویه حساب دوباره اقدام کنید.
+            </p>
+            <Link
+              href="/checkout"
+              className="mt-6 inline-flex h-11 items-center justify-center rounded-xl bg-[var(--sa-navy)] px-5 text-sm text-[var(--sa-text-on-navy)]"
+            >
+              بازگشت به تسویه حساب
+            </Link>
+          </>
+        ) : (
+          <>
         <p className="text-xs font-semibold tracking-wide text-[var(--sa-gold)]">
           زرین‌پال · حالت آزمایشی
         </p>
@@ -66,20 +81,20 @@ function PayView() {
           این صفحه جایگزین درگاه واقعی است. در production به زرین‌پال متصل می‌شود.
         </p>
         <p className="mt-2 break-all text-[11px] text-[var(--sa-text-muted)]">
-          Authority: {authority || "—"}
+          کد پیگیری: {authority}
         </p>
         <div className="mt-6 grid gap-2">
           <button
             type="button"
-            disabled={loading || !authority}
+            disabled={loading}
             onClick={() => void finish(true)}
             className="h-11 rounded-xl bg-[var(--sa-navy)] text-sm font-semibold text-[var(--sa-text-on-navy)] disabled:opacity-50"
           >
-            پرداخت موفق (Sandbox)
+            پرداخت موفق (آزمایشی)
           </button>
           <button
             type="button"
-            disabled={loading || !authority}
+            disabled={loading}
             onClick={() => void finish(false)}
             className="h-11 rounded-xl border border-[var(--sa-border)] bg-white text-sm text-[var(--sa-navy)] disabled:opacity-50"
           >
@@ -89,6 +104,8 @@ function PayView() {
             بازگشت به سبد
           </Link>
         </div>
+          </>
+        )}
       </div>
     </section>
   );

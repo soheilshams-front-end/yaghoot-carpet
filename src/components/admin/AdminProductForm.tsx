@@ -8,6 +8,11 @@ import { saveProductFullAction } from "@/lib/admin/actions";
 import type { AdminProduct } from "@/lib/products";
 import type { CmsCategory } from "@/lib/cms";
 import { AdminHeader } from "@/components/admin/AdminShell";
+import { colorFilters } from "@/data/site";
+import { adminHref } from "@/lib/admin-path";
+import { SaCheckbox } from "@/components/SaCheckbox";
+import { SaCheckChip } from "@/components/SaCheckChip";
+import { SaSelect } from "@/components/SaSelect";
 
 const SHANEH = [700, 1000, 1200, 1500];
 const inputClass =
@@ -25,12 +30,13 @@ export function AdminProductForm({ product, categories }: Props) {
   const [title, setTitle] = useState(product?.title ?? "");
   const [code, setCode] = useState(product?.code ?? "");
   const [price, setPrice] = useState(product?.price ?? 0);
-  const [stock, setStock] = useState(product?.stock ?? 0);
+  const [stock, setStock] = useState(product?.stock ?? (product ? 0 : 1));
   const [shaneh, setShaneh] = useState<number>(product?.shaneh ?? 1200);
   const [description, setDescription] = useState(product?.description ?? "");
   const [image, setImage] = useState(product?.image ?? "");
   const [active, setActive] = useState(product?.active ?? true);
   const [categoryIds, setCategoryIds] = useState<string[]>(product?.categoryIds ?? []);
+  const [colorTag, setColorTag] = useState(product?.colorTag ?? "");
   const [gallery, setGallery] = useState<string[]>(
     product?.gallery?.length ? product.gallery : product?.image ? [product.image] : [],
   );
@@ -49,6 +55,19 @@ export function AdminProductForm({ product, categories }: Props) {
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const finalImage = image || gallery[0] || "";
+    if (!product && !finalImage.trim()) {
+      setError("عکس محصول لازم است");
+      return;
+    }
+    if (categories.length > 0 && categoryIds.length === 0) {
+      setError("حداقل یک گروه انتخاب کنید");
+      return;
+    }
+    if (active && stock < 1) {
+      setError("محصول فعال با موجودی صفر در فروشگاه «ناموجود» دیده می‌شود");
+      return;
+    }
     setError("");
     start(async () => {
       const res = await saveProductFullAction({
@@ -61,6 +80,7 @@ export function AdminProductForm({ product, categories }: Props) {
         description,
         image: image || gallery[0] || "",
         active,
+        colorTag: colorTag || null,
         gallery: gallery.length ? gallery : image ? [image] : [],
         categoryIds,
       });
@@ -68,7 +88,7 @@ export function AdminProductForm({ product, categories }: Props) {
         setError(res.error);
         return;
       }
-      router.push("/admin/products");
+      router.push(adminHref("/products"));
       router.refresh();
     });
   }
@@ -78,9 +98,9 @@ export function AdminProductForm({ product, categories }: Props) {
       <div className="flex items-start justify-between gap-3">
         <AdminHeader
           title={product ? "ویرایش محصول" : "محصول جدید در کاتالوگ"}
-          subtitle="عکس، مشخصات و گروه اختیاری در یک جا"
+          subtitle="عکس، مشخصات و گروه در یک جا"
         />
-        <Link href="/admin/products" className="shrink-0 text-sm text-[var(--sa-text-muted)]">
+        <Link href={adminHref("/products")} className="shrink-0 text-sm text-[var(--sa-text-muted)]">
           بازگشت
         </Link>
       </div>
@@ -98,11 +118,11 @@ export function AdminProductForm({ product, categories }: Props) {
           </label>
           <label className="block text-sm">
             <span className="mb-1 block font-medium">شانه</span>
-            <select value={shaneh} onChange={(e) => setShaneh(Number(e.target.value))} className={inputClass}>
-              {SHANEH.map((s) => (
-                <option key={s} value={s}>{s} شانه</option>
-              ))}
-            </select>
+            <SaSelect
+              value={String(shaneh)}
+              onChange={(v) => setShaneh(Number(v))}
+              options={SHANEH.map((s) => ({ value: String(s), label: `${s} شانه` }))}
+            />
           </label>
           <label className="block text-sm">
             <span className="mb-1 block font-medium">قیمت (تومان)</span>
@@ -117,31 +137,43 @@ export function AdminProductForm({ product, categories }: Props) {
           <span className="mb-1 block font-medium">توضیح طرح</span>
           <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} className={inputClass} placeholder="رنگ، نقش، جنس…" />
         </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} />
-          در فروشگاه نمایش داده شود
+        {active && stock < 1 && (
+          <p className="text-xs text-amber-800">
+            محصول فعال با موجودی صفر در فروشگاه «ناموجود» دیده می‌شود.
+          </p>
+        )}
+        <label className="block text-sm">
+          <span className="mb-1 block font-medium">رنگ (فیلتر صفحه اصلی)</span>
+          <SaSelect
+            value={colorTag}
+            onChange={setColorTag}
+            placeholder="بدون برچسب رنگ"
+            options={[
+              { value: "", label: "بدون برچسب رنگ" },
+              ...colorFilters.map((c) => ({
+                value: c.id,
+                label: c.label.replace("فرش ", ""),
+              })),
+            ]}
+          />
         </label>
+        <SaCheckbox
+          checked={active}
+          onChange={setActive}
+          label="در فروشگاه نمایش داده شود"
+        />
       </div>
 
       {categories.length > 0 && (
         <div className="rounded-2xl border border-[var(--sa-border)] bg-[var(--sa-bg)] p-4 space-y-2">
-          <p className="text-sm font-semibold">گروه‌ها (اختیاری)</p>
-          <div className="flex flex-wrap gap-1.5">
+          <p className="text-sm font-semibold">گروه‌ها (الزامی)</p>
+          <div className="flex flex-wrap gap-2">
             {categories.map((c) => {
               const on = categoryIds.includes(c.id);
               return (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => toggleCat(c.id)}
-                  className={`rounded-full px-3 py-1.5 text-[11px] ${
-                    on
-                      ? "bg-[var(--sa-navy)] text-[var(--sa-text-on-navy)]"
-                      : "border border-[var(--sa-border)] bg-white"
-                  }`}
-                >
+                <SaCheckChip key={c.id} selected={on} onClick={() => toggleCat(c.id)}>
                   {c.title}
-                </button>
+                </SaCheckChip>
               );
             })}
           </div>

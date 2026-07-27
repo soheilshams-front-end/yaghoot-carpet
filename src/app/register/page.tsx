@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FormEvent, Suspense, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AppChrome } from "@/components/AppChrome";
 import { PatternFill } from "@/components/PatternFill";
@@ -10,11 +10,38 @@ import { LogoMark, IconPhone, IconShield, IconCheck } from "@/components/Icons";
 import { registerAction } from "@/lib/auth-actions";
 import { img } from "@/lib/images";
 import { useLoading } from "@/components/loading/LoadingProvider";
+import { SaSpinner } from "@/components/loading/SaSpinner";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
+function safeCallbackUrl(raw: string | null): string {
+  if (!raw) return "/dashboard";
+  if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("://")) {
+    return "/dashboard";
+  }
+  return raw;
+}
+
 export default function RegisterPage() {
+  return (
+    <AppChrome>
+      <Suspense
+        fallback={
+          <div className="flex min-h-[40vh] items-center justify-center px-4 py-16">
+            <SaSpinner label="در حال بارگذاری…" />
+          </div>
+        }
+      >
+        <RegisterForm />
+      </Suspense>
+    </AppChrome>
+  );
+}
+
+function RegisterForm() {
   const router = useRouter();
+  const params = useSearchParams();
+  const callbackUrl = safeCallbackUrl(params.get("callbackUrl"));
   const { show, hide } = useLoading();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,7 +62,7 @@ export default function RegisterPage() {
         return;
       }
       show("حساب ساخته شد — در حال ورود…");
-      router.push("/login?callbackUrl=/dashboard");
+      router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
     } catch {
       setError("خطایی رخ داد؛ دوباره تلاش کنید");
       hide();
@@ -44,7 +71,6 @@ export default function RegisterPage() {
   }
 
   return (
-    <AppChrome>
       <section className="relative min-h-[calc(100dvh-4.5rem)] overflow-hidden">
         <div
           className="pointer-events-none absolute inset-0"
@@ -223,7 +249,7 @@ export default function RegisterPage() {
               <p className="mt-5 text-center text-sm text-[var(--sa-text-muted)]">
                 قبلاً عضو شده‌اید؟{" "}
                 <Link
-                  href="/login"
+                  href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
                   className="font-semibold text-[var(--sa-navy)] underline decoration-[var(--sa-gold)]/50 underline-offset-4 hover:decoration-[var(--sa-gold)]"
                 >
                   ورود به حساب
@@ -233,7 +259,6 @@ export default function RegisterPage() {
           </div>
         </div>
       </section>
-    </AppChrome>
   );
 }
 

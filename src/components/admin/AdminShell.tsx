@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -18,6 +19,7 @@ import {
 } from "@/components/Icons";
 import { PatternFill } from "@/components/PatternFill";
 import { AppChrome } from "@/components/AppChrome";
+import { adminHref } from "@/lib/admin-path";
 
 const RAIL_W = 232;
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -28,13 +30,13 @@ const NAV: {
   Icon: typeof IconHome;
   exact?: boolean;
 }[] = [
-  { href: "/admin", label: "داشبورد", Icon: IconHome, exact: true },
-  { href: "/admin/products", label: "کاتالوگ محصولات", Icon: IconTag },
-  { href: "/admin/categories", label: "گروه‌ها و دسته‌ها", Icon: IconCart },
-  { href: "/admin/orders", label: "سفارش‌ها", Icon: IconTruck },
-  { href: "/admin/homepage", label: "صفحه اصلی", Icon: IconHeart },
-  { href: "/admin/settings", label: "تنظیمات", Icon: IconUser },
-  { href: "/admin/media", label: "رسانه", Icon: IconSearch },
+  { href: adminHref(), label: "داشبورد", Icon: IconHome, exact: true },
+  { href: adminHref("/products"), label: "کاتالوگ محصولات", Icon: IconTag },
+  { href: adminHref("/categories"), label: "گروه‌ها و دسته‌ها", Icon: IconCart },
+  { href: adminHref("/orders"), label: "سفارش‌ها", Icon: IconTruck },
+  { href: adminHref("/homepage"), label: "صفحه اصلی", Icon: IconHeart },
+  { href: adminHref("/settings"), label: "تنظیمات", Icon: IconUser },
+  { href: adminHref("/media"), label: "رسانه", Icon: IconSearch },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -129,6 +131,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="space-y-2 border-t border-white/10 p-3">
+            <button
+              type="button"
+              onClick={() => void signOut({ callbackUrl: "/" })}
+              className="flex h-10 w-full items-center justify-center rounded-xl border border-white/15 text-xs text-white/75 hover:bg-white/10"
+            >
+              خروج از حساب
+            </button>
             <Link
               href="/rugs"
               className="flex h-10 items-center justify-center rounded-xl bg-white/10 text-xs text-[var(--sa-text-on-navy)] hover:bg-white/15"

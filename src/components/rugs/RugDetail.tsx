@@ -28,9 +28,16 @@ const ease = [0.22, 1, 0.36, 1] as const;
 type Props = {
   rug: Rug;
   related: Rug[];
+  supportPhone?: string;
+  supportPhoneDisplay?: string;
 };
 
-export function RugDetail({ rug, related }: Props) {
+export function RugDetail({
+  rug,
+  related,
+  supportPhone = "09124496001",
+  supportPhoneDisplay = "۰۹۱۲۴۴۹۶۰۰۱",
+}: Props) {
   const { notify } = useToast();
   const { addItem } = useCart();
   const { has, toggle } = useWishlist();
@@ -93,6 +100,7 @@ export function RugDetail({ rug, related }: Props) {
       factor: size.factor,
       qty,
       stock: rug.stock,
+      active: true,
     });
     notify(
       "به سبد اضافه شد",
@@ -351,7 +359,7 @@ export function RugDetail({ rug, related }: Props) {
                   {inStock ? "افزودن به سبد" : "ناموجود"}
                 </button>
                 <a
-                  href="tel:09124496001"
+                  href={`tel:${supportPhone}`}
                   onClick={() => notify("مشاوره", "در حال تماس با کارشناس…", "info")}
                   className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-[var(--sa-navy)] bg-[var(--sa-navy)] text-sm font-medium text-[var(--sa-text-on-navy)] transition hover:opacity-90"
                 >

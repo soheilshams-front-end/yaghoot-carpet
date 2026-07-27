@@ -2,17 +2,18 @@
 
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AppChrome } from "@/components/AppChrome";
 import { PatternFill } from "@/components/PatternFill";
-import { useCart, lineTotal } from "@/components/CartProvider";
+import { MAX_QTY, useCart, lineTotal } from "@/components/CartProvider";
 import { useWishlist } from "@/components/WishlistProvider";
 import { useToast } from "@/components/Toast";
 import { EmptyState } from "@/components/EmptyState";
 import { formatPrice } from "@/data/rugs";
 import { IconClose, IconHeart, IconCart } from "@/components/Icons";
 import { SaSpinner } from "@/components/loading/SaSpinner";
+import { useConfirm } from "@/components/ConfirmProvider";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -37,10 +38,15 @@ function CartView() {
   const router = useRouter();
   const initialTab = params.get("tab") === "wishlist" ? "wishlist" : "cart";
   const [tab, setTab] = useState<"cart" | "wishlist">(initialTab);
+  useEffect(() => {
+    setTab(params.get("tab") === "wishlist" ? "wishlist" : "cart");
+  }, [params]);
 
-  const { items, total, setQty, removeItem, clear, count, addItem } = useCart();
+  const { items, total, setQty, removeItem, clear, count, addItem, ready, pruneNotice, clearPruneNotice } =
+    useCart();
   const { items: wishes, count: wishCount, remove: removeWish } = useWishlist();
   const { notify } = useToast();
+  const confirm = useConfirm();
 
   function switchTab(next: "cart" | "wishlist") {
     setTab(next);
@@ -48,35 +54,34 @@ function CartView() {
     router.replace(url, { scroll: false });
   }
 
-  function clearCartConfirmed() {
-    if (!window.confirm("همه اقلام سبد پاک شود؟")) return;
+  async function clearCartConfirmed() {
+    const ok = await confirm({
+      title: "خالی کردن سبد",
+      description: "همه اقلام سبد پاک شود؟",
+      confirmLabel: "خالی کردن",
+      tone: "danger",
+    });
+    if (!ok) return;
     clear();
     notify("سبد خالی شد", undefined, "info");
   }
 
   function addWishToCart(w: (typeof wishes)[number]) {
-    addItem({
-      rugId: w.id,
-      title: w.title,
-      image: w.image,
-      code: w.code,
-      unitPrice: w.price,
-      sizeId: "2x3",
-      sizeLabel: "۲ × ۳",
-      factor: 1,
-      qty: 1,
-      stock: w.stock,
-    });
-    notify("به سبد اضافه شد", w.title, "success", {
-      label: "مشاهده سبد",
-      href: "/cart",
-    });
+    router.push(`/rugs/${w.id}`);
   }
 
   return (
     <section className="relative overflow-hidden px-4 py-7 sm:px-6 sm:py-9">
       <PatternFill motif="islimi" opacity={0.03} />
       <div className="relative z-10 mx-auto max-w-4xl">
+        {pruneNotice && (
+          <div className="mb-4 flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            <span>{pruneNotice}</span>
+            <button type="button" onClick={clearPruneNotice} className="shrink-0 underline">
+              باشه
+            </button>
+          </div>
+        )}
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-[var(--sa-navy)]">سبد و علاقه‌مندی</h1>
@@ -127,7 +132,11 @@ function CartView() {
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3, ease }}
             >
-              {items.length === 0 ? (
+              {!ready ? (
+                <div className="flex min-h-[14rem] items-center justify-center rounded-2xl border border-[var(--sa-border)] bg-[var(--sa-bg)]">
+                  <SaSpinner label="در حال به‌روزرسانی سبد…" />
+                </div>
+              ) : items.length === 0 ? (
                 <EmptyState
                   title="سبد خرید خالی است"
                   description="فرش مورد علاقه‌تان را از فروشگاه اضافه کنید."
@@ -204,7 +213,7 @@ function CartView() {
                                   type="button"
                                   aria-label="افزایش تعداد"
                                   className="flex h-8 w-8 items-center justify-center text-[var(--sa-navy)] disabled:opacity-30"
-                                  disabled={item.qty >= item.stock}
+                                  disabled={item.qty >= Math.min(item.stock, MAX_QTY)}
                                   onClick={() =>
                                     setQty(item.rugId, item.sizeId, item.qty + 1)
                                   }
@@ -291,11 +300,10 @@ function CartView() {
                         <div className="mt-2 flex flex-wrap gap-1.5">
                           <button
                             type="button"
-                            disabled={w.stock <= 0}
                             onClick={() => addWishToCart(w)}
-                            className="inline-flex h-8 flex-1 items-center justify-center rounded-lg bg-[var(--sa-gold)] px-2.5 text-[11px] font-semibold text-[var(--sa-text)] disabled:opacity-40"
+                            className="inline-flex h-8 flex-1 items-center justify-center rounded-lg bg-[var(--sa-gold)] px-2.5 text-[11px] font-semibold text-[var(--sa-text)]"
                           >
-                            افزودن به سبد
+                            انتخاب سایز و افزودن
                           </button>
                           <button
                             type="button"

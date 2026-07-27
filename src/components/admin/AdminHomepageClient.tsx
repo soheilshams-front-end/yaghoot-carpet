@@ -91,6 +91,24 @@ export function AdminHomepageClient({ sections }: { sections: HomepageSectionRow
     });
   }
 
+  function toggleEnabled(id: string) {
+    const d = drafts[id];
+    if (!d) return;
+    const nextEnabled = !d.enabled;
+    patch(id, { enabled: nextEnabled });
+    setMsg("در حال ذخیره…");
+    start(async () => {
+      const res = await saveHomepageSectionAction({
+        id,
+        title: d.title,
+        enabled: nextEnabled,
+        sortOrder: d.sortOrder,
+        payload: JSON.stringify(d.payload),
+      });
+      setMsg(res.ok ? "ذخیره شد" : res.error);
+      if (res.ok) router.refresh();
+    });
+  }
   function save(id: string) {
     const d = drafts[id];
     if (!d) return;
@@ -151,8 +169,9 @@ export function AdminHomepageClient({ sections }: { sections: HomepageSectionRow
                 </div>
                 <button
                   type="button"
-                  onClick={() => patch(s.id, { enabled: !d.enabled })}
-                  className={`h-8 rounded-full px-3 text-[11px] font-medium ${
+                  onClick={() => toggleEnabled(s.id)}
+                  disabled={pending}
+                  className={`h-8 rounded-full px-3 text-[11px] font-medium disabled:opacity-50 ${
                     d.enabled
                       ? "bg-emerald-50 text-emerald-800"
                       : "bg-stone-100 text-stone-500"

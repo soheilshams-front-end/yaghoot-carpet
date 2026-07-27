@@ -25,9 +25,16 @@ type Props = {
   user: DashUser;
   orders: DashOrder[];
   wishlist?: Rug[];
+  supportPhone?: string;
+  supportPhoneDisplay?: string;
 };
 
-export function UserDashboard({ user, orders }: Props) {
+export function UserDashboard({
+  user,
+  orders,
+  supportPhone = "09124496001",
+  supportPhoneDisplay = "۰۹۱۲۴۴۹۶۰۰۱",
+}: Props) {
   const { notify } = useToast();
   const { tab, setTab, open, toggle } = useDashboard();
   const { items: wishlist, remove: removeWishLocal } = useWishlist();
@@ -124,8 +131,8 @@ export function UserDashboard({ user, orders }: Props) {
                   value="۲۴/۷"
                   Icon={IconPhone}
                   onClick={() => {
-                    notify("پشتیبانی", "۰۹۱۲۴۴۹۶۰۰۱", "info");
-                    window.location.href = "tel:09124496001";
+                    notify("پشتیبانی", supportPhoneDisplay, "info");
+                    window.location.href = `tel:${supportPhone}`;
                   }}
                 />
               </div>
@@ -146,7 +153,9 @@ export function UserDashboard({ user, orders }: Props) {
                           order={o}
                           index={i}
                           onTrack={() =>
-                            notify("پیگیری", `${o.code} · ${o.statusLabel}`, "info")
+                            o.status === "PENDING_PAYMENT" && o.paymentRef
+                              ? (window.location.href = `/checkout/pay?authority=${encodeURIComponent(o.paymentRef)}`)
+                              : notify("پیگیری", `${o.code} · ${o.statusLabel}`, "info")
                           }
                         />
                       ))}
@@ -198,7 +207,11 @@ export function UserDashboard({ user, orders }: Props) {
                       order={o}
                       index={i}
                       detailed
-                      onTrack={() => notify("پیگیری سفارش", `${o.code} به‌روز شد`, "info")}
+                      onTrack={() =>
+                        o.status === "PENDING_PAYMENT" && o.paymentRef
+                          ? (window.location.href = `/checkout/pay?authority=${encodeURIComponent(o.paymentRef)}`)
+                          : notify("پیگیری سفارش", `${o.code} به‌روز شد`, "info")
+                      }
                       onCopy={() => {
                         void navigator.clipboard?.writeText(o.code);
                         notify("کپی شد", o.code);
@@ -457,7 +470,7 @@ function OrderRow({
             onClick={onTrack}
             className="h-7 rounded-lg bg-[var(--sa-navy)] px-2.5 text-[11px] text-[var(--sa-text-on-navy)]"
           >
-            پیگیری
+            {order.status === "PENDING_PAYMENT" && order.paymentRef ? "ادامه پرداخت" : "پیگیری"}
           </button>
           {detailed && onCopy && (
             <button

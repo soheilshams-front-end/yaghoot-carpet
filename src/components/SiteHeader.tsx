@@ -16,6 +16,7 @@ import {
 import { useCart } from "@/components/CartProvider";
 import { useWishlist } from "@/components/WishlistProvider";
 import { LiveSearch } from "@/components/LiveSearch";
+import { adminHref } from "@/lib/admin-path";
 
 const links = [
   { href: "/", label: "صفحه اصلی" },
@@ -34,7 +35,11 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
   const { count } = useCart();
   const { count: wishCount } = useWishlist();
   const { data: session } = useSession();
-  const accountHref = session?.user ? "/dashboard" : "/login";
+  const accountHref = !session?.user
+    ? `/login?callbackUrl=${encodeURIComponent(pathname)}`
+    : session.user.role === "ADMIN"
+      ? adminHref()
+      : "/dashboard";
 
   useEffect(() => {
     setSearchOpen(false);

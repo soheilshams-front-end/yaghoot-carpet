@@ -4,9 +4,11 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { SaSpinner } from "@/components/loading/SaSpinner";
 
@@ -22,9 +24,15 @@ type LoadingContextValue = {
 const LoadingContext = createContext<LoadingContextValue | null>(null);
 
 export function LoadingProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [actionDepth, setActionDepth] = useState(0);
   const [routeOn, setRouteOn] = useState(false);
   const [message, setMessage] = useState("در حال بارگذاری…");
+
+  useEffect(() => {
+    setActionDepth(0);
+    setRouteOn(false);
+  }, [pathname]);
 
   const show = useCallback((msg = "لطفاً صبر کنید…") => {
     setMessage(msg);

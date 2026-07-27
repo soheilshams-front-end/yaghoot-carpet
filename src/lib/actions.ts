@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
+import { normalizePhone, isValidIranMobile } from "@/lib/phone";
 import { resolveSize } from "@/lib/sizes";
 
 export type CheckoutItemInput = {
@@ -15,7 +16,7 @@ export type CheckoutItemInput = {
 const checkoutSchema = z.object({
   address: z.string().trim().min(8),
   city: z.string().trim().min(2),
-  phone: z.string().trim().min(10),
+  phone: z.string().trim().min(1),
   items: z
     .array(
       z.object({
@@ -74,8 +75,9 @@ export async function createOrderAction(input: {
     return { ok: false as const, error: "اطلاعات سفارش نامعتبر است" };
   }
 
-  const { city, address, phone, items } = parsed.data;
-  if (phone.replace(/\D/g, "").length < 10) {
+  const { city, address, phone: rawPhone, items } = parsed.data;
+  const phone = normalizePhone(rawPhone);
+  if (!isValidIranMobile(phone)) {
     return { ok: false as const, error: "شماره تماس معتبر نیست" };
   }
 
@@ -287,3 +289,4 @@ export async function removeWishlistAction(productId: string) {
   revalidatePath("/dashboard");
   return { ok: true as const };
 }
+

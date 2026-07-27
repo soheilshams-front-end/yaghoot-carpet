@@ -9,6 +9,7 @@ import { useToast } from "@/components/Toast";
 import { EmptyState } from "@/components/EmptyState";
 import { formatPrice } from "@/data/rugs";
 import { createOrderAction } from "@/lib/actions";
+import { isValidIranMobile } from "@/lib/phone";
 import { useLoading } from "@/components/loading/LoadingProvider";
 
 const STEPS = ["آدرس ارسال", "خلاصه", "پرداخت"] as const;
@@ -21,7 +22,7 @@ export type CheckoutProfile = {
 
 export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
   const router = useRouter();
-  const { items, total } = useCart();
+  const { items, total, pruneNotice, clearPruneNotice } = useCart();
   const { notify } = useToast();
   const { show, hide } = useLoading();
   const [step, setStep] = useState(0);
@@ -34,7 +35,7 @@ export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
 
   const cityOk = city.trim().length >= 2;
   const addressOk = address.trim().length >= 8;
-  const phoneOk = phone.replace(/\D/g, "").length >= 10;
+  const phoneOk = isValidIranMobile(phone);
   const canAddress = cityOk && addressOk && phoneOk;
 
   const summary = useMemo(
@@ -83,6 +84,7 @@ export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
 
     if (!res.ok) {
       hide();
+      setStep(1);
       if ("needAuth" in res && res.needAuth) {
         router.push("/login?callbackUrl=/checkout");
         return;
@@ -124,6 +126,15 @@ export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
         <p className="mt-1 text-sm text-[var(--sa-text-muted)]">
           قبل از پرداخت، آدرس تحویل را کامل کنید.
         </p>
+
+        {pruneNotice && (
+          <div className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            <span>{pruneNotice}</span>
+            <button type="button" onClick={clearPruneNotice} className="shrink-0 underline">
+              باشه
+            </button>
+          </div>
+        )}
 
         <div className="mt-5 flex gap-2">
           {STEPS.map((label, i) => (
@@ -277,8 +288,30 @@ export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
           )}
 
           {step === 2 && (
-            <div className="py-8 text-center text-sm text-[var(--sa-text-muted)]">
-              {loading ? "در حال انتقال به درگاه…" : "در حال آماده‌سازی پرداخت…"}
+            <div className="py-8 text-center text-sm">
+              {loading ? (
+                <p className="text-[var(--sa-text-muted)]">در حال انتقال به درگاه…</p>
+              ) : error ? (
+                <div className="space-y-3">
+                  <p className="text-red-700">{error}</p>
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="h-10 rounded-xl border border-[var(--sa-border)] px-4 text-sm text-[var(--sa-navy)]"
+                  >
+                    بازگشت به خلاصه
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void goPay()}
+                    className="mr-2 h-10 rounded-xl bg-[var(--sa-gold)] px-5 text-sm font-semibold"
+                  >
+                    تلاش مجدد
+                  </button>
+                </div>
+              ) : (
+                <p className="text-[var(--sa-text-muted)]">در حال آماده‌سازی پرداخت…</p>
+              )}
             </div>
           )}
         </div>

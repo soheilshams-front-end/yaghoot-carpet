@@ -5,6 +5,7 @@ export type ProductFilters = {
   shaneh?: number | null;
   /** category slug (legacy collection or free category) */
   collection?: string | null;
+  color?: string | null;
   q?: string | null;
   includeInactive?: boolean;
 };
@@ -25,6 +26,7 @@ function toRug(p: {
   image: string;
   stock: number;
   description: string;
+  colorTag?: string | null;
   createdAt: Date;
   images?: { url: string; sortOrder: number }[];
 }): Rug {
@@ -43,19 +45,22 @@ function toRug(p: {
     stock: p.stock,
     description: p.description,
     createdAt: p.createdAt.toISOString(),
+    colorTag: p.colorTag ?? null,
     gallery,
   };
 }
 
 export async function listProducts(filters: ProductFilters = {}): Promise<Rug[]> {
-  const { shaneh, collection, q, includeInactive } = filters;
+  const { shaneh, collection, color, q, includeInactive } = filters;
   const query = (q ?? "").trim();
   const slug = collection?.trim() || null;
+  const colorTag = color?.trim() || null;
 
   const products = await prisma.product.findMany({
     where: {
       ...(includeInactive ? {} : { active: true }),
       ...(shaneh ? { shaneh } : {}),
+      ...(colorTag ? { colorTag } : {}),
       ...(slug
         ? {
             OR: [
@@ -149,6 +154,7 @@ export async function listProductsAdmin(): Promise<AdminProduct[]> {
       image: true,
       stock: true,
       description: true,
+      colorTag: true,
       active: true,
       createdAt: true,
       images: { select: { url: true, sortOrder: true } },

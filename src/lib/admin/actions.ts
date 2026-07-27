@@ -1,10 +1,10 @@
 "use server";
 
-import { unlink } from "fs/promises";
-import path from "path";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin/auth";
+import { deleteStoredFile, isLocalUploadUrl } from "@/lib/storage";
+import { ORDER_TRANSITIONS } from "@/lib/admin/order-status";
 import type { OrderStatus } from "@/generated/prisma/client";
 
 function slugify(input: string) {
@@ -101,6 +101,7 @@ export async function saveProductFullAction(input: {
   description: string;
   image: string;
   active: boolean;
+  colorTag?: string | null;
   /** اگر undefined باشد دسته‌ها دست نمی‌خورند */
   categoryIds?: string[];
   gallery: string[];
@@ -111,6 +112,24 @@ export async function saveProductFullAction(input: {
   const code = input.code.trim();
   if (!title || !code || !Number.isFinite(input.price)) {
     return { ok: false as const, error: "اطلاعات ناقص است" };
+  }
+
+  const gallery = (input.gallery.length ? input.gallery : [input.image]).filter(Boolean);
+  const imageUrl = input.image.trim() || gallery[0] || "";
+  const stock = Number.isFinite(input.stock) ? Math.max(0, Math.floor(input.stock)) : 0;
+  const isNew = !input.id?.trim();
+
+  if (isNew && !imageUrl) {
+    return { ok: false as const, error: "عکس محصول لازم است" };
+  }
+  if (input.categoryIds !== undefined && input.categoryIds.length === 0) {
+    return { ok: false as const, error: "حداقل یک گروه انتخاب کنید" };
+  }
+  if (input.active && stock < 1) {
+    return {
+      ok: false as const,
+      error: "محصول فعال با موجودی صفر در فروشگاه «ناموجود» دیده می‌شود — موجودی را حداقل ۱ بگذارید",
+    };
   }
 
   let productId = input.id?.trim() || "";
@@ -137,29 +156,32 @@ export async function saveProductFullAction(input: {
         title,
         code,
         price: input.price,
-        stock: input.stock,
+        stock,
         shaneh: input.shaneh,
         description: input.description,
-        image: input.image || existing.image || "",
+        image: imageUrl || existing.image || "",
         active: input.active,
         collection,
+        ...(input.colorTag !== undefined ? { colorTag: input.colorTag || null } : {}),
       },
     });
     await prisma.productImage.deleteMany({ where: { productId } });
   } else {
     productId = `p-${Date.now()}`;
+    const effectiveStock = stock < 1 ? 1 : stock;
     await prisma.product.create({
       data: {
         id: productId,
         title,
         code,
         price: input.price,
-        stock: input.stock,
+        stock: effectiveStock,
         shaneh: input.shaneh,
         description: input.description,
-        image: input.image || "",
+        image: imageUrl,
         active: input.active,
         collection,
+        colorTag: input.colorTag?.trim() || null,
       },
     });
   }
@@ -173,7 +195,6 @@ export async function saveProductFullAction(input: {
     }
   }
 
-  const gallery = (input.gallery.length ? input.gallery : [input.image]).filter(Boolean);
   if (gallery.length) {
     await prisma.productImage.createMany({
       data: gallery.map((url, i) => ({ productId, url, sortOrder: i })),
@@ -247,15 +268,6 @@ export async function deleteProductAction(id: string) {
 }
 
 /* ─── Orders ─── */
-
-const ORDER_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  PENDING_PAYMENT: ["PAID", "CANCELLED"],
-  PAID: ["PREPARING", "CANCELLED"],
-  PREPARING: ["SHIPPING", "CANCELLED"],
-  SHIPPING: ["DELIVERED", "CANCELLED"],
-  DELIVERED: [],
-  CANCELLED: [],
-};
 
 const STOCK_HELD_STATUSES = new Set<OrderStatus>(["PAID", "PREPARING", "SHIPPING"]);
 
@@ -340,13 +352,8 @@ export async function deleteMediaAction(id: string) {
   const asset = await prisma.mediaAsset.findUnique({ where: { id } });
   if (!asset) return { ok: false as const, error: "رسانه یافت نشد" };
 
-  if (asset.url.startsWith("/uploads/")) {
-    try {
-      const filePath = path.join(process.cwd(), "public", asset.url.replace(/^\//, ""));
-      await unlink(filePath);
-    } catch {
-      // best-effort: DB row still removed even if file missing
-    }
+  if (isLocalUploadUrl(asset.url)) {
+    await deleteStoredFile(asset.url);
   }
 
   await prisma.mediaAsset.delete({ where: { id } });

@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { formatPrice } from "@/data/rugs";
 import { setOrderStatusAction } from "@/lib/admin/actions";
+import { allowedOrderStatuses } from "@/lib/admin/order-status";
 import { STATUSES } from "@/components/admin/AdminOrdersClient";
+import { adminHref } from "@/lib/admin-path";
+import { SaSelect } from "@/components/SaSelect";
 import type { OrderStatus } from "@/generated/prisma/client";
 
 export type OrderDetail = {
@@ -31,6 +34,8 @@ export type OrderDetail = {
 export function AdminOrderDetailClient({ order }: { order: OrderDetail }) {
   const router = useRouter();
   const [pending, start] = useTransition();
+  const [error, setError] = useState("");
+  const statusOptions = allowedOrderStatuses(order.status);
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
@@ -39,7 +44,7 @@ export function AdminOrderDetailClient({ order }: { order: OrderDetail }) {
           <h2 className="text-xl font-bold">سفارش {order.code}</h2>
           <p className="text-sm text-[var(--sa-text-muted)]">{order.createdAt}</p>
         </div>
-        <Link href="/admin/orders" className="text-sm underline">
+        <Link href={adminHref("/orders")} className="text-sm underline">
           بازگشت
         </Link>
       </div>
@@ -65,24 +70,28 @@ export function AdminOrderDetailClient({ order }: { order: OrderDetail }) {
         )}
         <label className="block pt-2">
           <span className="mb-1 block text-[var(--sa-text-muted)]">وضعیت</span>
-          <select
+          <SaSelect
             disabled={pending}
             value={order.status}
-            onChange={(e) => {
-              const status = e.target.value as OrderStatus;
+            onChange={(v) => {
+              const status = v as OrderStatus;
+              if (status === order.status) return;
               start(async () => {
-                await setOrderStatusAction(order.id, status);
+                const res = await setOrderStatusAction(order.id, status);
+                if (!res.ok) {
+                  setError(res.error);
+                  return;
+                }
+                setError("");
                 router.refresh();
               });
             }}
-            className="w-full rounded-xl border border-[var(--sa-border)] px-3 py-2"
-          >
-            {STATUSES.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
+            options={statusOptions.map((value) => ({
+              value,
+              label: STATUSES.find((s) => s.value === value)?.label ?? value,
+            }))}
+          />
+          {error && <p className="mt-1 text-xs text-red-700">{error}</p>}
         </label>
       </div>
 

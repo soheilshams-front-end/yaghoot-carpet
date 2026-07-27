@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { AppChrome } from "@/components/AppChrome";
 import { PatternFill } from "@/components/PatternFill";
+import { SUPPORT_FALLBACK } from "@/lib/support-shared";
 
 export default function Error({
   error,
@@ -42,10 +43,10 @@ export default function Error({
             </Link>
           </div>
           <a
-            href="tel:09124496001"
+            href={`tel:${SUPPORT_FALLBACK.phone}`}
             className="mt-5 inline-block text-xs text-[var(--sa-text-muted)] underline-offset-2 hover:text-[var(--sa-navy)] hover:underline"
           >
-            پشتیبانی: ۰۹۱۲۴۴۹۶۰۰۱
+            پشتیبانی: {SUPPORT_FALLBACK.phoneDisplay}
           </a>
         </div>
       </section>

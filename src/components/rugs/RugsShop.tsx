@@ -27,9 +27,12 @@ type Props = {
   total: number;
   shaneh: number | null;
   collection: string | null;
+  color?: string | null;
   query?: string | null;
   sort?: SortKey;
   shopCategories?: ShopCategory[];
+  supportPhone?: string;
+  supportPhoneDisplay?: string;
 };
 
 export function RugsShop({
@@ -37,9 +40,12 @@ export function RugsShop({
   total,
   shaneh,
   collection,
+  color = null,
   query = null,
   sort = "newest",
   shopCategories = [],
+  supportPhone = "09124496001",
+  supportPhoneDisplay = "۰۹۱۲۴۴۹۶۰۰۱",
 }: Props) {
   const router = useRouter();
   const [page, setPage] = useState(0);
@@ -49,7 +55,7 @@ export function RugsShop({
 
   function setSort(next: SortKey) {
     router.replace(
-      buildRugsHref({ shaneh, collection, q: query, sort: next }),
+      buildRugsHref({ shaneh, collection, color, q: query, sort: next }),
       { scroll: false },
     );
   }
@@ -74,7 +80,7 @@ export function RugsShop({
 
   useEffect(() => {
     setPage(0);
-  }, [sort, shaneh, collection, query, rugs.length]);
+  }, [sort, shaneh, collection, color, query, rugs.length]);
 
   useLayoutEffect(() => {
     const el = gridRef.current;
@@ -100,19 +106,25 @@ export function RugsShop({
     query
       ? {
           label: `جستجو: ${query}`,
-          href: buildRugsHref({ shaneh, collection, q: null, sort }),
+          href: buildRugsHref({ shaneh, collection, color, q: null, sort }),
+        }
+      : null,
+    color
+      ? {
+          label: `رنگ: ${rugColorLabel(color)}`,
+          href: buildRugsHref({ shaneh, collection, color: null, q: query, sort }),
         }
       : null,
     collection
       ? {
           label: shopCategories.find((c) => c.id === collection)?.title ?? collection,
-          href: buildRugsHref({ shaneh, collection: null, q: query, sort }),
+          href: buildRugsHref({ shaneh, collection: null, color, q: query, sort }),
         }
       : null,
     shaneh
       ? {
           label: `${shaneh} شانه`,
-          href: buildRugsHref({ shaneh: null, collection, q: query, sort }),
+          href: buildRugsHref({ shaneh: null, collection, color, q: query, sort }),
         }
       : null,
   ].filter(Boolean) as { label: string; href: string }[];
@@ -162,15 +174,15 @@ export function RugsShop({
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <Chip
-                  href={buildRugsHref({ shaneh: null, collection: null, q: query, sort })}
-                  active={!collection && !shaneh}
+                  href={buildRugsHref({ shaneh: null, collection: null, color: null, q: query, sort })}
+                  active={!collection && !shaneh && !color}
                 >
                   همه
                 </Chip>
                 {shopCategories.map((c) => (
                   <Chip
                     key={c.id}
-                    href={buildRugsHref({ shaneh, collection: c.id, q: query, sort })}
+                    href={buildRugsHref({ shaneh, collection: c.id, color, q: query, sort })}
                     active={collection === c.id}
                   >
                     {c.title}
@@ -179,7 +191,7 @@ export function RugsShop({
                 {SHANEH.map((s) => (
                   <Chip
                     key={s}
-                    href={buildRugsHref({ shaneh: s, collection, q: query, sort })}
+                    href={buildRugsHref({ shaneh: s, collection, color, q: query, sort })}
                     active={shaneh === s}
                   >
                     {s} شانه
@@ -310,10 +322,10 @@ export function RugsShop({
                   کارشناسان فرش یاقوت برای چیدمان و انتخاب شانه کنار شما هستند.
                 </p>
                 <a
-                  href="tel:09124496001"
+                  href={`tel:${supportPhone}`}
                   className="mt-5 inline-flex rounded-full bg-[var(--sa-gold)] px-5 py-2.5 text-sm font-semibold text-[var(--sa-text)]"
                 >
-                  تماس: ۰۹۱۲۴۴۹۶۰۰۱
+                  تماس: {supportPhoneDisplay}
                 </a>
               </div>
               <div className="relative hidden aspect-[16/10] overflow-hidden rounded-xl sm:block">
@@ -385,16 +397,19 @@ function PromoCard({
 function buildRugsHref({
   shaneh,
   collection,
+  color,
   q,
   sort,
 }: {
   shaneh: number | null;
   collection: string | null;
+  color?: string | null;
   q: string | null;
   sort?: SortKey | null;
 }) {
   const params = new URLSearchParams();
   if (collection) params.set("collection", collection);
+  if (color) params.set("color", color);
   if (shaneh) params.set("shaneh", String(shaneh));
   if (q) params.set("q", q);
   if (sort && sort !== "newest") params.set("sort", sort);
@@ -404,4 +419,22 @@ function buildRugsHref({
 
 function toFa(n: number) {
   return new Intl.NumberFormat("fa-IR").format(n);
+}
+
+function rugColorLabel(id: string) {
+  const labels: Record<string, string> = {
+    navy: "سرمه‌ای",
+    sky: "آبی",
+    green: "سبز",
+    yellow: "زرد",
+    red: "لاکی",
+    purple: "بنفش",
+    cream: "کرم",
+    beige: "نسکافه‌ای",
+    gray: "طوسی",
+    orange: "نارنجی",
+    black: "مشکی",
+    brown: "قهوه‌ای",
+  };
+  return labels[id] ?? id;
 }

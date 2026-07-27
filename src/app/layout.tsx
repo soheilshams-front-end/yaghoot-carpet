@@ -16,6 +16,10 @@ const vazir = Vazirmatn({
 export const metadata: Metadata = {
   title: "فرش یاقوت | فروشگاه فرش لوکس",
   description: "فروشگاه فرش یاقوت — خرید آنلاین، داشبورد خریدار و پنل مدیریت",
+  icons: {
+    icon: { url: "/favicon.png", type: "image/png" },
+    apple: { url: "/apple-icon.png", type: "image/png" },
+  },
 };
 
 export default function RootLayout({

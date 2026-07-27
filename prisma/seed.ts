@@ -250,7 +250,7 @@ async function main() {
   const adminHash = await bcrypt.hash("admin123", 10);
   const userHash = await bcrypt.hash("user123", 10);
 
-  const adminPhone = "09122988166";
+  const adminPhone = "09124496001";
   const existingAdmin = await prisma.user.findFirst({ where: { phone: adminPhone } });
   if (existingAdmin) {
     await prisma.user.update({

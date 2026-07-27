@@ -13,6 +13,7 @@ export type DashOrder = {
   size: string;
   progress: number;
   total: number;
+  paymentRef: string | null;
   rug?: Rug;
   timeline: { label: string; done: boolean }[];
 };
@@ -81,6 +82,7 @@ export async function getDashboardData(userId: string) {
         code: true,
         status: true,
         total: true,
+        paymentRef: true,
         createdAt: true,
         items: {
           select: {
@@ -138,6 +140,7 @@ export async function getDashboardData(userId: string) {
       size: first ? `${first.sizeLabel} متر` : "—",
       progress: STATUS_PROGRESS[o.status],
       total: o.total,
+      paymentRef: o.paymentRef,
       rug: product
         ? {
             id: product.id,

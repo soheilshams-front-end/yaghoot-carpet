@@ -2,6 +2,7 @@ import Link from "next/link";
 import { formatPrice } from "@/data/rugs";
 import { getAdminDashboard } from "@/lib/cms";
 import { AdminBox, AdminHeader } from "@/components/admin/AdminShell";
+import { adminHref } from "@/lib/admin-path";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +18,10 @@ export default async function AdminDashboardPage() {
 
       <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
         {[
-          { label: "محصولات فعال", value: fa(d.productCount), href: "/admin/products" },
-          { label: "سفارش‌ها", value: fa(d.orderCount), href: "/admin/orders" },
-          { label: "در انتظار پرداخت", value: fa(d.pendingOrders), href: "/admin/orders" },
-          { label: "فروش تأییدشده", value: formatPrice(d.paidRevenue), href: "/admin/orders" },
+          { label: "محصولات فعال", value: fa(d.productCount), href: adminHref("/products") },
+          { label: "سفارش‌ها", value: fa(d.orderCount), href: adminHref("/orders") },
+          { label: "در انتظار پرداخت", value: fa(d.pendingOrders), href: adminHref("/orders") },
+          { label: "فروش تأییدشده", value: formatPrice(d.paidRevenue), href: adminHref("/orders") },
         ].map((c) => (
           <Link
             key={c.label}
@@ -34,14 +35,14 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <AdminBox title="موجودی کم" actionLabel="کاتالوگ" actionHref="/admin/products">
+        <AdminBox title="موجودی کم" actionLabel="کاتالوگ" actionHref={adminHref("/products")}>
           {d.lowStock.length === 0 ? (
             <p className="text-sm text-[var(--sa-text-muted)]">همه چیز خوب است</p>
           ) : (
             <ul className="space-y-2">
               {d.lowStock.map((p) => (
                 <li key={p.id} className="flex items-center justify-between text-sm">
-                  <Link href={`/admin/products/${p.id}`} className="font-medium hover:underline">
+                  <Link href={adminHref(`/products/${p.id}`)} className="font-medium hover:underline">
                     {p.title}
                   </Link>
                   <span className={p.stock <= 0 ? "text-red-700" : "text-amber-700"}>
@@ -56,19 +57,19 @@ export default async function AdminDashboardPage() {
         <AdminBox title="کارهای سریع">
           <div className="flex flex-col gap-2">
             <Link
-              href="/admin/products/new"
+              href={adminHref("/products/new")}
               className="flex h-10 items-center justify-center rounded-xl bg-[var(--sa-navy)] text-sm text-[var(--sa-text-on-navy)]"
             >
               ۱) افزودن محصول به کاتالوگ
             </Link>
             <Link
-              href="/admin/categories"
+              href={adminHref("/categories")}
               className="flex h-10 items-center justify-center rounded-xl border border-[var(--sa-border)] bg-white text-sm"
             >
               ۲) چیدن در گروه‌ها
             </Link>
             <Link
-              href="/admin/homepage"
+              href={adminHref("/homepage")}
               className="flex h-10 items-center justify-center rounded-xl border border-[var(--sa-border)] bg-white text-sm"
             >
               ۳) تنظیم صفحه اصلی

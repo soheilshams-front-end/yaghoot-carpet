@@ -13,6 +13,7 @@ import {
 } from "@/components/Icons";
 import { useCart } from "@/components/CartProvider";
 import { useWishlist } from "@/components/WishlistProvider";
+import { isAdminPublicPath, adminHref } from "@/lib/admin-path";
 
 export function MobileTabBar() {
   return (
@@ -30,11 +31,14 @@ function MobileTabBarInner() {
   const { data: session } = useSession();
   const wishTab = searchParams.get("tab") === "wishlist";
 
-  if (pathname.startsWith("/admin")) return null;
+  if (isAdminPublicPath(pathname) || pathname.startsWith("/admin")) return null;
 
-  const accountHref = session?.user
-    ? "/dashboard"
-    : "/login?callbackUrl=/dashboard";
+  const currentPath = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+  const accountHref = !session?.user
+    ? `/login?callbackUrl=${encodeURIComponent(currentPath)}`
+    : session.user.role === "ADMIN"
+      ? adminHref()
+      : "/dashboard";
 
   const items = [
     {

@@ -2,19 +2,27 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { formatPrice } from "@/data/rugs";
 import { setOrderStatusAction } from "@/lib/admin/actions";
+import { allowedOrderStatuses } from "@/lib/admin/order-status";
+import { adminHref } from "@/lib/admin-path";
+import { SaSelect } from "@/components/SaSelect";
 import type { OrderStatus } from "@/generated/prisma/client";
 
-const STATUSES: { value: OrderStatus; label: string }[] = [
-  { value: "PENDING_PAYMENT", label: "در انتظار پرداخت" },
-  { value: "PAID", label: "پرداخت‌شده" },
-  { value: "PREPARING", label: "آماده‌سازی" },
-  { value: "SHIPPING", label: "ارسال" },
-  { value: "DELIVERED", label: "تحویل" },
-  { value: "CANCELLED", label: "لغو" },
-];
+const STATUS_LABELS: Record<OrderStatus, string> = {
+  PENDING_PAYMENT: "در انتظار پرداخت",
+  PAID: "پرداخت‌شده",
+  PREPARING: "آماده‌سازی",
+  SHIPPING: "ارسال",
+  DELIVERED: "تحویل",
+  CANCELLED: "لغو",
+};
+
+export const STATUSES = (Object.keys(STATUS_LABELS) as OrderStatus[]).map((value) => ({
+  value,
+  label: STATUS_LABELS[value],
+}));
 
 export type AdminOrderRow = {
   id: string;
@@ -31,10 +39,17 @@ export type AdminOrderRow = {
 export function AdminOrdersClient({ orders }: { orders: AdminOrderRow[] }) {
   const router = useRouter();
   const [pending, start] = useTransition();
+  const [msg, setMsg] = useState("");
 
-  function changeStatus(id: string, status: OrderStatus) {
+  function changeStatus(id: string, status: OrderStatus, current: OrderStatus) {
+    if (status === current) return;
     start(async () => {
-      await setOrderStatusAction(id, status);
+      const res = await setOrderStatusAction(id, status);
+      if (!res.ok) {
+        setMsg(res.error);
+        return;
+      }
+      setMsg("");
       router.refresh();
     });
   }
@@ -47,6 +62,8 @@ export function AdminOrdersClient({ orders }: { orders: AdminOrderRow[] }) {
           {new Intl.NumberFormat("fa-IR").format(orders.length)} سفارش
         </p>
       </div>
+
+      {msg && <p className="text-sm text-red-700">{msg}</p>}
 
       <div className="overflow-x-auto rounded-2xl border border-[var(--sa-border)] bg-white">
         <table className="min-w-full text-sm">
@@ -71,21 +88,19 @@ export function AdminOrdersClient({ orders }: { orders: AdminOrderRow[] }) {
                 </td>
                 <td className="px-3 py-2.5">{formatPrice(o.total)}</td>
                 <td className="px-3 py-2.5">
-                  <select
+                  <SaSelect
+                    size="sm"
                     disabled={pending}
                     value={o.status}
-                    onChange={(e) => changeStatus(o.id, e.target.value as OrderStatus)}
-                    className="rounded-lg border border-[var(--sa-border)] px-2 py-1 text-xs"
-                  >
-                    {STATUSES.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(v) => changeStatus(o.id, v as OrderStatus, o.status)}
+                    options={allowedOrderStatuses(o.status).map((value) => ({
+                      value,
+                      label: STATUS_LABELS[value],
+                    }))}
+                  />
                 </td>
                 <td className="px-3 py-2.5">
-                  <Link href={`/admin/orders/${o.id}`} className="text-xs underline">
+                  <Link href={adminHref(`/orders/${o.id}`)} className="text-xs underline">
                     مشاهده
                   </Link>
                 </td>
@@ -104,5 +119,3 @@ export function AdminOrdersClient({ orders }: { orders: AdminOrderRow[] }) {
     </div>
   );
 }
-
-export { STATUSES };

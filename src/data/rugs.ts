@@ -15,6 +15,8 @@ export type Rug = {
   createdAt?: string;
   /** Gallery URLs; falls back to [image] on PDP */
   gallery?: string[];
+  /** Color filter id from homepage color explorer */
+  colorTag?: string | null;
 };
 
 /** Shop filter chips — brand label «یاقوت» is not a product collection */

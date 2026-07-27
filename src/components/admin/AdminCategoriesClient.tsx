@@ -14,6 +14,9 @@ import type { AdminProduct } from "@/lib/products";
 import { AdminHeader } from "@/components/admin/AdminShell";
 import { AdminQuickProduct } from "@/components/admin/AdminQuickProduct";
 import { formatPrice } from "@/data/rugs";
+import { adminHref } from "@/lib/admin-path";
+import { SaCheckbox } from "@/components/SaCheckbox";
+import { useConfirm } from "@/components/ConfirmProvider";
 
 const empty = {
   id: "",
@@ -33,12 +36,14 @@ type Props = {
 
 export function AdminCategoriesClient({ categories, products }: Props) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState("");
   const [mode, setMode] = useState<"list" | "edit" | "assign">("list");
   const [form, setForm] = useState({ ...empty });
   const [assignId, setAssignId] = useState<string | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
+  const [initialSelected, setInitialSelected] = useState<string[]>([]);
   const [q, setQ] = useState("");
   const [quickOpen, setQuickOpen] = useState(false);
 
@@ -51,10 +56,45 @@ export function AdminCategoriesClient({ categories, products }: Props) {
   }, [products, q]);
 
   function openAssign(c: CmsCategory) {
+    const ids = products.filter((p) => p.categoryIds.includes(c.id)).map((p) => p.id);
     setAssignId(c.id);
-    setSelected(products.filter((p) => p.categoryIds.includes(c.id)).map((p) => p.id));
+    setSelected(ids);
+    setInitialSelected(ids);
     setMode("assign");
     setMsg("");
+  }
+
+  async function backFromAssign() {
+    const dirty =
+      selected.length !== initialSelected.length ||
+      selected.some((id) => !initialSelected.includes(id));
+    if (dirty) {
+      const ok = await confirm({
+        title: "تغییرات ذخیره نشده",
+        description: "تغییرات ذخیره نشده‌اند. از این صفحه خارج می‌شوید؟",
+        confirmLabel: "خروج بدون ذخیره",
+        cancelLabel: "ماندن",
+        tone: "warn",
+      });
+      if (!ok) return;
+    }
+    setMode("list");
+    setAssignId(null);
+    setMsg("");
+  }
+
+  async function removeCategory(c: CmsCategory) {
+    const ok = await confirm({
+      title: "حذف گروه",
+      description: `گروه «${c.title}» حذف شود؟ محصولات حذف نمی‌شوند، فقط از این گروه جدا می‌شوند.`,
+      confirmLabel: "حذف گروه",
+      tone: "danger",
+    });
+    if (!ok) return;
+    start(async () => {
+      await deleteCategoryAction(c.id);
+      router.refresh();
+    });
   }
 
   function openEdit(c?: CmsCategory) {
@@ -120,7 +160,7 @@ export function AdminCategoriesClient({ categories, products }: Props) {
             >
               محصول جدید در این گروه
             </button>
-            <button type="button" onClick={() => setMode("list")} className="text-sm text-[var(--sa-text-muted)]">
+            <button type="button" onClick={backFromAssign} className="text-sm text-[var(--sa-text-muted)]">
               بازگشت
             </button>
           </div>
@@ -145,12 +185,18 @@ export function AdminCategoriesClient({ categories, products }: Props) {
                 key={p.id}
                 type="button"
                 onClick={() => toggleProduct(p.id)}
-                className={`overflow-hidden rounded-2xl border text-right transition ${
+                className={`relative overflow-hidden rounded-2xl border text-right transition ${
                   on
-                    ? "border-[var(--sa-gold)] ring-2 ring-[var(--sa-gold)]/40"
-                    : "border-[var(--sa-border)]"
-                } bg-[var(--sa-bg)]`}
+                    ? "border-[var(--sa-navy)] bg-[var(--sa-bg)] shadow-[0_0_0_2px_color-mix(in_srgb,var(--sa-gold)_35%,transparent)]"
+                    : "border-[var(--sa-border)] bg-[var(--sa-bg)] hover:border-[var(--sa-gold)]"
+                }`}
               >
+                <span
+                  aria-hidden
+                  className={`absolute left-2.5 top-2.5 z-10 h-2.5 w-2.5 rounded-full border-2 border-white shadow transition ${
+                    on ? "scale-110 bg-[var(--sa-gold)]" : "scale-100 bg-white/90"
+                  }`}
+                />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={p.image} alt="" className="aspect-[3/4] w-full object-cover" />
                 <div className="p-2">
@@ -159,7 +205,7 @@ export function AdminCategoriesClient({ categories, products }: Props) {
                     {p.shaneh} شانه · {formatPrice(p.price)}
                   </p>
                   <p className={`mt-1 text-[10px] font-medium ${on ? "text-[var(--sa-navy)]" : "text-[var(--sa-text-muted)]"}`}>
-                    {on ? "✓ در این گروه" : "افزودن"}
+                    {on ? "در این گروه" : "افزودن"}
                   </p>
                 </div>
               </button>
@@ -228,18 +274,23 @@ export function AdminCategoriesClient({ categories, products }: Props) {
             />
           </label>
           <ImageUploadField value={form.image} onChange={(image) => setForm((f) => ({ ...f, image }))} />
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.showInShop} onChange={(e) => setForm((f) => ({ ...f, showInShop: e.target.checked }))} />
-            فیلتر فروشگاه
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.showInHome} onChange={(e) => setForm((f) => ({ ...f, showInHome: e.target.checked }))} />
-            صفحه اصلی
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={form.active} onChange={(e) => setForm((f) => ({ ...f, active: e.target.checked }))} />
-            فعال
-          </label>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 pt-0.5">
+            <SaCheckbox
+              checked={form.showInShop}
+              onChange={(showInShop) => setForm((f) => ({ ...f, showInShop }))}
+              label="فیلتر فروشگاه"
+            />
+            <SaCheckbox
+              checked={form.showInHome}
+              onChange={(showInHome) => setForm((f) => ({ ...f, showInHome }))}
+              label="صفحه اصلی"
+            />
+            <SaCheckbox
+              checked={form.active}
+              onChange={(active) => setForm((f) => ({ ...f, active }))}
+              label="فعال"
+            />
+          </div>
         </div>
         {msg && <p className="text-sm">{msg}</p>}
         <button type="submit" disabled={pending} className="h-11 w-full rounded-xl bg-[var(--sa-gold)] text-sm font-semibold disabled:opacity-50">
@@ -267,7 +318,7 @@ export function AdminCategoriesClient({ categories, products }: Props) {
 
       <div className="rounded-2xl border border-dashed border-[var(--sa-border)] bg-white/70 px-4 py-3 text-xs leading-6 text-[var(--sa-text-muted)]">
         اول در{" "}
-        <Link href="/admin/products" className="font-semibold text-[var(--sa-navy)] underline">
+        <Link href={adminHref("/products")} className="font-semibold text-[var(--sa-navy)] underline">
           کاتالوگ
         </Link>{" "}
         محصول بسازید، بعد اینجا با دکمه «انتخاب محصولات» به هر گروه اضافه کنید.
@@ -316,13 +367,7 @@ export function AdminCategoriesClient({ categories, products }: Props) {
                 <button
                   type="button"
                   disabled={pending}
-                  onClick={() => {
-                    if (!window.confirm(`حذف «${c.title}»؟`)) return;
-                    start(async () => {
-                      await deleteCategoryAction(c.id);
-                      router.refresh();
-                    });
-                  }}
+                  onClick={() => void removeCategory(c)}
                   className="h-8 rounded-lg border border-red-200 px-2 text-[11px] text-red-700"
                 >
                   حذف

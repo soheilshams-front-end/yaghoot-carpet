@@ -98,7 +98,7 @@ export function ColorFilterSection({ items }: { items?: ColorItem[] }) {
                     {current.label}
                   </p>
                   <div className="mt-4 flex justify-center">
-                    <SaButton href="/rugs" variant="solid" className="px-6 py-2.5 text-base">
+                    <SaButton href={`/rugs?color=${current.id}`} variant="solid" className="px-6 py-2.5 text-base">
                       مشاهده این رنگ
                     </SaButton>
                   </div>

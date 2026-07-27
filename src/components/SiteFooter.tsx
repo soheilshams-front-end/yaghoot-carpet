@@ -19,8 +19,8 @@ export async function SiteFooter() {
   ]);
 
   const links = (footer.links as typeof defaultLinks) || defaultLinks;
-  const quick = (links.quick || defaultLinks.quick).map((l) =>
-    l.href === "/admin/rugs" ? { ...l, href: "/admin" } : l,
+  const quick = (links.quick || defaultLinks.quick).filter(
+    (l) => !l.href.startsWith("/admin") && !l.label.includes("مدیریت"),
   );
   const cats =
     shopCats.length > 0

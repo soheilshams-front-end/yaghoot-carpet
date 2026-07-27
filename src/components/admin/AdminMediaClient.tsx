@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { deleteMediaAction } from "@/lib/admin/actions";
+import { useConfirm } from "@/components/ConfirmProvider";
 
 type Media = { id: string; url: string; alt: string; createdAt: string };
 
 export function AdminMediaClient({ items }: { items: Media[] }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [pending, start] = useTransition();
   const [copied, setCopied] = useState("");
 
@@ -18,8 +20,14 @@ export function AdminMediaClient({ items }: { items: Media[] }) {
     window.setTimeout(() => setCopied(""), 1500);
   }
 
-  function remove(id: string) {
-    if (!window.confirm("حذف از کتابخانه؟ (فایل روی دیسک می‌ماند)")) return;
+  async function remove(id: string) {
+    const ok = await confirm({
+      title: "حذف از کتابخانه",
+      description: "این رسانه از کتابخانه حذف می‌شود. فایل روی دیسک ممکن است باقی بماند.",
+      confirmLabel: "حذف رسانه",
+      tone: "danger",
+    });
+    if (!ok) return;
     start(async () => {
       await deleteMediaAction(id);
       router.refresh();

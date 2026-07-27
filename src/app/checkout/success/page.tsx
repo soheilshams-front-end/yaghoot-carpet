@@ -5,6 +5,7 @@ import { PatternFill } from "@/components/PatternFill";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/data/rugs";
+import { getSupportPhone } from "@/lib/support";
 
 type Props = {
   searchParams: Promise<{ code?: string }>;
@@ -19,18 +20,21 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
   }
 
   const { code } = await searchParams;
-  const order = code
-    ? await prisma.order.findFirst({
-        where: { code, userId: session.user.id },
-        select: {
-          code: true,
-          city: true,
-          address: true,
-          phone: true,
-          total: true,
-        },
-      })
-    : null;
+  const [order, support] = await Promise.all([
+    code
+      ? prisma.order.findFirst({
+          where: { code, userId: session.user.id },
+          select: {
+            code: true,
+            city: true,
+            address: true,
+            phone: true,
+            total: true,
+          },
+        })
+      : Promise.resolve(null),
+    getSupportPhone(),
+  ]);
 
   const shortAddress = order
     ? [order.city, order.address].filter(Boolean).join("، ")
@@ -42,9 +46,13 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
         <PatternFill motif="islimi" opacity={0.03} />
         <div className="relative z-10 mx-auto max-w-md rounded-2xl border border-[var(--sa-border)] bg-[var(--sa-bg)] p-6 text-center">
           <p className="text-xs font-medium text-[var(--sa-gold)]">فرش یاقوت</p>
-          <h1 className="mt-1 text-xl font-bold text-[var(--sa-navy)]">سفارش ثبت شد</h1>
+          <h1 className="mt-1 text-xl font-bold text-[var(--sa-navy)]">
+            {order ? "سفارش ثبت شد" : "سفارش یافت نشد"}
+          </h1>
           <p className="mt-2 text-sm text-[var(--sa-text-muted)]">
-            پرداخت تأیید شد. برای هماهنگی ارسال با شما تماس می‌گیریم.
+            {order
+              ? "پرداخت تأیید شد. برای هماهنگی ارسال با شما تماس می‌گیریم."
+              : "کد سفارش نامعتبر است یا به حساب شما تعلق ندارد."}
           </p>
 
           {(order?.code || code) && (
@@ -89,10 +97,10 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
           </div>
 
           <a
-            href="tel:09124496001"
+            href={`tel:${support.phone}`}
             className="mt-5 inline-block text-xs text-[var(--sa-text-muted)] underline-offset-2 hover:text-[var(--sa-navy)] hover:underline"
           >
-            پشتیبانی: ۰۹۱۲۴۴۹۶۰۰۱
+            پشتیبانی: {support.phoneDisplay}
           </a>
         </div>
       </section>

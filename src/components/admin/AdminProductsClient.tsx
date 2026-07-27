@@ -13,6 +13,8 @@ import {
 } from "@/lib/admin/actions";
 import { AdminHeader } from "@/components/admin/AdminShell";
 import { AdminQuickProduct } from "@/components/admin/AdminQuickProduct";
+import { adminHref } from "@/lib/admin-path";
+import { useConfirm } from "@/components/ConfirmProvider";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -24,6 +26,7 @@ export function AdminProductsClient({
   categories: CmsCategory[];
 }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const [q, setQ] = useState("");
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState("");
@@ -37,8 +40,14 @@ export function AdminProductsClient({
     );
   }, [items, q]);
 
-  function remove(id: string, title: string) {
-    if (!window.confirm(`«${title}» از کاتالوگ حذف شود؟`)) return;
+  async function remove(id: string, title: string) {
+    const ok = await confirm({
+      title: "حذف محصول",
+      description: `«${title}» از کاتالوگ حذف شود؟ این عمل قابل بازگشت نیست.`,
+      confirmLabel: "حذف محصول",
+      tone: "danger",
+    });
+    if (!ok) return;
     start(async () => {
       const res = await deleteProductAction(id);
       setMsg(!res.ok ? res.error : res.soft ? res.message : "حذف شد");
@@ -62,7 +71,7 @@ export function AdminProductsClient({
             افزودن سریع
           </button>
           <Link
-            href="/admin/products/new"
+            href={adminHref("/products/new")}
             className="inline-flex h-10 items-center rounded-xl bg-[var(--sa-navy)] px-4 text-sm text-[var(--sa-text-on-navy)]"
           >
             فرم کامل
@@ -72,7 +81,7 @@ export function AdminProductsClient({
 
       <div className="rounded-2xl border border-dashed border-[var(--sa-border)] bg-white/70 px-4 py-3 text-xs leading-6 text-[var(--sa-text-muted)]">
         عکس JPG/PNG آپلود کنید → خودکار WebP می‌شود. می‌توانید همان لحظه گروه را هم انتخاب کنید، یا بعداً از{" "}
-        <Link href="/admin/categories" className="underline">
+        <Link href={adminHref("/categories")} className="underline">
           گروه‌ها
         </Link>
         .
@@ -115,7 +124,7 @@ export function AdminProductsClient({
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <Link
-                  href={`/admin/products/${p.id}`}
+                  href={adminHref(`/products/${p.id}`)}
                   className="inline-flex h-8 flex-1 items-center justify-center rounded-lg bg-[var(--sa-navy)] px-2 text-[11px] text-[var(--sa-text-on-navy)]"
                 >
                   ویرایش

@@ -90,7 +90,6 @@ export const footerLinks = {
     { href: "/", label: "صفحه اصلی" },
     { href: "/rugs", label: "فروشگاه" },
     { href: "/dashboard", label: "داشبورد" },
-    { href: "/admin", label: "پنل مدیریت" },
   ],
   cats: [
     { href: "/rugs?collection=classic", label: "فرش کلاسیک" },

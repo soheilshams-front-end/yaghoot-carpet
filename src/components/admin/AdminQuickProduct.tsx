@@ -5,6 +5,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { saveProductFullAction } from "@/lib/admin/actions";
 import type { CmsCategory } from "@/lib/cms";
+import { colorFilters } from "@/data/site";
+import { SaCheckChip } from "@/components/SaCheckChip";
+import { SaSelect } from "@/components/SaSelect";
 
 const SHANEH = [700, 1000, 1200, 1500];
 const inputClass =
@@ -34,6 +37,7 @@ export function AdminQuickProduct({
   const [shaneh, setShaneh] = useState(1200);
   const [image, setImage] = useState("");
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
+  const [colorTag, setColorTag] = useState("");
 
   useEffect(() => {
     if (!open) return;
@@ -42,6 +46,7 @@ export function AdminQuickProduct({
     setShaneh(1200);
     setImage("");
     setCategoryIds(presetCategoryId ? [presetCategoryId] : []);
+    setColorTag("");
     setError("");
   }, [open, presetCategoryId]);
 
@@ -83,6 +88,7 @@ export function AdminQuickProduct({
         description: "",
         image: image.trim(),
         active: true,
+        colorTag: colorTag || null,
         gallery: [image.trim()],
         categoryIds: ids,
       });
@@ -146,39 +152,39 @@ export function AdminQuickProduct({
                 </label>
                 <label className="block text-sm">
                   <span className="mb-1 block font-medium">شانه</span>
-                  <select
-                    value={shaneh}
-                    onChange={(e) => setShaneh(Number(e.target.value))}
-                    className={inputClass}
-                  >
-                    {SHANEH.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
+                  <SaSelect
+                    value={String(shaneh)}
+                    onChange={(v) => setShaneh(Number(v))}
+                    options={SHANEH.map((s) => ({ value: String(s), label: String(s) }))}
+                  />
                 </label>
               </div>
+              <label className="block text-sm">
+                <span className="mb-1 block font-medium">رنگ</span>
+                <SaSelect
+                  value={colorTag}
+                  onChange={setColorTag}
+                  placeholder="بدون برچسب رنگ"
+                  options={[
+                    { value: "", label: "بدون برچسب رنگ" },
+                    ...colorFilters.map((c) => ({
+                      value: c.id,
+                      label: c.label.replace("فرش ", ""),
+                    })),
+                  ]}
+                />
+              </label>
 
               {categories.length > 0 && (
                 <div>
-                  <p className="mb-1.5 text-sm font-medium">گروه (اختیاری)</p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <p className="mb-1.5 text-sm font-medium">گروه</p>
+                  <div className="flex flex-wrap gap-2">
                     {categories.map((c) => {
                       const on = categoryIds.includes(c.id);
                       return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => toggleCat(c.id)}
-                          className={`rounded-full px-3 py-1.5 text-[11px] ${
-                            on
-                              ? "bg-[var(--sa-navy)] text-[var(--sa-text-on-navy)]"
-                              : "border border-[var(--sa-border)] bg-white"
-                          }`}
-                        >
+                        <SaCheckChip key={c.id} selected={on} onClick={() => toggleCat(c.id)}>
                           {c.title}
-                        </button>
+                        </SaCheckChip>
                       );
                     })}
                   </div>

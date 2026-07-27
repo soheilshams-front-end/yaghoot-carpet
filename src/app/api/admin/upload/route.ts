@@ -1,33 +1,13 @@
-import { mkdir, readdir, stat, writeFile } from "fs/promises";
-import path from "path";
 import sharp from "sharp";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin/auth";
+import { saveImage } from "@/lib/storage";
 
 export const runtime = "nodejs";
 
 const MAX_BYTES = 8 * 1024 * 1024;
-const MAX_UPLOADS_DIR_BYTES = 500 * 1024 * 1024;
 const ALLOWED_FORMATS = new Set(["jpeg", "png", "webp"]);
-
-async function folderByteSize(dir: string): Promise<number> {
-  try {
-    const entries = await readdir(dir, { withFileTypes: true });
-    let total = 0;
-    for (const entry of entries) {
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        total += await folderByteSize(full);
-      } else if (entry.isFile()) {
-        total += (await stat(full)).size;
-      }
-    }
-    return total;
-  } catch {
-    return 0;
-  }
-}
 
 export async function POST(req: Request) {
   const session = await requireAdmin();
@@ -62,26 +42,25 @@ export async function POST(req: Request) {
       .webp({ quality: 80 })
       .toBuffer();
 
-    const dir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(dir, { recursive: true });
+    const url = await saveImage(webp);
+    const alt = String(form.get("alt") ?? "").trim();
+    await prisma.mediaAsset.create({ data: { url, alt } });
 
-    const used = await folderByteSize(dir);
-    if (used + webp.byteLength > MAX_UPLOADS_DIR_BYTES) {
+    return NextResponse.json({ ok: true, url });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "";
+    if (message === "UPLOAD_QUOTA") {
       return NextResponse.json(
         { ok: false, error: "ظرفیت فضای آپلود پر شده است" },
         { status: 413 },
       );
     }
-
-    const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.webp`;
-    await writeFile(path.join(dir, name), webp);
-
-    const url = `/uploads/${name}`;
-    const alt = String(form.get("alt") ?? "").trim();
-    await prisma.mediaAsset.create({ data: { url, alt } });
-
-    return NextResponse.json({ ok: true, url });
-  } catch {
+    if (message === "BLOB_TOKEN_MISSING") {
+      return NextResponse.json(
+        { ok: false, error: "تنظیمات ذخیره‌سازی ابری ناقص است" },
+        { status: 500 },
+      );
+    }
     return NextResponse.json({ ok: false, error: "تبدیل تصویر ناموفق بود" }, { status: 500 });
   }
 }
