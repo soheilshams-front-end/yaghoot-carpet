@@ -15,7 +15,7 @@ export async function SiteFooter() {
         "مجموعه فرش یاقوت با تمرکز بر کیفیت بافت، تنوع طرح و قیمت درب کارخانه، تجربه‌ای مطمئن از خرید فرش ایرانی را فراهم می‌کند.",
       links: defaultLinks,
     }),
-    listCategories({ shopOnly: true, activeOnly: true }),
+    listCategories({ homeOnly: true, activeOnly: true }),
   ]);
 
   const links = (footer.links as typeof defaultLinks) || defaultLinks;

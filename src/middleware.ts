@@ -2,12 +2,42 @@ import { NextResponse } from "next/server";
 import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
 import { ADMIN_PATH, isAdminPublicPath } from "@/lib/admin-path";
+import { clientIp, rateLimit, rateLimitResponse } from "@/lib/rate-limit";
 
 const { auth } = NextAuth(authConfig);
+
+function applyRateLimit(req: Request, pathname: string): Response | null {
+  const ip = clientIp(req);
+
+  if (pathname.startsWith("/api/auth")) {
+    const result = rateLimit(`auth:${ip}`, 20, 60_000);
+    if (!result.ok) return rateLimitResponse(result.retryAfterSec);
+  }
+
+  if (pathname === "/api/search") {
+    const result = rateLimit(`search:${ip}`, 60, 60_000);
+    if (!result.ok) return rateLimitResponse(result.retryAfterSec);
+  }
+
+  if (pathname === "/api/cart/validate") {
+    const result = rateLimit(`cart:${ip}`, 40, 60_000);
+    if (!result.ok) return rateLimitResponse(result.retryAfterSec);
+  }
+
+  if (pathname === "/api/admin/upload") {
+    const result = rateLimit(`upload:${ip}`, 30, 60_000);
+    if (!result.ok) return rateLimitResponse(result.retryAfterSec);
+  }
+
+  return null;
+}
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const session = req.auth;
+
+  const limited = applyRateLimit(req, pathname);
+  if (limited) return limited;
 
   // Hide the real App Router folder from the public URL
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
@@ -36,7 +66,6 @@ export default auth((req) => {
       url.searchParams.set("callbackUrl", `${pathname}${req.nextUrl.search}`);
       return NextResponse.redirect(url);
     }
-    // Admin account belongs in the CMS panel, not the buyer dashboard
     if (pathname.startsWith("/dashboard") && session.user.role === "ADMIN") {
       return NextResponse.redirect(new URL(ADMIN_PATH, req.nextUrl.origin));
     }
@@ -55,5 +84,9 @@ export const config = {
     "/dashboard/:path*",
     "/checkout",
     "/checkout/:path*",
+    "/api/auth/:path*",
+    "/api/search",
+    "/api/cart/validate",
+    "/api/admin/upload",
   ],
 };

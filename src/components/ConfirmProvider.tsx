@@ -49,9 +49,10 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!pending) return;
+    const current = pending;
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") {
-        pending.resolve(false);
+        current.resolve(false);
         setPending(null);
       }
     }

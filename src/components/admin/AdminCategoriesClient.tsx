@@ -278,12 +278,12 @@ export function AdminCategoriesClient({ categories, products }: Props) {
             <SaCheckbox
               checked={form.showInShop}
               onChange={(showInShop) => setForm((f) => ({ ...f, showInShop }))}
-              label="فیلتر فروشگاه"
+              label="فروشگاه / فوتر"
             />
             <SaCheckbox
               checked={form.showInHome}
               onChange={(showInHome) => setForm((f) => ({ ...f, showInHome }))}
-              label="صفحه اصلی"
+              label="صفحه اصلی و فیلتر فروشگاه"
             />
             <SaCheckbox
               checked={form.active}
@@ -344,8 +344,8 @@ export function AdminCategoriesClient({ categories, products }: Props) {
                 <p className="font-semibold text-[var(--sa-navy)]">{c.title}</p>
                 <p className="text-[11px] text-[var(--sa-text-muted)]">
                   {new Intl.NumberFormat("fa-IR").format(count)} محصول
-                  {c.showInShop ? " · فروشگاه" : ""}
-                  {c.showInHome ? " · خانه" : ""}
+                  {c.showInShop ? " · فروشگاه/فوتر" : ""}
+                  {c.showInHome ? " · خانه+فیلتر" : ""}
                   {!c.active ? " · غیرفعال" : ""}
                 </p>
               </div>

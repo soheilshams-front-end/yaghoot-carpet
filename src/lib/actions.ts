@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
 import { normalizePhone, isValidIranMobile } from "@/lib/phone";
 import { resolveSize } from "@/lib/sizes";
+import { markOrderPaid } from "@/lib/order-payment";
 
 export type CheckoutItemInput = {
   productId: string;
@@ -186,6 +187,13 @@ export async function confirmPaymentAction(authority: string, success: boolean) 
     return { ok: false as const, error: "لطفاً وارد شوید" };
   }
 
+  if (success && process.env.ALLOW_MOCK_PAYMENT !== "true") {
+    return {
+      ok: false as const,
+      error: "پرداخت آنلاین فعال نیست؛ همکاران ما برای هماهنگی با شما تماس می‌گیرند",
+    };
+  }
+
   const order = await prisma.order.findFirst({
     where: { paymentRef: authority, userId: session.user.id },
     include: { items: true },
@@ -214,26 +222,7 @@ export async function confirmPaymentAction(authority: string, success: boolean) 
 
   try {
     await prisma.$transaction(async (tx) => {
-      for (const item of order.items) {
-        const stockUpdate = await tx.product.updateMany({
-          where: { id: item.productId, stock: { gte: item.qty } },
-          data: { stock: { decrement: item.qty } },
-        });
-        if (stockUpdate.count === 0) {
-          throw new Error("INSUFFICIENT_STOCK");
-        }
-      }
-
-      const statusUpdate = await tx.order.updateMany({
-        where: { id: order.id, status: "PENDING_PAYMENT" },
-        data: {
-          status: "PAID",
-          paidAt: new Date(),
-        },
-      });
-      if (statusUpdate.count === 0) {
-        throw new Error("STATUS_RACE");
-      }
+      await markOrderPaid(tx, order.id, order.items);
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "";

@@ -18,8 +18,8 @@
   --sa-radius-btn: 6px;
   --sa-radius-card: 16px;
   --sa-radius-section: 4px;
-  --sa-gutter: 8px;
-  --sa-font: var(--font-vazir), Tahoma, sans-serif;
+  --sa-gutter: 14px;
+  --sa-font: var(--font-iran), Tahoma, sans-serif;
   --background: var(--sa-cream);
   --foreground: var(--sa-text);
 }
@@ -201,10 +201,10 @@ html.sa-dash-active .sa-page {
   z-index: 0;
 }
 
-.sa-motif-tl { top: 2px; right: 2px; }
-.sa-motif-tr { top: 2px; left: 2px; transform: scaleX(-1); }
-.sa-motif-bl { bottom: 2px; right: 2px; transform: scaleY(-1); }
-.sa-motif-br { bottom: 2px; left: 2px; transform: scale(-1); }
+.sa-motif-tl { top: 4px; right: 4px; }
+.sa-motif-tr { top: 4px; left: 4px; transform: scaleX(-1); }
+.sa-motif-bl { bottom: 4px; right: 4px; transform: scaleY(-1); }
+.sa-motif-br { bottom: 4px; left: 4px; transform: scale(-1); }
 
 .sa-stack {
   display: flex;

@@ -1,6 +1,7 @@
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "@/generated/prisma/client";
 import path from "path";
+import { validateProductionEnv } from "@/lib/env";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
@@ -15,6 +16,7 @@ function resolveSqliteUrl() {
 }
 
 function createPrisma() {
+  validateProductionEnv();
   const adapter = new PrismaLibSql({ url: resolveSqliteUrl() });
   return new PrismaClient({ adapter });
 }

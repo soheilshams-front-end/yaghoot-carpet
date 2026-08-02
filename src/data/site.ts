@@ -26,13 +26,11 @@ export const colorFilters = [
   { id: "green", label: "فرش سبز", hex: "#3D6B4F", image: img.living5 },
   { id: "yellow", label: "فرش زرد", hex: "#C4A035", image: img.living4 },
   { id: "red", label: "فرش لاکی", hex: "#8B1E2D", image: img.rug1 },
-  { id: "purple", label: "فرش بنفش", hex: "#5C4A6E", image: img.rug2 },
   { id: "cream", label: "فرش کرم", hex: "#D4C4A8", image: img.rug3 },
   { id: "beige", label: "فرش نسکافه‌ای", hex: "#A89070", image: img.living3 },
   { id: "gray", label: "فرش طوسی", hex: "#8A9099", image: img.living1 },
-  { id: "orange", label: "فرش نارنجی", hex: "#C45C2A", image: img.living2 },
   { id: "black", label: "فرش مشکی", hex: "#1A1A1A", image: img.rug4 },
-  { id: "brown", label: "فرش قهوه‌ای", hex: "#5C4033", image: img.rug5 },
+  { id: "brown", label: "فرش موکا", hex: "#5C4033", image: img.rug5 },
 ];
 
 export const faqs = [

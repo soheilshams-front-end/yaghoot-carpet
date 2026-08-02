@@ -12,7 +12,7 @@ import { createOrderAction } from "@/lib/actions";
 import { isValidIranMobile } from "@/lib/phone";
 import { useLoading } from "@/components/loading/LoadingProvider";
 
-const STEPS = ["آدرس ارسال", "خلاصه", "پرداخت"] as const;
+const STEPS = ["آدرس ارسال", "خلاصه", "تأیید"] as const;
 
 export type CheckoutProfile = {
   phone: string;
@@ -22,7 +22,7 @@ export type CheckoutProfile = {
 
 export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
   const router = useRouter();
-  const { items, total, pruneNotice, clearPruneNotice } = useCart();
+  const { items, total, pruneNotice, clearPruneNotice, clear } = useCart();
   const { notify } = useToast();
   const { show, hide } = useLoading();
   const [step, setStep] = useState(0);
@@ -59,11 +59,11 @@ export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
     setStep(1);
   }
 
-  async function goPay() {
+  async function submitOrder() {
     if (!canAddress) {
       setStep(0);
       setAddressHint(true);
-      setError("قبل از پرداخت، شهر و آدرس را تکمیل کنید.");
+      setError("قبل از ثبت سفارش، شهر و آدرس را تکمیل کنید.");
       return;
     }
 
@@ -98,8 +98,10 @@ export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
       return;
     }
 
-    show("در حال انتقال به درگاه…");
-    router.push(`/checkout/pay?authority=${encodeURIComponent(res.authority)}`);
+    clear();
+    show("سفارش ثبت شد — در حال انتقال…");
+    notify("سفارش ثبت شد", "همکاران ما برای هماهنگی پرداخت با شما تماس می‌گیرند");
+    router.push(`/checkout/success?code=${encodeURIComponent(res.code)}`);
   }
 
   if (items.length === 0 && step < 2) {
@@ -124,7 +126,7 @@ export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
       <div className="relative z-10 mx-auto max-w-3xl">
         <h1 className="text-2xl font-bold text-[var(--sa-navy)]">تسویه حساب</h1>
         <p className="mt-1 text-sm text-[var(--sa-text-muted)]">
-          قبل از پرداخت، آدرس تحویل را کامل کنید.
+          آدرس تحویل را کامل کنید؛ پس از ثبت، برای هماهنگی پرداخت با شما تماس می‌گیریم.
         </p>
 
         {pruneNotice && (
@@ -277,11 +279,11 @@ export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
                   disabled={loading}
                   onClick={() => {
                     setStep(2);
-                    void goPay();
+                    void submitOrder();
                   }}
                   className="h-10 rounded-xl bg-[var(--sa-gold)] px-5 text-sm font-semibold text-[var(--sa-text)] disabled:opacity-50"
                 >
-                  {loading ? "در حال ثبت…" : "ثبت و پرداخت"}
+                  {loading ? "در حال ثبت…" : "ثبت سفارش"}
                 </button>
               </div>
             </div>
@@ -290,7 +292,7 @@ export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
           {step === 2 && (
             <div className="py-8 text-center text-sm">
               {loading ? (
-                <p className="text-[var(--sa-text-muted)]">در حال انتقال به درگاه…</p>
+                <p className="text-[var(--sa-text-muted)]">در حال ثبت سفارش…</p>
               ) : error ? (
                 <div className="space-y-3">
                   <p className="text-red-700">{error}</p>
@@ -303,14 +305,14 @@ export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => void goPay()}
+                    onClick={() => void submitOrder()}
                     className="mr-2 h-10 rounded-xl bg-[var(--sa-gold)] px-5 text-sm font-semibold"
                   >
                     تلاش مجدد
                   </button>
                 </div>
               ) : (
-                <p className="text-[var(--sa-text-muted)]">در حال آماده‌سازی پرداخت…</p>
+                <p className="text-[var(--sa-text-muted)]">در حال ثبت سفارش…</p>
               )}
             </div>
           )}

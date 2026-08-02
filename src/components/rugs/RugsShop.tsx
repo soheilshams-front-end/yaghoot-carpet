@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { PatternFill } from "@/components/PatternFill";
+import { HeroEyebrow } from "@/components/HeroEyebrow";
 import { Reveal } from "@/components/Reveal";
 import { RugCard } from "@/components/RugCard";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -13,11 +14,15 @@ import { IconChevronLeft, IconChevronRight } from "@/components/Icons";
 import { type Rug } from "@/data/rugs";
 import { img } from "@/lib/images";
 import { SortDropdown, type SortKey } from "@/components/rugs/SortDropdown";
+import {
+  ShopFiltersMobile,
+  ShopFiltersSidebar,
+  type ShopFilterValues,
+} from "@/components/rugs/ShopFilters";
 import { HeroFeaturedCarousel } from "@/components/rugs/HeroFeaturedCarousel";
 import { EmptyState } from "@/components/EmptyState";
 
-const SHANEH = [1500, 1200, 1000, 700] as const;
-const PER_PAGE = 6;
+const PER_PAGE = 12;
 const ease = [0.22, 1, 0.36, 1] as const;
 
 export type ShopCategory = { id: string; title: string };
@@ -30,7 +35,7 @@ type Props = {
   color?: string | null;
   query?: string | null;
   sort?: SortKey;
-  shopCategories?: ShopCategory[];
+  categories?: ShopCategory[];
   supportPhone?: string;
   supportPhoneDisplay?: string;
 };
@@ -43,7 +48,7 @@ export function RugsShop({
   color = null,
   query = null,
   sort = "newest",
-  shopCategories = [],
+  categories = [],
   supportPhone = "09124496001",
   supportPhoneDisplay = "۰۹۱۲۴۴۹۶۰۰۱",
 }: Props) {
@@ -53,9 +58,24 @@ export function RugsShop({
   const gridRef = useRef<HTMLDivElement>(null);
   const productsRef = useRef<HTMLDivElement>(null);
 
+  const filterValues: ShopFilterValues = { collection, shaneh, color };
+
   function setSort(next: SortKey) {
     router.replace(
       buildRugsHref({ shaneh, collection, color, q: query, sort: next }),
+      { scroll: false },
+    );
+  }
+
+  function applyFilters(next: ShopFilterValues) {
+    router.replace(
+      buildRugsHref({
+        shaneh: next.shaneh,
+        collection: next.collection,
+        color: next.color,
+        q: query,
+        sort,
+      }),
       { scroll: false },
     );
   }
@@ -117,13 +137,13 @@ export function RugsShop({
       : null,
     collection
       ? {
-          label: shopCategories.find((c) => c.id === collection)?.title ?? collection,
+          label: categories.find((c) => c.id === collection)?.title ?? collection,
           href: buildRugsHref({ shaneh, collection: null, color, q: query, sort }),
         }
       : null,
     shaneh
       ? {
-          label: `${shaneh} شانه`,
+          label: `${toFa(shaneh)} شانه`,
           href: buildRugsHref({ shaneh: null, collection, color, q: query, sort }),
         }
       : null,
@@ -144,9 +164,7 @@ export function RugsShop({
           <div className="relative z-10 px-4 pb-10 pt-2 sm:px-6 sm:pb-12">
             <div className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
               <div>
-                <span className="inline-block rounded-full bg-[var(--sa-navy)] px-5 py-1.5 text-sm text-[var(--sa-text-on-navy)]">
-                  فروشگاه آنلاین
-                </span>
+                <HeroEyebrow>فروشگاه آنلاین</HeroEyebrow>
                 <h1 className="mt-4 min-h-[1.4em] text-3xl font-bold text-[var(--sa-navy)] sm:text-4xl lg:text-[2.65rem]">
                   <Typewriter text="کالکشن فرش‌های یاقوت" speed={40} startDelay={180} />
                 </h1>
@@ -170,57 +188,6 @@ export function RugsShop({
       <section className="relative overflow-hidden px-4 py-[clamp(2rem,4vw,3.5rem)] sm:px-6">
         <PatternFill motif="islimi" opacity={0.04} />
         <div className="relative z-10 mx-auto max-w-6xl">
-          <div className="sticky top-2 z-30 mb-8 rounded-2xl border border-[var(--sa-border)] bg-[var(--sa-bg)]/95 p-3 shadow-md backdrop-blur-md sm:p-4">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <Chip
-                  href={buildRugsHref({ shaneh: null, collection: null, color: null, q: query, sort })}
-                  active={!collection && !shaneh && !color}
-                >
-                  همه
-                </Chip>
-                {shopCategories.map((c) => (
-                  <Chip
-                    key={c.id}
-                    href={buildRugsHref({ shaneh, collection: c.id, color, q: query, sort })}
-                    active={collection === c.id}
-                  >
-                    {c.title}
-                  </Chip>
-                ))}
-                {SHANEH.map((s) => (
-                  <Chip
-                    key={s}
-                    href={buildRugsHref({ shaneh: s, collection, color, q: query, sort })}
-                    active={shaneh === s}
-                  >
-                    {s} شانه
-                  </Chip>
-                ))}
-              </div>
-
-              <SortDropdown value={sort} onChange={setSort} />
-            </div>
-
-            {activeChips.length > 0 && (
-              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[var(--sa-border)] pt-3">
-                {activeChips.map((c) => (
-                  <Link
-                    key={c.label}
-                    href={c.href}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[var(--sa-navy)] px-3 py-1.5 text-xs text-[var(--sa-text-on-navy)]"
-                  >
-                    {c.label}
-                    <span aria-hidden>×</span>
-                  </Link>
-                ))}
-                <Link href="/rugs" className="text-xs text-[var(--sa-navy)] underline-offset-2 hover:underline">
-                  پاک کردن همه
-                </Link>
-              </div>
-            )}
-          </div>
-
           <Reveal>
             <div className="mb-8 grid gap-3 md:grid-cols-3">
               <PromoCard title="قیمت درب کارخانه" desc="بدون واسطه بخرید" image={img.rug1} />
@@ -229,89 +196,134 @@ export function RugsShop({
             </div>
           </Reveal>
 
-          <div ref={productsRef} className="mb-5">
-            <h2 className="text-xl font-bold text-[var(--sa-navy)] sm:text-2xl">محصولات</h2>
-            <p className="mt-1 text-sm text-[var(--sa-text-muted)]">
-              {toFa(sorted.length)} فرش · صفحه {toFa(page + 1)} از {toFa(maxPage + 1)}
-            </p>
-          </div>
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
+            <ShopFiltersSidebar
+              categories={categories}
+              values={filterValues}
+              onChange={applyFilters}
+            />
 
-          {sorted.length > 0 ? (
-            <>
-              <div
-                ref={gridRef}
-                className="relative"
-                style={gridMinH ? { minHeight: gridMinH } : undefined}
-              >
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={`${sort}-${page}-${collection ?? "all"}-${shaneh ?? "x"}-${query ?? ""}`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -12 }}
-                    transition={{ duration: 0.4, ease }}
-                    className="grid grid-cols-2 gap-2.5 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3"
-                  >
-                    {slice.map((rug, i) => (
-                      <motion.div
-                        key={rug.id}
-                        initial={{ opacity: 0, y: 18 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: i * 0.06, ease }}
-                      >
-                        <RugCard rug={rug} />
-                      </motion.div>
-                    ))}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              {maxPage > 0 && (
-                <div className="mt-8 flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => goPage(page <= 0 ? maxPage : page - 1)}
-                    className="flex h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] bg-[var(--sa-navy)] text-[var(--sa-text-on-navy)] transition hover:opacity-90"
-                    aria-label="قبلی"
-                  >
-                    <IconChevronRight size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => goPage(page >= maxPage ? 0 : page + 1)}
-                    className="flex h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] border border-[var(--sa-border)] bg-[var(--sa-bg)] text-[var(--sa-navy)] transition hover:border-[var(--sa-gold)]"
-                    aria-label="بعدی"
-                  >
-                    <IconChevronLeft size={18} />
-                  </button>
-                  <div className="mr-2 flex gap-1.5">
-                    {Array.from({ length: maxPage + 1 }).map((_, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        aria-label={`صفحه ${i + 1}`}
-                        onClick={() => goPage(i)}
-                        className={`h-2 rounded-full transition ${
-                          i === page ? "w-6 bg-[var(--sa-gold)]" : "w-2 bg-[var(--sa-navy)]/25"
-                        }`}
-                      />
-                    ))}
+            <div className="min-w-0 flex-1">
+              <div className="sticky top-2 z-30 mb-5 rounded-2xl border border-[var(--sa-border)] bg-[var(--sa-bg)]/95 p-3 shadow-md backdrop-blur-md sm:p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <ShopFiltersMobile
+                    categories={categories}
+                    values={filterValues}
+                    onChange={applyFilters}
+                    resultCount={sorted.length}
+                  />
+                  <div className="mr-auto">
+                    <SortDropdown value={sort} onChange={setSort} />
                   </div>
                 </div>
+
+                {activeChips.length > 0 && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[var(--sa-border)] pt-3">
+                    {activeChips.map((c) => (
+                      <Link
+                        key={c.label}
+                        href={c.href}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-[var(--sa-navy)] px-3 py-1.5 text-xs text-[var(--sa-text-on-navy)]"
+                      >
+                        {c.label}
+                        <span aria-hidden>×</span>
+                      </Link>
+                    ))}
+                    <Link
+                      href="/rugs"
+                      className="text-xs text-[var(--sa-navy)] underline-offset-2 hover:underline"
+                    >
+                      پاک کردن همه
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              <div ref={productsRef} className="mb-5">
+                <h2 className="text-xl font-bold text-[var(--sa-navy)] sm:text-2xl">محصولات</h2>
+                <p className="mt-1 text-sm text-[var(--sa-text-muted)]">
+                  {toFa(sorted.length)} فرش · صفحه {toFa(page + 1)} از {toFa(maxPage + 1)}
+                </p>
+              </div>
+
+              {sorted.length > 0 ? (
+                <>
+                  <div
+                    ref={gridRef}
+                    className="relative"
+                    style={gridMinH ? { minHeight: gridMinH } : undefined}
+                  >
+                    <AnimatePresence mode="wait" initial={false}>
+                      <motion.div
+                        key={`${sort}-${page}-${collection ?? "all"}-${shaneh ?? "x"}-${color ?? ""}-${query ?? ""}`}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -12 }}
+                        transition={{ duration: 0.4, ease }}
+                        className="grid grid-cols-2 gap-2.5 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                      >
+                        {slice.map((rug, i) => (
+                          <motion.div
+                            key={rug.id}
+                            initial={{ opacity: 0, y: 18 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: i * 0.06, ease }}
+                          >
+                            <RugCard rug={rug} />
+                          </motion.div>
+                        ))}
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+
+                  {maxPage > 0 && (
+                    <div className="mt-8 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => goPage(page <= 0 ? maxPage : page - 1)}
+                        className="flex h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] bg-[var(--sa-navy)] text-[var(--sa-text-on-navy)] transition hover:opacity-90"
+                        aria-label="قبلی"
+                      >
+                        <IconChevronRight size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => goPage(page >= maxPage ? 0 : page + 1)}
+                        className="flex h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] border border-[var(--sa-border)] bg-[var(--sa-bg)] text-[var(--sa-navy)] transition hover:border-[var(--sa-gold)]"
+                        aria-label="بعدی"
+                      >
+                        <IconChevronLeft size={18} />
+                      </button>
+                      <div className="mr-2 flex gap-1.5">
+                        {Array.from({ length: maxPage + 1 }).map((_, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            aria-label={`صفحه ${i + 1}`}
+                            onClick={() => goPage(i)}
+                            className={`h-2 rounded-full transition ${
+                              i === page ? "w-6 bg-[var(--sa-gold)]" : "w-2 bg-[var(--sa-navy)]/25"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <EmptyState
+                  title={query ? `نتیجه‌ای برای «${query}» پیدا نشد` : "چیزی پیدا نشد"}
+                  description={
+                    query
+                      ? "عبارت دیگری جستجو کنید یا فیلترها را پاک کنید."
+                      : "فیلتر دیگری را امتحان کنید."
+                  }
+                  actionHref="/rugs"
+                  actionLabel="مشاهده همه"
+                />
               )}
-            </>
-          ) : (
-            <EmptyState
-              title={query ? `نتیجه‌ای برای «${query}» پیدا نشد` : "چیزی پیدا نشد"}
-              description={
-                query
-                  ? "عبارت دیگری جستجو کنید یا فیلترها را پاک کنید."
-                  : "فیلتر دیگری را امتحان کنید."
-              }
-              actionHref="/rugs"
-              actionLabel="مشاهده همه"
-            />
-          )}
+            </div>
+          </div>
 
           <div className="mt-12 overflow-hidden rounded-2xl border border-[var(--sa-border)] bg-[var(--sa-navy)]">
             <div className="grid items-center gap-6 p-6 sm:grid-cols-[1.2fr_0.8fr] sm:p-8">
@@ -337,29 +349,6 @@ export function RugsShop({
         </div>
       </section>
     </>
-  );
-}
-
-function Chip({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className={`inline-flex h-8 shrink-0 items-center rounded-full px-3 text-[11px] font-medium transition sm:h-9 sm:px-3.5 sm:text-sm ${
-        active
-          ? "bg-[var(--sa-navy)] text-[var(--sa-text-on-navy)] ring-2 ring-[var(--sa-gold)]"
-          : "bg-white text-[var(--sa-navy)] ring-1 ring-[var(--sa-border)] hover:bg-[var(--sa-cream)]"
-      }`}
-    >
-      {children}
-    </Link>
   );
 }
 
@@ -418,7 +407,7 @@ function buildRugsHref({
 }
 
 function toFa(n: number) {
-  return new Intl.NumberFormat("fa-IR").format(n);
+  return new Intl.NumberFormat("fa-IR", { useGrouping: false }).format(n);
 }
 
 function rugColorLabel(id: string) {
@@ -428,13 +417,11 @@ function rugColorLabel(id: string) {
     green: "سبز",
     yellow: "زرد",
     red: "لاکی",
-    purple: "بنفش",
     cream: "کرم",
     beige: "نسکافه‌ای",
     gray: "طوسی",
-    orange: "نارنجی",
     black: "مشکی",
-    brown: "قهوه‌ای",
+    brown: "موکا",
   };
   return labels[id] ?? id;
 }

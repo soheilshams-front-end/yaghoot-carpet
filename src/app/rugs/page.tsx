@@ -38,7 +38,7 @@ export default async function RugsPage({ searchParams }: Props) {
       q: q || null,
     }),
     countProducts(),
-    listCategories({ shopOnly: true, activeOnly: true }),
+    listCategories({ homeOnly: true, activeOnly: true }),
     getSupportPhone(),
   ]);
 
@@ -60,7 +60,7 @@ export default async function RugsPage({ searchParams }: Props) {
         sort={sort}
         supportPhone={support.phone}
         supportPhoneDisplay={support.phoneDisplay}
-        shopCategories={cats.map((c) => ({ id: c.slug, title: c.title }))}
+        categories={cats.map((c) => ({ id: c.slug, title: c.title }))}
       />
     </Suspense>
   );

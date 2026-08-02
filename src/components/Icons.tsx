@@ -205,6 +205,27 @@ export function IconSortDesc(p: IconProps) {
   );
 }
 
+export function IconSliders(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M4 7h16" />
+      <path d="M4 12h16" />
+      <path d="M4 17h16" />
+      <circle cx="8" cy="7" r="2" fill="currentColor" stroke="none" />
+      <circle cx="14" cy="12" r="2" fill="currentColor" stroke="none" />
+      <circle cx="10" cy="17" r="2" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}
+
+export function IconX(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M6 6l12 12M18 6 6 18" />
+    </Svg>
+  );
+}
+
 /** Brand mark — diamond ring logo */
 export function LogoMark({ className = "", size = 40 }: IconProps) {
   return (

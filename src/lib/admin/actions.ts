@@ -5,6 +5,13 @@ import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin/auth";
 import { deleteStoredFile, isLocalUploadUrl } from "@/lib/storage";
 import { ORDER_TRANSITIONS } from "@/lib/admin/order-status";
+import { markOrderPaid } from "@/lib/order-payment";
+import {
+  categoryInputSchema,
+  homepagePayloadSchema,
+  parseProductInput,
+} from "@/lib/validation";
+import { sanitizeImageUrl } from "@/lib/safe-image-url";
 import type { OrderStatus } from "@/generated/prisma/client";
 
 function slugify(input: string) {
@@ -43,22 +50,28 @@ export async function saveCategoryAction(input: {
   showInShop: boolean;
 }) {
   if (!(await requireAdmin())) return { ok: false as const, error: "دسترسی غیرمجاز" };
-  const title = input.title.trim();
-  if (!title) return { ok: false as const, error: "عنوان الزامی است" };
-  const slug = (input.slug?.trim() || slugify(title)).toLowerCase();
+
+  const parsed = categoryInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false as const, error: "اطلاعات دسته نامعتبر است" };
+  }
+
+  const title = parsed.data.title.trim();
+  const image = sanitizeImageUrl(parsed.data.image) ?? "";
+  const slug = (parsed.data.slug?.trim() || slugify(title)).toLowerCase();
 
   try {
-    if (input.id) {
+    if (parsed.data.id) {
       await prisma.category.update({
-        where: { id: input.id },
+        where: { id: parsed.data.id },
         data: {
           title,
           slug,
-          image: input.image,
-          sortOrder: input.sortOrder,
-          active: input.active,
-          showInHome: input.showInHome,
-          showInShop: input.showInShop,
+          image,
+          sortOrder: parsed.data.sortOrder,
+          active: parsed.data.active,
+          showInHome: parsed.data.showInHome,
+          showInShop: parsed.data.showInShop,
         },
       });
     } else {
@@ -66,11 +79,11 @@ export async function saveCategoryAction(input: {
         data: {
           title,
           slug,
-          image: input.image,
-          sortOrder: input.sortOrder,
-          active: input.active,
-          showInHome: input.showInHome,
-          showInShop: input.showInShop,
+          image,
+          sortOrder: parsed.data.sortOrder,
+          active: parsed.data.active,
+          showInHome: parsed.data.showInHome,
+          showInShop: parsed.data.showInShop,
         },
       });
     }
@@ -108,31 +121,39 @@ export async function saveProductFullAction(input: {
 }) {
   if (!(await requireAdmin())) return { ok: false as const, error: "دسترسی غیرمجاز" };
 
-  const title = input.title.trim();
-  const code = input.code.trim();
-  if (!title || !code || !Number.isFinite(input.price)) {
-    return { ok: false as const, error: "اطلاعات ناقص است" };
-  }
+  const parsed = parseProductInput(input);
+  if (!parsed.ok) return { ok: false as const, error: parsed.error };
 
-  const gallery = (input.gallery.length ? input.gallery : [input.image]).filter(Boolean);
-  const imageUrl = input.image.trim() || gallery[0] || "";
-  const stock = Number.isFinite(input.stock) ? Math.max(0, Math.floor(input.stock)) : 0;
-  const isNew = !input.id?.trim();
+  const {
+    id,
+    title,
+    code,
+    price,
+    stock: rawStock,
+    shaneh,
+    description,
+    image: imageUrl,
+    active,
+    colorTag,
+    categoryIds,
+    gallery,
+  } = parsed.data;
 
-  if (isNew && !imageUrl) {
-    return { ok: false as const, error: "عکس محصول لازم است" };
-  }
-  if (input.categoryIds !== undefined && input.categoryIds.length === 0) {
+  const stock = Math.max(0, Math.floor(rawStock));
+  const isNew = !id?.trim();
+  const productIdInput = id?.trim() || "";
+
+  if (categoryIds !== undefined && categoryIds.length === 0) {
     return { ok: false as const, error: "حداقل یک گروه انتخاب کنید" };
   }
-  if (input.active && stock < 1) {
+  if (active && stock < 1) {
     return {
       ok: false as const,
       error: "محصول فعال با موجودی صفر در فروشگاه «ناموجود» دیده می‌شود — موجودی را حداقل ۱ بگذارید",
     };
   }
 
-  let productId = input.id?.trim() || "";
+  let productId = productIdInput;
   const existing = productId
     ? await prisma.product.findUnique({
         where: { id: productId },
@@ -142,9 +163,9 @@ export async function saveProductFullAction(input: {
 
   let collection = existing?.collection ?? "classic";
 
-  if (input.categoryIds !== undefined) {
-    const cats = input.categoryIds.length
-      ? await prisma.category.findMany({ where: { id: { in: input.categoryIds } } })
+  if (categoryIds !== undefined) {
+    const cats = categoryIds.length
+      ? await prisma.category.findMany({ where: { id: { in: categoryIds } } })
       : [];
     collection = cats[0]?.slug ?? collection;
   }
@@ -155,14 +176,14 @@ export async function saveProductFullAction(input: {
       data: {
         title,
         code,
-        price: input.price,
+        price,
         stock,
-        shaneh: input.shaneh,
-        description: input.description,
+        shaneh,
+        description,
         image: imageUrl || existing.image || "",
-        active: input.active,
+        active,
         collection,
-        ...(input.colorTag !== undefined ? { colorTag: input.colorTag || null } : {}),
+        ...(colorTag !== undefined ? { colorTag: colorTag || null } : {}),
       },
     });
     await prisma.productImage.deleteMany({ where: { productId } });
@@ -174,23 +195,23 @@ export async function saveProductFullAction(input: {
         id: productId,
         title,
         code,
-        price: input.price,
+        price,
         stock: effectiveStock,
-        shaneh: input.shaneh,
-        description: input.description,
+        shaneh,
+        description,
         image: imageUrl,
-        active: input.active,
+        active,
         collection,
-        colorTag: input.colorTag?.trim() || null,
+        colorTag: colorTag?.trim() || null,
       },
     });
   }
 
-  if (input.categoryIds !== undefined) {
+  if (categoryIds !== undefined) {
     await prisma.productCategory.deleteMany({ where: { productId } });
-    if (input.categoryIds.length) {
+    if (categoryIds.length) {
       await prisma.productCategory.createMany({
-        data: input.categoryIds.map((categoryId) => ({ productId, categoryId })),
+        data: categoryIds.map((categoryId) => ({ productId, categoryId })),
       });
     }
   }
@@ -299,6 +320,11 @@ export async function setOrderStatusAction(orderId: string, status: OrderStatus)
       }
     }
 
+    if (status === "PAID" && order.status === "PENDING_PAYMENT") {
+      await markOrderPaid(tx, orderId, order.items);
+      return;
+    }
+
     await tx.order.update({ where: { id: orderId }, data: { status } });
   });
 
@@ -318,8 +344,14 @@ export async function saveHomepageSectionAction(input: {
   payload: string;
 }) {
   if (!(await requireAdmin())) return { ok: false as const, error: "دسترسی غیرمجاز" };
+
+  const payload = input.payload || "{}";
+  const payloadCheck = homepagePayloadSchema.safeParse(payload);
+  if (!payloadCheck.success) {
+    return { ok: false as const, error: "محتوای بخش بیش از حد بزرگ است" };
+  }
   try {
-    JSON.parse(input.payload || "{}");
+    JSON.parse(payload);
   } catch {
     return { ok: false as const, error: "JSON نامعتبر است" };
   }
@@ -329,7 +361,7 @@ export async function saveHomepageSectionAction(input: {
       title: input.title.trim(),
       enabled: input.enabled,
       sortOrder: input.sortOrder,
-      payload: input.payload || "{}",
+      payload,
     },
   });
   revalidateContent();

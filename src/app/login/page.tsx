@@ -196,12 +196,9 @@ function LoginForm() {
                 transition={{ delay: 0.2, duration: 0.45, ease }}
                 className="mt-5 rounded-2xl border border-[var(--sa-gold)]/35 bg-[var(--sa-cream)]/80 px-4 py-3.5 text-sm shadow-[0_1px_0_rgba(30,58,95,0.04)]"
               >
-                <p className="font-semibold text-[var(--sa-navy)]">راهنمای ورود مدیر</p>
+                <p className="font-semibold text-[var(--sa-navy)]">ورود مدیر</p>
                 <p className="mt-2 text-[var(--sa-text-muted)]">
-                  شماره: <span className="font-mono text-[var(--sa-navy)]">09124496001</span>
-                </p>
-                <p className="mt-1 text-[var(--sa-text-muted)]">
-                  رمز اولیه: <span className="font-mono text-[var(--sa-navy)]">admin123</span>
+                  با شماره موبایل و رمز مدیریتی که هنگام راه‌اندازی سرور تنظیم شده وارد شوید.
                 </p>
               </motion.div>
             )}

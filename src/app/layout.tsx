@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
-import { Vazirmatn } from "next/font/google";
+import localFont from "next/font/local";
 import { Providers } from "@/components/Providers";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import "./globals.css";
 
-const vazir = Vazirmatn({
-  subsets: ["arabic", "latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-vazir",
+const iran = localFont({
+  src: [
+    // One step heavier than nominal CSS weight for a denser Persian UI
+    { path: "../fonts/iran/IRAN_SemiBold.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/iran/IRAN_SemiBold.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/iran/IRANBold.woff2", weight: "600", style: "normal" },
+    { path: "../fonts/iran/IRANBlack.woff2", weight: "700", style: "normal" },
+    { path: "../fonts/iran/IRANBlack.woff2", weight: "800", style: "normal" },
+    { path: "../fonts/iran/IRANBlack.woff2", weight: "900", style: "normal" },
+  ],
+  variable: "--font-iran",
   display: "swap",
 });
 
@@ -28,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fa" dir="rtl" className={`${vazir.variable} h-full antialiased`}>
+    <html lang="fa" dir="rtl" className={`${iran.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col font-sans">
         <Providers>
           <SmoothScroll />

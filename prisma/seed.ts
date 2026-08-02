@@ -67,6 +67,7 @@ async function main() {
           image: c.image,
           sortOrder: 10 + i,
           showInHome: true,
+          showInShop: true,
           active: true,
         },
       });
@@ -78,7 +79,7 @@ async function main() {
           image: c.image,
           sortOrder: 10 + i,
           showInHome: true,
-          showInShop: ["classic", "modern", "silk"].includes(c.id),
+          showInShop: true,
           active: true,
         },
       });
@@ -247,29 +248,32 @@ async function main() {
     });
   }
 
-  const adminHash = await bcrypt.hash("admin123", 10);
-  const userHash = await bcrypt.hash("user123", 10);
+  const adminPhone = process.env.ADMIN_PHONE?.trim() || "09124496001";
+  const existingAdmin = await prisma.user.findFirst({ where: { role: "ADMIN" } });
 
-  const adminPhone = "09124496001";
-  const existingAdmin = await prisma.user.findFirst({ where: { phone: adminPhone } });
-  if (existingAdmin) {
-    await prisma.user.update({
-      where: { id: existingAdmin.id },
-      data: { passwordHash: adminHash, role: "ADMIN", phone: adminPhone },
-    });
-  } else {
-    await prisma.user.create({
-      data: {
-        email: "admin@yaghoot.local",
-        name: "مدیر یاقوت",
-        phone: adminPhone,
-        city: "تهران",
-        passwordHash: adminHash,
-        role: "ADMIN",
-      },
-    });
+  if (!existingAdmin) {
+    const adminPassword = process.env.ADMIN_INITIAL_PASSWORD?.trim();
+    if (!adminPassword || adminPassword.length < 8) {
+      console.warn(
+        "[seed] No admin user found. Set ADMIN_INITIAL_PASSWORD (min 8 chars) to create the first admin.",
+      );
+    } else {
+      const adminHash = await bcrypt.hash(adminPassword, 10);
+      await prisma.user.create({
+        data: {
+          email: "admin@yaghoot.local",
+          name: "مدیر یاقوت",
+          phone: adminPhone,
+          city: "تهران",
+          passwordHash: adminHash,
+          role: "ADMIN",
+        },
+      });
+      console.log(`[seed] Admin user created with phone ${adminPhone}`);
+    }
   }
 
+  const userHash = await bcrypt.hash("user123", 10);
   const userPhone = "09120000000";
   let demoUser = await prisma.user.findFirst({ where: { phone: userPhone } });
   if (demoUser) {

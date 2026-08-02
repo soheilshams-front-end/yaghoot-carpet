@@ -40,15 +40,20 @@ export async function saveImage(buffer: Buffer): Promise<string> {
   return `/uploads/${name}`;
 }
 
+const UPLOAD_FILE_PATTERN = /^\/uploads\/[a-zA-Z0-9._-]+\.webp$/;
+
 export function isLocalUploadUrl(url: string): boolean {
-  return url.startsWith("/uploads/");
+  return UPLOAD_FILE_PATTERN.test(url.trim());
 }
 
 export async function deleteStoredFile(url: string): Promise<void> {
   if (!isLocalUploadUrl(url)) return;
 
+  const uploadsDir = path.resolve(process.cwd(), "public", "uploads");
+  const filePath = path.resolve(process.cwd(), "public", url.replace(/^\//, ""));
+  if (!filePath.startsWith(uploadsDir + path.sep)) return;
+
   const { unlink } = await import("fs/promises");
-  const filePath = path.join(process.cwd(), "public", url.replace(/^\//, ""));
   try {
     await unlink(filePath);
   } catch {

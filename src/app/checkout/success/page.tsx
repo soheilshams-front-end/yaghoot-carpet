@@ -51,7 +51,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
           </h1>
           <p className="mt-2 text-sm text-[var(--sa-text-muted)]">
             {order
-              ? "پرداخت تأیید شد. برای هماهنگی ارسال با شما تماس می‌گیریم."
+              ? "سفارش شما ثبت شد. برای هماهنگی پرداخت و ارسال با شما تماس می‌گیریم."
               : "کد سفارش نامعتبر است یا به حساب شما تعلق ندارد."}
           </p>
 

@@ -49,6 +49,9 @@ next-env.d.ts
 /prisma/*.db
 /prisma/*.db-journal
 
+# runtime uploads
+/public/uploads/
+
 # AI tooling (local only)
 .agents/
 .claude/

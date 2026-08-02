@@ -37,7 +37,9 @@ export function ShanehSection({ items = defaultItems }: { items?: ShanehItem[] }
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[var(--sa-navy)] via-[var(--sa-navy)]/35 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-3 text-center text-[var(--sa-text-on-navy)] sm:p-4">
-                    <span className="block text-2xl font-bold sm:text-3xl">{item.shaneh}</span>
+                    <span className="block text-2xl font-bold sm:text-3xl">
+                      {new Intl.NumberFormat("fa-IR", { useGrouping: false }).format(item.shaneh)}
+                    </span>
                     <span className="mt-0.5 block text-xs text-[var(--sa-gold)] sm:text-sm">شانه</span>
                     <span className="mt-1 block text-[10px] opacity-80 sm:text-xs">
                       {item.hint || item.label || ""}

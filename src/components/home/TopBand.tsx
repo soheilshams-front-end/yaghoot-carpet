@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArchBackdrop } from "@/components/ArchBackdrop";
+import { HeroEyebrow } from "@/components/HeroEyebrow";
 import { PatternFill } from "@/components/PatternFill";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Typewriter } from "@/components/Typewriter";
@@ -96,10 +97,8 @@ export function TopBand({
               transition={{ duration: 0.6, ease }}
               className="mb-6 text-center"
             >
-              <span className="inline-block rounded-full bg-[var(--sa-navy)] px-5 py-1.5 text-sm text-[var(--sa-text-on-navy)]">
-                {eyebrow}
-              </span>
-              <h1 className="mt-4 min-h-[1.4em] text-3xl font-bold text-[var(--sa-navy)] sm:text-4xl lg:text-[2.85rem]">
+              <HeroEyebrow>{eyebrow}</HeroEyebrow>
+              <h1 className="mt-5 min-h-[1.35em] text-4xl font-black leading-[1.25] tracking-tight text-[var(--sa-navy)] sm:text-5xl lg:text-[3.5rem]">
                 <Typewriter text={headline} speed={90} startDelay={400} />
               </h1>
             </motion.div>
