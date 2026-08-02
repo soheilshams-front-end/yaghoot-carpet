@@ -273,7 +273,7 @@ async function main() {
     }
   }
 
-  const userHash = await bcrypt.hash("user123", 10);
+  const userHash = await bcrypt.hash("user12345", 10);
   const userPhone = "09120000000";
   let demoUser = await prisma.user.findFirst({ where: { phone: userPhone } });
   if (demoUser) {

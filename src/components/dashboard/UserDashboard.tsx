@@ -153,9 +153,7 @@ export function UserDashboard({
                           order={o}
                           index={i}
                           onTrack={() =>
-                            o.status === "PENDING_PAYMENT" && o.paymentRef
-                              ? (window.location.href = `/checkout/pay?authority=${encodeURIComponent(o.paymentRef)}`)
-                              : notify("پیگیری", `${o.code} · ${o.statusLabel}`, "info")
+                            notify("پیگیری", `${o.code} · ${o.statusLabel}`, "info")
                           }
                         />
                       ))}
@@ -208,9 +206,7 @@ export function UserDashboard({
                       index={i}
                       detailed
                       onTrack={() =>
-                        o.status === "PENDING_PAYMENT" && o.paymentRef
-                          ? (window.location.href = `/checkout/pay?authority=${encodeURIComponent(o.paymentRef)}`)
-                          : notify("پیگیری سفارش", `${o.code} به‌روز شد`, "info")
+                        notify("پیگیری سفارش", `${o.code} به‌روز شد`, "info")
                       }
                       onCopy={() => {
                         void navigator.clipboard?.writeText(o.code);
@@ -470,7 +466,7 @@ function OrderRow({
             onClick={onTrack}
             className="h-7 rounded-lg bg-[var(--sa-navy)] px-2.5 text-[11px] text-[var(--sa-text-on-navy)]"
           >
-            {order.status === "PENDING_PAYMENT" && order.paymentRef ? "ادامه پرداخت" : "پیگیری"}
+            پیگیری
           </button>
           {detailed && onCopy && (
             <button

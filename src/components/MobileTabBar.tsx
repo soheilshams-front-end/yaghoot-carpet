@@ -26,7 +26,7 @@ export function MobileTabBar() {
 function MobileTabBarInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { count } = useCart();
+  const { count, ready: cartReady } = useCart();
   const { count: wishCount } = useWishlist();
   const { data: session } = useSession();
   const wishTab = searchParams.get("tab") === "wishlist";
@@ -39,6 +39,8 @@ function MobileTabBarInner() {
     : session.user.role === "ADMIN"
       ? adminHref()
       : "/dashboard";
+
+  const cartBadge = cartReady ? count : 0;
 
   const items = [
     {
@@ -61,7 +63,7 @@ function MobileTabBarInner() {
       active:
         pathname.startsWith("/checkout") || (pathname === "/cart" && !wishTab),
       Icon: IconCart,
-      badge: count,
+      badge: cartBadge,
     },
     {
       href: "/cart?tab=wishlist",
@@ -89,36 +91,46 @@ function MobileTabBarInner() {
       className="fixed inset-x-0 bottom-0 z-[90] border-t border-[var(--sa-border)] bg-[var(--sa-bg)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
     >
       <ul className="mx-auto grid max-w-lg grid-cols-5 px-1 pt-1">
-        {items.map((tab) => (
-          <li key={tab.label}>
-            <Link
-              href={tab.href}
-              className={`relative flex flex-col items-center gap-0.5 rounded-xl px-1 py-1.5 text-[10px] ${
-                tab.active
-                  ? "font-semibold text-[var(--sa-navy)]"
-                  : "text-[var(--sa-text-muted)]"
-              }`}
-            >
-              <span className="relative">
-                <tab.Icon
-                  size={20}
-                  filled={tab.filled ? tab.active : undefined}
-                />
-                {tab.badge > 0 && (
-                  <span className="absolute -left-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--sa-gold)] px-0.5 text-[9px] font-bold text-[var(--sa-text)]">
-                    {tab.badge > 9
-                      ? "۹+"
-                      : new Intl.NumberFormat("fa-IR").format(tab.badge)}
-                  </span>
+        {items.map((tab) => {
+          const badgeFa =
+            tab.badge > 9
+              ? "۹+"
+              : new Intl.NumberFormat("fa-IR").format(tab.badge);
+          const ariaLabel =
+            tab.badge > 0 ? `${tab.label} (${badgeFa})` : tab.label;
+          return (
+            <li key={tab.label}>
+              <Link
+                href={tab.href}
+                aria-label={ariaLabel}
+                className={`relative flex flex-col items-center gap-0.5 rounded-xl px-1 py-1.5 text-[10px] ${
+                  tab.active
+                    ? "font-semibold text-[var(--sa-navy)]"
+                    : "text-[var(--sa-text-muted)]"
+                }`}
+              >
+                <span className="relative">
+                  <tab.Icon
+                    size={20}
+                    filled={tab.filled ? tab.active : undefined}
+                  />
+                  {tab.badge > 0 && (
+                    <span
+                      aria-hidden
+                      className="absolute -left-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--sa-gold)] px-0.5 text-[9px] font-bold text-[var(--sa-text)]"
+                    >
+                      {badgeFa}
+                    </span>
+                  )}
+                </span>
+                <span aria-hidden>{tab.label}</span>
+                {tab.active && (
+                  <span className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-[var(--sa-gold)]" />
                 )}
-              </span>
-              {tab.label}
-              {tab.active && (
-                <span className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-[var(--sa-gold)]" />
-              )}
-            </Link>
-          </li>
-        ))}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

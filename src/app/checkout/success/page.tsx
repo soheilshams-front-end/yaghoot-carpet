@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { formatPrice } from "@/data/rugs";
 import { getSupportPhone } from "@/lib/support";
+import { formatOrderAddress } from "@/lib/format-address";
 
 type Props = {
   searchParams: Promise<{ code?: string }>;
@@ -36,9 +37,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
     getSupportPhone(),
   ]);
 
-  const shortAddress = order
-    ? [order.city, order.address].filter(Boolean).join("، ")
-    : null;
+  const shortAddress = order ? formatOrderAddress(order.city, order.address) : null;
 
   return (
     <AppChrome>

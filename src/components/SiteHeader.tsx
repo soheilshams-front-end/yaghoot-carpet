@@ -32,7 +32,7 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
   const [searchOpen, setSearchOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
-  const { count } = useCart();
+  const { count, ready: cartReady } = useCart();
   const { count: wishCount } = useWishlist();
   const { data: session } = useSession();
   const accountHref = !session?.user
@@ -40,6 +40,7 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
     : session.user.role === "ADMIN"
       ? adminHref()
       : "/dashboard";
+  const cartBadge = cartReady ? count : 0;
 
   useEffect(() => {
     setSearchOpen(false);
@@ -145,12 +146,12 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
           <Link
             href="/cart"
             className="relative flex h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] text-[var(--sa-navy)] hover:bg-[var(--sa-bone-deep)]"
-            aria-label={count > 0 ? `سبد خرید (${count})` : "سبد خرید"}
+            aria-label={cartBadge > 0 ? `سبد خرید (${cartBadge})` : "سبد خرید"}
           >
             <IconCart size={20} />
-            {count > 0 && (
+            {cartBadge > 0 && (
               <span className="absolute top-1 left-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--sa-gold)] px-1 text-[10px] font-bold leading-none text-[var(--sa-text)]">
-                {count > 9 ? "۹+" : new Intl.NumberFormat("fa-IR").format(count)}
+                {cartBadge > 9 ? "۹+" : new Intl.NumberFormat("fa-IR").format(cartBadge)}
               </span>
             )}
           </Link>

@@ -22,7 +22,12 @@ export function ShanehSection({ items = defaultItems }: { items?: ShanehItem[] }
       <div className="mx-auto max-w-6xl">
         <SectionTitle className="mb-6">تفکیک بر اساس شانه</SectionTitle>
         <RevealGroup className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {items.map((item) => (
+          {items.map((item) => {
+            const faShaneh = new Intl.NumberFormat("fa-IR", { useGrouping: false }).format(item.shaneh);
+            const autoTitle = `${faShaneh} شانه`;
+            const raw = (item.hint || item.label || "").trim();
+            const subtitle = raw && raw !== autoTitle ? raw : "";
+            return (
             <RevealItem key={item.shaneh}>
               <motion.div whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 320, damping: 24 }}>
                 <Link
@@ -32,23 +37,22 @@ export function ShanehSection({ items = defaultItems }: { items?: ShanehItem[] }
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={item.image}
-                    alt={`${item.shaneh} شانه`}
+                    alt={autoTitle}
                     className="aspect-[4/5] w-full object-cover opacity-90 transition duration-500 group-hover:scale-[1.04] group-hover:opacity-100"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[var(--sa-navy)] via-[var(--sa-navy)]/35 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-3 text-center text-[var(--sa-text-on-navy)] sm:p-4">
-                    <span className="block text-2xl font-bold sm:text-3xl">
-                      {new Intl.NumberFormat("fa-IR", { useGrouping: false }).format(item.shaneh)}
-                    </span>
+                    <span className="block text-2xl font-bold sm:text-3xl">{faShaneh}</span>
                     <span className="mt-0.5 block text-xs text-[var(--sa-gold)] sm:text-sm">شانه</span>
-                    <span className="mt-1 block text-[10px] opacity-80 sm:text-xs">
-                      {item.hint || item.label || ""}
-                    </span>
+                    {subtitle ? (
+                      <span className="mt-1 block text-[10px] opacity-80 sm:text-xs">{subtitle}</span>
+                    ) : null}
                   </div>
                 </Link>
               </motion.div>
             </RevealItem>
-          ))}
+            );
+          })}
         </RevealGroup>
       </div>
     </FadeSection>

@@ -55,8 +55,8 @@ export function Typewriter({
   }, [text, speed, startDelay, shouldStart]);
 
   return (
-    <span ref={ref} className={className}>
-      {shown}
+    <span ref={ref} className={className} aria-label={text}>
+      <span aria-hidden>{shown}</span>
       {showCursor && !done && (
         <span
           className="mr-0.5 inline-block w-[3px] translate-y-0.5 animate-pulse bg-[var(--sa-gold)]"
@@ -64,7 +64,6 @@ export function Typewriter({
           aria-hidden
         />
       )}
-      <span className="sr-only">{text}</span>
     </span>
   );
 }

@@ -10,6 +10,7 @@ import { STATUSES } from "@/components/admin/AdminOrdersClient";
 import { adminHref } from "@/lib/admin-path";
 import { SaSelect } from "@/components/SaSelect";
 import type { OrderStatus } from "@/generated/prisma/client";
+import { formatOrderAddress } from "@/lib/format-address";
 
 export type OrderDetail = {
   id: string;
@@ -56,7 +57,7 @@ export function AdminOrderDetailClient({ order }: { order: OrderDetail }) {
         </p>
         <p>
           <span className="text-[var(--sa-text-muted)]">آدرس: </span>
-          {order.city}، {order.address}
+          {formatOrderAddress(order.city, order.address)}
         </p>
         <p>
           <span className="text-[var(--sa-text-muted)]">تماس: </span>

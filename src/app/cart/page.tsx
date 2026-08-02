@@ -87,9 +87,11 @@ function CartView() {
             <h1 className="text-2xl font-bold text-[var(--sa-navy)]">سبد و علاقه‌مندی</h1>
             <p className="mt-1 text-sm text-[var(--sa-text-muted)]">
               {tab === "cart"
-                ? count > 0
-                  ? `${toFa(count)} قلم در سبد`
-                  : "سبد شما خالی است"
+                ? !ready
+                  ? "در حال بارگذاری…"
+                  : count > 0
+                    ? `${toFa(count)} قلم در سبد`
+                    : "سبد شما خالی است"
                 : wishCount > 0
                   ? `${toFa(wishCount)} فرش ذخیره‌شده`
                   : "هنوز چیزی لایک نکرده‌اید"}
@@ -112,7 +114,7 @@ function CartView() {
             onClick={() => switchTab("cart")}
             icon={<IconCart size={15} />}
             label="سبد خرید"
-            badge={count}
+            badge={ready ? count : 0}
           />
           <TabBtn
             active={tab === "wishlist"}

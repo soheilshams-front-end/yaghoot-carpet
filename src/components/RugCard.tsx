@@ -27,7 +27,7 @@ export function RugCard({ rug }: { rug: Rug }) {
 
           <div className="absolute right-2 top-2 flex flex-col items-end gap-1 sm:right-3 sm:top-3">
             <span className="rounded-full bg-[var(--sa-cream)]/95 px-2 py-0.5 text-[9px] font-medium text-[var(--sa-navy)] shadow-sm backdrop-blur-sm sm:px-2.5 sm:py-1 sm:text-xs">
-              {rug.shaneh} شانه
+              {new Intl.NumberFormat("fa-IR", { useGrouping: false }).format(rug.shaneh)} شانه
             </span>
             {rug.stock <= 0 && (
               <span className="rounded-full bg-[var(--sa-navy)]/90 px-2 py-0.5 text-[9px] font-medium text-[var(--sa-text-on-navy)] shadow-sm sm:px-2.5 sm:py-1 sm:text-xs">

@@ -136,8 +136,6 @@ export async function createOrderAction(input: {
     });
   }
 
-  const authority = `SA${Date.now()}${Math.floor(Math.random() * 1000)}`;
-
   async function createWithCode(code: string) {
     return prisma.$transaction(async (tx) => {
       await tx.user.update({
@@ -154,7 +152,8 @@ export async function createOrderAction(input: {
           city,
           phone,
           total,
-          paymentRef: authority,
+          // Contact-flow: no gateway session — staff coordinates payment by phone.
+          paymentRef: null,
           items: { create: lines },
         },
       });
@@ -176,7 +175,7 @@ export async function createOrderAction(input: {
     ok: true as const,
     orderId: order.id,
     code: order.code,
-    authority,
+    authority: null as string | null,
     total,
   };
 }

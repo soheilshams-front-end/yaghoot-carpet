@@ -11,6 +11,7 @@ import { formatPrice } from "@/data/rugs";
 import { createOrderAction } from "@/lib/actions";
 import { isValidIranMobile } from "@/lib/phone";
 import { useLoading } from "@/components/loading/LoadingProvider";
+import { SaSpinner } from "@/components/loading/SaSpinner";
 
 const STEPS = ["آدرس ارسال", "خلاصه", "تأیید"] as const;
 
@@ -22,7 +23,7 @@ export type CheckoutProfile = {
 
 export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
   const router = useRouter();
-  const { items, total, pruneNotice, clearPruneNotice, clear } = useCart();
+  const { items, total, pruneNotice, clearPruneNotice, clear, ready } = useCart();
   const { notify } = useToast();
   const { show, hide } = useLoading();
   const [step, setStep] = useState(0);
@@ -102,6 +103,17 @@ export function CheckoutClient({ profile }: { profile: CheckoutProfile }) {
     show("سفارش ثبت شد — در حال انتقال…");
     notify("سفارش ثبت شد", "همکاران ما برای هماهنگی پرداخت با شما تماس می‌گیرند");
     router.push(`/checkout/success?code=${encodeURIComponent(res.code)}`);
+  }
+
+  if (!ready) {
+    return (
+      <section className="relative overflow-hidden px-4 py-10 sm:px-6">
+        <PatternFill motif="islimi" opacity={0.03} />
+        <div className="relative z-10 mx-auto flex min-h-[40vh] max-w-3xl items-center justify-center">
+          <SaSpinner label="در حال بارگذاری سبد…" />
+        </div>
+      </section>
+    );
   }
 
   if (items.length === 0 && step < 2) {

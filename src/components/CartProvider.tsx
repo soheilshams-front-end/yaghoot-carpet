@@ -67,55 +67,63 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Show stored cart immediately; prune after validate settles.
+    setItems(loaded);
+
     void (async () => {
-      const response = await fetch("/api/cart/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productIds: loaded.map((i) => i.rugId) }),
-      });
-      const res = (await response.json()) as {
-        ok: boolean;
-        items: { id: string; active: boolean; stock: number; price: number; title: string }[];
-      };
-      if (!response.ok || !res.ok) {
-        setReady(true);
-        return;
-      }
-      const byId = new Map(res.items.map((p) => [p.id, p]));
-      let removed = 0;
-      let adjusted = 0;
-
-      const next = loaded
-        .map((item) => {
-          const product = byId.get(item.rugId);
-          if (!product || !product.active || product.stock < 1) {
-            removed++;
-            return null;
-          }
-          const cap = maxAllowedQty(product.stock);
-          const qty = Math.min(item.qty, cap);
-          if (qty !== item.qty) adjusted++;
-          return {
-            ...item,
-            qty,
-            stock: product.stock,
-            unitPrice: product.price,
-            title: product.title,
-          };
-        })
-        .filter((i): i is CartItem => i !== null && i.qty > 0);
-
-      setItems(next);
-      if (removed > 0 || adjusted > 0) {
-        if (removed > 0 && adjusted > 0) {
-          setPruneNotice("برخی اقلام حذف یا به‌روز شدند");
-        } else if (removed > 0) {
-          setPruneNotice("برخی اقلام نامعتبر از سبد حذف شدند");
-        } else {
-          setPruneNotice("موجودی یا قیمت برخی اقلام به‌روز شد");
+      try {
+        const response = await fetch("/api/cart/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productIds: loaded.map((i) => i.rugId) }),
+        });
+        const res = (await response.json()) as {
+          ok: boolean;
+          items: { id: string; active: boolean; stock: number; price: number; title: string }[];
+        };
+        if (!response.ok || !res.ok) {
+          setReady(true);
+          return;
         }
+        const byId = new Map(res.items.map((p) => [p.id, p]));
+        let removed = 0;
+        let adjusted = 0;
+
+        const next = loaded
+          .map((item) => {
+            const product = byId.get(item.rugId);
+            if (!product || !product.active || product.stock < 1) {
+              removed++;
+              return null;
+            }
+            const cap = maxAllowedQty(product.stock);
+            const qty = Math.min(item.qty, cap);
+            if (qty !== item.qty) adjusted++;
+            return {
+              ...item,
+              qty,
+              stock: product.stock,
+              unitPrice: product.price,
+              title: product.title,
+            };
+          })
+          .filter((i): i is CartItem => i !== null && i.qty > 0);
+
+        setItems(next);
+        if (removed > 0 || adjusted > 0) {
+          if (removed > 0 && adjusted > 0) {
+            setPruneNotice("برخی اقلام حذف یا به‌روز شدند");
+          } else if (removed > 0) {
+            setPruneNotice("برخی اقلام نامعتبر از سبد حذف شدند");
+          } else {
+            setPruneNotice("موجودی یا قیمت برخی اقلام به‌روز شد");
+          }
+        }
+      } catch {
+        /* keep hydrated items */
+      } finally {
+        setReady(true);
       }
-      setReady(true);
     })();
   }, []);
 

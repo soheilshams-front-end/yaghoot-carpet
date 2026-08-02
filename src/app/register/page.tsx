@@ -51,8 +51,14 @@ function RegisterForm() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    show("در حال ایجاد حساب…");
     const fd = new FormData(e.currentTarget);
+    const password = String(fd.get("password") ?? "");
+    if (password.length < 8) {
+      setError("رمز عبور باید حداقل ۸ کاراکتر باشد");
+      setLoading(false);
+      return;
+    }
+    show("در حال ایجاد حساب…");
     try {
       const res = await registerAction(fd);
       if (!res.ok) {
@@ -185,6 +191,8 @@ function RegisterForm() {
                   type={showPass ? "text" : "password"}
                   placeholder="حداقل ۸ کاراکتر"
                   required
+                  minLength={8}
+                  hint="رمز باید حداقل ۸ کاراکتر باشد"
                   icon={<IconShield size={16} />}
                   trailing={
                     <button
@@ -202,6 +210,7 @@ function RegisterForm() {
                   type={showPass ? "text" : "password"}
                   placeholder="تکرار رمز عبور"
                   required
+                  minLength={8}
                   icon={<IconShield size={16} />}
                 />
 
@@ -270,6 +279,8 @@ function Field({
   placeholder,
   icon,
   trailing,
+  minLength,
+  hint,
 }: {
   name: string;
   label: string;
@@ -278,6 +289,8 @@ function Field({
   placeholder?: string;
   icon?: React.ReactNode;
   trailing?: React.ReactNode;
+  minLength?: number;
+  hint?: string;
 }) {
   return (
     <label className="block text-sm">
@@ -288,11 +301,15 @@ function Field({
           name={name}
           type={type}
           required={required}
+          minLength={minLength}
           placeholder={placeholder}
           className="h-full min-w-0 flex-1 bg-transparent text-sm text-[var(--sa-navy)] outline-none placeholder:text-[var(--sa-text-muted)]/55"
         />
         {trailing}
       </span>
+      {hint && (
+        <span className="mt-1.5 block text-[11px] text-[var(--sa-text-muted)]">{hint}</span>
+      )}
     </label>
   );
 }
