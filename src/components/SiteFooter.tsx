@@ -49,7 +49,7 @@ export async function SiteFooter() {
           <div>
             <div className="flex items-center gap-2 text-[var(--sa-gold)]">
               <LogoMark size={32} />
-              <span className="text-lg font-semibold sm:text-xl">فرش یاقوت</span>
+              <span className="font-display translate-y-1 text-xl leading-[1.7] sm:text-2xl">فرش یاقوت</span>
             </div>
             <h3 className="mt-2 text-sm font-semibold text-[var(--sa-navy)] sm:mt-3 sm:text-base">
               فروشگاه فرش یاقوت

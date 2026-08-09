@@ -4,6 +4,8 @@ import { Providers } from "@/components/Providers";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { MobileTabBar } from "@/components/MobileTabBar";
+import { WhatsAppFab } from "@/components/WhatsAppFab";
+import { getSupportPhone } from "@/lib/support";
 import "./globals.css";
 
 const iran = localFont({
@@ -20,6 +22,14 @@ const iran = localFont({
   display: "swap",
 });
 
+const nastaliq = localFont({
+  src: "../fonts/nastaliq/IranNastaliq.woff2",
+  variable: "--font-nastaliq",
+  display: "swap",
+  weight: "400",
+  style: "normal",
+});
+
 export const metadata: Metadata = {
   title: "فرش یاقوت | فروشگاه فرش لوکس",
   description: "فروشگاه فرش یاقوت — خرید آنلاین، داشبورد خریدار و پنل مدیریت",
@@ -29,13 +39,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const support = await getSupportPhone();
+
   return (
-    <html lang="fa" dir="rtl" className={`${iran.variable} h-full antialiased`}>
+    <html
+      lang="fa"
+      dir="rtl"
+      className={`${iran.variable} ${nastaliq.variable} h-full antialiased`}
+    >
       <body className="flex min-h-full flex-col font-sans">
         <Providers>
           <SmoothScroll />
@@ -44,6 +60,7 @@ export default function RootLayout({
             <SiteFooter />
           </div>
           <MobileTabBar />
+          <WhatsAppFab phone={support.phone} />
         </Providers>
       </body>
     </html>

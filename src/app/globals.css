@@ -20,6 +20,7 @@
   --sa-radius-section: 4px;
   --sa-gutter: 14px;
   --sa-font: var(--font-iran), Tahoma, sans-serif;
+  --sa-font-display: var(--font-nastaliq), var(--font-iran), Tahoma, sans-serif;
   --background: var(--sa-cream);
   --foreground: var(--sa-text);
 }
@@ -36,6 +37,12 @@
   --color-sa-border: var(--sa-border);
   --color-sa-gold: var(--sa-gold);
   --font-sans: var(--sa-font);
+  --font-display: var(--sa-font-display);
+}
+
+.font-display {
+  font-family: var(--sa-font-display);
+  line-height: 1.7;
 }
 
 html {

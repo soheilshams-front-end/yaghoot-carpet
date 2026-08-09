@@ -2,10 +2,12 @@
 
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { AuthError } from "next-auth";
+import { signIn } from "@/auth";
 import { prisma } from "@/lib/db";
 import { isValidIranMobile, normalizePhone } from "@/lib/phone";
 
-const schema = z
+const registerSchema = z
   .object({
     phone: z.string().min(10),
     password: z.string().min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد"),
@@ -17,7 +19,7 @@ const schema = z
   });
 
 export async function registerAction(formData: FormData) {
-  const parsed = schema.safeParse({
+  const parsed = registerSchema.safeParse({
     phone: formData.get("phone"),
     password: formData.get("password"),
     passwordConfirm: formData.get("passwordConfirm"),
@@ -55,4 +57,38 @@ export async function registerAction(formData: FormData) {
   });
 
   return { ok: true as const };
+}
+
+export type LoginResult =
+  | { ok: true; role: "USER" | "ADMIN" }
+  | { ok: false; error: string };
+
+/** Server-side credentials login — avoids client CSRF/HTML parse failures. */
+export async function credentialsLoginAction(
+  phoneRaw: string,
+  password: string,
+): Promise<LoginResult> {
+  const phone = normalizePhone(phoneRaw);
+  if (!isValidIranMobile(phone) || password.length < 8) {
+    return { ok: false, error: "invalid" };
+  }
+
+  try {
+    await signIn("credentials", {
+      phone,
+      password,
+      redirect: false,
+    });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return { ok: false, error: "invalid" };
+    }
+    throw error;
+  }
+
+  const user = await prisma.user.findFirst({
+    where: { phone },
+    select: { role: true },
+  });
+  return { ok: true, role: user?.role === "ADMIN" ? "ADMIN" : "USER" };
 }

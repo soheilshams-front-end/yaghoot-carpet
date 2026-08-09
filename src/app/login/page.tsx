@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { FormEvent, Suspense, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AppChrome } from "@/components/AppChrome";
@@ -12,6 +11,7 @@ import { img } from "@/lib/images";
 import { useLoading } from "@/components/loading/LoadingProvider";
 import { SaSpinner } from "@/components/loading/SaSpinner";
 import { isAdminPublicPath, adminHref } from "@/lib/admin-path";
+import { credentialsLoginAction } from "@/lib/auth-actions";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -57,22 +57,17 @@ function LoginForm() {
     setError("");
     show("در حال ورود…");
     try {
-      const res = await signIn("credentials", {
-        phone,
-        password,
-        redirect: false,
-      });
-      if (res?.error) {
+      const res = await credentialsLoginAction(phone, password);
+      if (!res.ok) {
         setError("شماره موبایل یا رمز عبور نادرست است");
         hide();
         setLoading(false);
         return;
       }
       show("ورود موفق — در حال انتقال…");
-      const me = await fetch("/api/auth/session").then((r) => r.json()).catch(() => null);
-      const role = me?.user?.role as string | undefined;
       const dest =
-        role === "ADMIN" && (callbackUrl === "/dashboard" || callbackUrl.startsWith("/dashboard/"))
+        res.role === "ADMIN" &&
+        (callbackUrl === "/dashboard" || callbackUrl.startsWith("/dashboard/"))
           ? adminHref()
           : callbackUrl;
       router.push(dest);

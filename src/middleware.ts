@@ -9,11 +9,6 @@ const { auth } = NextAuth(authConfig);
 function applyRateLimit(req: Request, pathname: string): Response | null {
   const ip = clientIp(req);
 
-  if (pathname.startsWith("/api/auth")) {
-    const result = rateLimit(`auth:${ip}`, 20, 60_000);
-    if (!result.ok) return rateLimitResponse(result.retryAfterSec);
-  }
-
   if (pathname === "/api/search") {
     const result = rateLimit(`search:${ip}`, 60, 60_000);
     if (!result.ok) return rateLimitResponse(result.retryAfterSec);
@@ -84,7 +79,6 @@ export const config = {
     "/dashboard/:path*",
     "/checkout",
     "/checkout/:path*",
-    "/api/auth/:path*",
     "/api/search",
     "/api/cart/validate",
     "/api/admin/upload",

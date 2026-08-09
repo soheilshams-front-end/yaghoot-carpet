@@ -165,7 +165,7 @@ export function RugsShop({
             <div className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
               <div>
                 <HeroEyebrow>فروشگاه آنلاین</HeroEyebrow>
-                <h1 className="mt-4 min-h-[1.4em] text-3xl font-bold text-[var(--sa-navy)] sm:text-4xl lg:text-[2.65rem]">
+                <h1 className="font-display mt-4 min-h-[1.55em] text-3xl leading-[1.7] text-[var(--sa-navy)] sm:text-4xl lg:text-[2.85rem]">
                   <Typewriter text="کالکشن فرش‌های یاقوت" speed={40} startDelay={180} />
                 </h1>
                 <p className="mt-3 max-w-xl text-base leading-8 text-[var(--sa-text-muted)]">

@@ -98,7 +98,7 @@ export function TopBand({
               className="mb-6 text-center"
             >
               <HeroEyebrow>{eyebrow}</HeroEyebrow>
-              <h1 className="mt-5 min-h-[1.35em] text-4xl font-black leading-[1.25] tracking-tight text-[var(--sa-navy)] sm:text-5xl lg:text-[3.5rem]">
+              <h1 className="font-display mt-5 min-h-[1.55em] text-[2.65rem] leading-[1.65] tracking-normal text-[var(--sa-navy)] sm:text-5xl sm:leading-[1.7] lg:text-[3.75rem]">
                 <Typewriter text={headline} speed={90} startDelay={400} />
               </h1>
             </motion.div>

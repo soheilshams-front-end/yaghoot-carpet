@@ -19,7 +19,7 @@ export function SectionTitle({
 }: Props) {
   return (
     <h2
-      className={`flex min-w-0 items-center gap-2 text-lg font-bold leading-snug sm:gap-3 sm:text-2xl lg:text-3xl ${
+      className={`font-display flex min-w-0 items-center gap-2 text-xl leading-[1.7] sm:gap-3 sm:text-2xl lg:text-[2rem] ${
         light ? "text-[var(--sa-text-on-navy)]" : "text-[var(--sa-navy)]"
       } ${className}`}
     >
@@ -34,7 +34,7 @@ export function SectionTitle({
         whenInView
         speed={38}
         startDelay={120}
-        className="min-h-[1.35em]"
+        className="min-h-[1.55em]"
       />
     </h2>
   );
