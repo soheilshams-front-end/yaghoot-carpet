@@ -7,7 +7,9 @@ const MAX_UPLOADS_DIR_BYTES = 500 * 1024 * 1024;
 function uploadsDir(): string {
   const fromEnv = process.env.UPLOADS_DIR?.trim();
   if (fromEnv) return path.resolve(fromEnv);
-  return path.join(process.cwd(), "public", "uploads");
+  // turbopackIgnore keeps the bundler from walking public/uploads (often a
+  // symlink to /srv/... outside the project root, which panics Turbopack).
+  return path.join(/* turbopackIgnore: true */ process.cwd(), "public", "uploads");
 }
 
 async function folderByteSize(dir: string): Promise<number> {
