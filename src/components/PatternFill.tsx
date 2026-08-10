@@ -1,10 +1,10 @@
 export type PatternMotif = "floral" | "islimi" | "ornament" | "scroll";
 
 const MOTIF_SRC: Record<PatternMotif, string> = {
-  floral: "/shah-abbasi/carpet-pattern-a.jpg",
-  islimi: "/shah-abbasi/carpet-pattern-b.jpg",
-  ornament: "/shah-abbasi/carpet-pattern-a.jpg",
-  scroll: "/shah-abbasi/carpet-pattern-b.jpg",
+  floral: "/shah-abbasi/carpet-pattern-a.webp",
+  islimi: "/shah-abbasi/carpet-pattern-b.webp",
+  ornament: "/shah-abbasi/carpet-pattern-a.webp",
+  scroll: "/shah-abbasi/carpet-pattern-b.webp",
 };
 
 const MOTIF_SIZE: Record<PatternMotif, number> = {

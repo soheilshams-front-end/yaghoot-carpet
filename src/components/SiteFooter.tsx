@@ -35,7 +35,7 @@ export async function SiteFooter() {
       <div
         className="pointer-events-none absolute inset-0 z-0 opacity-[0.04]"
         style={{
-          backgroundImage: "url(/shah-abbasi/carpet-pattern-b.jpg)",
+          backgroundImage: "url(/shah-abbasi/carpet-pattern-b.webp)",
           backgroundSize: "420px 420px",
           backgroundRepeat: "repeat",
           mixBlendMode: "multiply",
