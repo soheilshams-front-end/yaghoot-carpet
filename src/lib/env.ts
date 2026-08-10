@@ -23,4 +23,16 @@ export function validateProductionEnv() {
       throw new Error("AUTH_URL must be a valid absolute URL (e.g. https://example.com)");
     }
   }
+
+  const site = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (site) {
+    try {
+      // eslint-disable-next-line no-new
+      new URL(site);
+    } catch {
+      throw new Error(
+        "NEXT_PUBLIC_SITE_URL must be a valid absolute URL (e.g. https://yaghootcarpet.com)",
+      );
+    }
+  }
 }

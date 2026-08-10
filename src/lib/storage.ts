@@ -3,6 +3,13 @@ import path from "path";
 
 const MAX_UPLOADS_DIR_BYTES = 500 * 1024 * 1024;
 
+/** Absolute uploads dir when set (VPS); otherwise public/uploads under cwd. */
+function uploadsDir(): string {
+  const fromEnv = process.env.UPLOADS_DIR?.trim();
+  if (fromEnv) return path.resolve(fromEnv);
+  return path.join(process.cwd(), "public", "uploads");
+}
+
 async function folderByteSize(dir: string): Promise<number> {
   try {
     const entries = await readdir(dir, { withFileTypes: true });
@@ -25,9 +32,9 @@ function buildFileName(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.webp`;
 }
 
-/** Persist processed WebP bytes to public/uploads; returns public URL path. */
+/** Persist processed WebP bytes; returns public URL path (/uploads/…). */
 export async function saveImage(buffer: Buffer): Promise<string> {
-  const dir = path.join(process.cwd(), "public", "uploads");
+  const dir = uploadsDir();
   await mkdir(dir, { recursive: true });
 
   const used = await folderByteSize(dir);
@@ -49,9 +56,9 @@ export function isLocalUploadUrl(url: string): boolean {
 export async function deleteStoredFile(url: string): Promise<void> {
   if (!isLocalUploadUrl(url)) return;
 
-  const uploadsDir = path.resolve(process.cwd(), "public", "uploads");
-  const filePath = path.resolve(process.cwd(), "public", url.replace(/^\//, ""));
-  if (!filePath.startsWith(uploadsDir + path.sep)) return;
+  const dir = uploadsDir();
+  const filePath = path.resolve(dir, path.basename(url));
+  if (!filePath.startsWith(dir + path.sep)) return;
 
   const { unlink } = await import("fs/promises");
   try {

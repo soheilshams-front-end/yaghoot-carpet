@@ -42,7 +42,16 @@
 
 .font-display {
   font-family: var(--sa-font-display);
-  line-height: 1.7;
+  line-height: 1.85;
+  letter-spacing: 0;
+  word-spacing: normal;
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures contextual;
+  font-feature-settings: "cswh" 1, "calt" 1, "rlig" 1, "liga" 1, "kern" 1;
+  -webkit-font-feature-settings: "cswh" 1, "calt" 1, "rlig" 1, "liga" 1, "kern" 1;
+  text-rendering: geometricPrecision;
+  font-synthesis: none;
+  padding-block: 0.1em;
 }
 
 html {
@@ -230,4 +239,73 @@ html.sa-dash-active .sa-page {
 .sa-top > [aria-hidden="true"],
 .sa-framed-inner > [aria-hidden="true"] {
   z-index: 0;
+}
+
+/* Article body prose */
+.sa-prose {
+  color: var(--sa-text);
+  font-size: 0.95rem;
+  line-height: 1.9;
+}
+
+.sa-prose > * + * {
+  margin-top: 1rem;
+}
+
+.sa-prose h2 {
+  margin-top: 1.75rem;
+  font-size: 1.35rem;
+  color: var(--sa-navy);
+}
+
+.sa-prose h3 {
+  margin-top: 1.4rem;
+  font-size: 1.15rem;
+  color: var(--sa-navy);
+}
+
+.sa-prose a {
+  color: var(--sa-navy);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sa-prose ul,
+.sa-prose ol {
+  padding-inline-start: 1.25rem;
+}
+
+.sa-prose ul {
+  list-style: disc;
+}
+
+.sa-prose ol {
+  list-style: decimal;
+}
+
+.sa-prose blockquote {
+  border-right: 3px solid var(--sa-gold);
+  padding-right: 1rem;
+  color: var(--sa-text-muted);
+}
+
+.sa-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--sa-border);
+}
+
+.sa-prose hr {
+  border: 0;
+  border-top: 1px solid var(--sa-border);
+  margin: 1.5rem 0;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--sa-text-muted);
+  content: attr(data-placeholder);
+  float: right;
+  height: 0;
+  pointer-events: none;
 }

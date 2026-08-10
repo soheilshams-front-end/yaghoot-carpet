@@ -28,11 +28,35 @@ const nastaliq = localFont({
   display: "swap",
   weight: "400",
   style: "normal",
+  adjustFontFallback: false,
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://yaghootcarpet.com";
+
 export const metadata: Metadata = {
-  title: "فرش یاقوت | فروشگاه فرش لوکس",
-  description: "فروشگاه فرش یاقوت — خرید آنلاین، داشبورد خریدار و پنل مدیریت",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "فرش یاقوت | فروشگاه فرش لوکس",
+    template: "%s | فرش یاقوت",
+  },
+  description: "فروشگاه فرش یاقوت — خرید آنلاین فرش دستباف و ماشینی لوکس",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "fa_IR",
+    url: siteUrl,
+    siteName: "فرش یاقوت",
+    title: "فرش یاقوت | فروشگاه فرش لوکس",
+    description: "فروشگاه فرش یاقوت — خرید آنلاین فرش دستباف و ماشینی لوکس",
+    images: [{ url: "/brand/logo.png", alt: "فرش یاقوت" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "فرش یاقوت | فروشگاه فرش لوکس",
+    description: "فروشگاه فرش یاقوت — خرید آنلاین فرش دستباف و ماشینی لوکس",
+    images: ["/brand/logo.png"],
+  },
   icons: {
     icon: { url: "/favicon.png", type: "image/png" },
     apple: { url: "/apple-icon.png", type: "image/png" },

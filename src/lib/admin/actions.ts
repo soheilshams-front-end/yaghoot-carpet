@@ -7,22 +7,15 @@ import { deleteStoredFile, isLocalUploadUrl } from "@/lib/storage";
 import { ORDER_TRANSITIONS } from "@/lib/admin/order-status";
 import { markOrderPaid } from "@/lib/order-payment";
 import {
+  articleInputSchema,
   categoryInputSchema,
   homepagePayloadSchema,
   parseProductInput,
 } from "@/lib/validation";
 import { sanitizeImageUrl } from "@/lib/safe-image-url";
+import { sanitizeArticleHtml } from "@/lib/sanitize-html";
+import { slugify, uniqueSlug } from "@/lib/slug";
 import type { OrderStatus } from "@/generated/prisma/client";
-
-function slugify(input: string) {
-  return input
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w\u0600-\u06FF-]+/g, "")
-    .replace(/-+/g, "-")
-    .slice(0, 64) || `cat-${Date.now()}`;
-}
 
 function revalidateCatalog() {
   revalidatePath("/");
@@ -390,5 +383,131 @@ export async function deleteMediaAction(id: string) {
 
   await prisma.mediaAsset.delete({ where: { id } });
   revalidatePath("/admin/media");
+  return { ok: true as const };
+}
+
+/* ─── Articles ─── */
+
+function revalidateArticles(slug?: string) {
+  revalidatePath("/articles");
+  revalidatePath("/admin/articles");
+  revalidatePath("/sitemap.xml");
+  if (slug) revalidatePath(`/articles/${slug}`, "page");
+}
+
+export async function saveArticleAction(input: {
+  id?: string;
+  slug?: string;
+  title: string;
+  excerpt?: string;
+  contentHtml?: string;
+  coverImage?: string;
+  published?: boolean;
+  metaTitle?: string;
+  metaDesc?: string;
+}) {
+  if (!(await requireAdmin())) return { ok: false as const, error: "دسترسی غیرمجاز" };
+
+  const parsed = articleInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false as const, error: "اطلاعات مقاله نامعتبر است" };
+  }
+
+  const title = parsed.data.title.trim();
+  const excerpt = parsed.data.excerpt.trim();
+  const contentHtml = sanitizeArticleHtml(parsed.data.contentHtml);
+  const coverImage = sanitizeImageUrl(parsed.data.coverImage) ?? "";
+  const published = parsed.data.published;
+  const metaTitle = parsed.data.metaTitle.trim();
+  const metaDesc = parsed.data.metaDesc.trim();
+
+  const requestedSlug = parsed.data.slug?.trim();
+  let slug: string;
+
+  try {
+    if (parsed.data.id) {
+      const existing = await prisma.article.findUnique({ where: { id: parsed.data.id } });
+      if (!existing) return { ok: false as const, error: "مقاله یافت نشد" };
+
+      const base = requestedSlug || existing.slug || title;
+      slug = await uniqueSlug(base, async (s) => {
+        const clash = await prisma.article.findUnique({ where: { slug: s } });
+        return Boolean(clash && clash.id !== parsed.data.id);
+      });
+
+      const publishedAt =
+        published && !existing.published
+          ? new Date()
+          : published
+            ? existing.publishedAt ?? new Date()
+            : null;
+
+      await prisma.article.update({
+        where: { id: parsed.data.id },
+        data: {
+          title,
+          slug,
+          excerpt,
+          contentHtml,
+          coverImage,
+          published,
+          publishedAt,
+          metaTitle,
+          metaDesc,
+        },
+      });
+
+      revalidateArticles(existing.slug);
+      if (slug !== existing.slug) revalidateArticles(slug);
+    } else {
+      slug = await uniqueSlug(requestedSlug || title, async (s) => {
+        const clash = await prisma.article.findUnique({ where: { slug: s } });
+        return Boolean(clash);
+      });
+
+      await prisma.article.create({
+        data: {
+          title,
+          slug,
+          excerpt,
+          contentHtml,
+          coverImage,
+          published,
+          publishedAt: published ? new Date() : null,
+          metaTitle,
+          metaDesc,
+        },
+      });
+      revalidateArticles(slug);
+    }
+  } catch {
+    return { ok: false as const, error: "خطا در ذخیره مقاله" };
+  }
+
+  return { ok: true as const, slug };
+}
+
+export async function deleteArticleAction(id: string) {
+  if (!(await requireAdmin())) return { ok: false as const, error: "دسترسی غیرمجاز" };
+  const existing = await prisma.article.findUnique({ where: { id } });
+  if (!existing) return { ok: false as const, error: "مقاله یافت نشد" };
+  await prisma.article.delete({ where: { id } });
+  revalidateArticles(existing.slug);
+  return { ok: true as const };
+}
+
+export async function toggleArticlePublishedAction(id: string, published: boolean) {
+  if (!(await requireAdmin())) return { ok: false as const, error: "دسترسی غیرمجاز" };
+  const existing = await prisma.article.findUnique({ where: { id } });
+  if (!existing) return { ok: false as const, error: "مقاله یافت نشد" };
+
+  await prisma.article.update({
+    where: { id },
+    data: {
+      published,
+      publishedAt: published ? existing.publishedAt ?? new Date() : null,
+    },
+  });
+  revalidateArticles(existing.slug);
   return { ok: true as const };
 }

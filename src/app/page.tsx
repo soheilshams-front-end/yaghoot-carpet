@@ -25,6 +25,7 @@ import {
   heroImage,
   heroLabels,
 } from "@/data/site";
+import { absoluteUrl, siteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +95,19 @@ export default async function HomePage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "فرش یاقوت",
+            url: siteUrl(),
+            logo: absoluteUrl("/brand/logo.png"),
+            sameAs: [],
+          }),
+        }}
+      />
       <SectionDotsNav sections={navSections} />
 
       {showHero && (

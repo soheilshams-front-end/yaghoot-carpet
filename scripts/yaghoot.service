@@ -1,0 +1,20 @@
+[Unit]
+Description=Yaghoot Carpet Next.js app
+After=network.target
+
+[Service]
+Type=simple
+User=yaghoot
+Group=yaghoot
+WorkingDirectory=/srv/yaghoot/app
+EnvironmentFile=/srv/yaghoot/app/.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/npm run start -- -H 127.0.0.1 -p 3000
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+# Soft limits for a small VPS
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

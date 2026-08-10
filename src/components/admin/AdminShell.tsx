@@ -33,6 +33,7 @@ const NAV: {
   { href: adminHref(), label: "داشبورد", Icon: IconHome, exact: true },
   { href: adminHref("/products"), label: "کاتالوگ محصولات", Icon: IconTag },
   { href: adminHref("/categories"), label: "گروه‌ها و دسته‌ها", Icon: IconCart },
+  { href: adminHref("/articles"), label: "مقالات", Icon: IconSearch },
   { href: adminHref("/orders"), label: "سفارش‌ها", Icon: IconTruck },
   { href: adminHref("/homepage"), label: "صفحه اصلی", Icon: IconHeart },
   { href: adminHref("/settings"), label: "تنظیمات", Icon: IconUser },

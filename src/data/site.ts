@@ -87,6 +87,7 @@ export const footerLinks = {
   quick: [
     { href: "/", label: "صفحه اصلی" },
     { href: "/rugs", label: "فروشگاه" },
+    { href: "/articles", label: "مقالات" },
     { href: "/dashboard", label: "داشبورد" },
   ],
   cats: [

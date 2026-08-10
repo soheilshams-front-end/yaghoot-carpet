@@ -58,3 +58,15 @@ export const categoryInputSchema = z.object({
 });
 
 export const homepagePayloadSchema = z.string().max(50_000);
+
+export const articleInputSchema = z.object({
+  id: z.string().optional(),
+  slug: z.string().max(64).optional(),
+  title: z.string().trim().min(3).max(160),
+  excerpt: z.string().max(300).default(""),
+  contentHtml: z.string().max(200_000).default(""),
+  coverImage: z.string().max(500).default(""),
+  published: z.boolean().default(false),
+  metaTitle: z.string().max(180).default(""),
+  metaDesc: z.string().max(300).default(""),
+});

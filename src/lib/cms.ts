@@ -61,6 +61,50 @@ export async function getSiteSetting<T = unknown>(key: string, fallback: T): Pro
   return parseJson<T>(row.value, fallback);
 }
 
+export type CmsArticle = {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  contentHtml: string;
+  coverImage: string;
+  published: boolean;
+  publishedAt: Date | null;
+  metaTitle: string;
+  metaDesc: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export async function listArticles(opts?: {
+  publishedOnly?: boolean;
+}): Promise<CmsArticle[]> {
+  return prisma.article.findMany({
+    where: opts?.publishedOnly ? { published: true } : undefined,
+    orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
+  });
+}
+
+export async function listArticlesAdmin(): Promise<CmsArticle[]> {
+  return prisma.article.findMany({
+    orderBy: [{ updatedAt: "desc" }],
+  });
+}
+
+export async function getArticleBySlug(
+  slug: string,
+  opts?: { publishedOnly?: boolean },
+): Promise<CmsArticle | null> {
+  const row = await prisma.article.findUnique({ where: { slug } });
+  if (!row) return null;
+  if (opts?.publishedOnly && !row.published) return null;
+  return row;
+}
+
+export async function getArticleById(id: string): Promise<CmsArticle | null> {
+  return prisma.article.findUnique({ where: { id } });
+}
+
 export async function getAdminDashboard() {
   const [productCount, orderCount, lowStock, paidAgg, pendingOrders] = await Promise.all([
     prisma.product.count({ where: { active: true } }),

@@ -21,6 +21,7 @@ import { adminHref } from "@/lib/admin-path";
 const links = [
   { href: "/", label: "صفحه اصلی" },
   { href: "/rugs", label: "محصولات" },
+  { href: "/articles", label: "مقالات" },
   { href: "/#faq", label: "سوالات متداول" },
   { href: "/#contact", label: "تماس با ما" },
 ];
@@ -70,7 +71,8 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
             {links.map((l) => {
               const isActive =
                 (l.label === "صفحه اصلی" && pathname === "/") ||
-                (l.label === "محصولات" && pathname.startsWith("/rugs"));
+                (l.label === "محصولات" && pathname.startsWith("/rugs")) ||
+                (l.label === "مقالات" && pathname.startsWith("/articles"));
               return (
                 <Link
                   key={l.label}

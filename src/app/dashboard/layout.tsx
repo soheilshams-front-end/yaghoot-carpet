@@ -1,9 +1,14 @@
 import { auth } from "@/auth";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AppChrome } from "@/components/AppChrome";
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { prisma } from "@/lib/db";
 import { adminHref } from "@/lib/admin-path";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default async function DashboardLayout({
   children,
