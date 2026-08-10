@@ -56,11 +56,8 @@ export default auth((req) => {
     if (session.user.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
     }
-
-    const rewritten = req.nextUrl.clone();
-    const rest = pathname.slice(ADMIN_PATH.length) || "";
-    rewritten.pathname = `/admin${rest}`;
-    return NextResponse.rewrite(rewritten);
+    // Path rewrite to /admin lives in next.config.ts (avoids Next 16 middleware rewrite → /admin → / loop)
+    return NextResponse.next();
   }
 
   if (pathname.startsWith("/dashboard") || pathname.startsWith("/checkout")) {

@@ -5,6 +5,7 @@ import { fileURLToPath } from "url";
 const root = path.dirname(fileURLToPath(import.meta.url));
 
 const isProd = process.env.NODE_ENV === "production";
+const ADMIN_PATH = process.env.NEXT_PUBLIC_ADMIN_PATH?.trim() || "/yaqoot-cms";
 
 function buildCsp() {
   const scriptSrc = isProd
@@ -53,6 +54,12 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [{ source: "/(.*)", headers: buildSecurityHeaders() }];
+  },
+  async rewrites() {
+    return [
+      { source: ADMIN_PATH, destination: "/admin" },
+      { source: `${ADMIN_PATH}/:path*`, destination: "/admin/:path*" },
+    ];
   },
 };
 
