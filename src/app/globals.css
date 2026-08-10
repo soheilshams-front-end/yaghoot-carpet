@@ -42,16 +42,17 @@
 
 .font-display {
   font-family: var(--sa-font-display);
-  line-height: 1.85;
+  line-height: 1.7;
   letter-spacing: 0;
   word-spacing: normal;
   font-kerning: normal;
   font-variant-ligatures: common-ligatures contextual;
+  /* cswh keeps IranNastaliq joins working on iOS/WebKit */
   font-feature-settings: "cswh" 1, "calt" 1, "rlig" 1, "liga" 1, "kern" 1;
   -webkit-font-feature-settings: "cswh" 1, "calt" 1, "rlig" 1, "liga" 1, "kern" 1;
-  text-rendering: geometricPrecision;
-  font-synthesis: none;
-  padding-block: 0.1em;
+  text-rendering: optimizeLegibility;
+  /* Optical size: rebuilt/shaped Nastaliq can read lighter at the same CSS size */
+  font-size: 1.06em;
 }
 
 html {
