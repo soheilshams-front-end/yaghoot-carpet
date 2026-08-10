@@ -61,6 +61,9 @@ export const metadata: Metadata = {
     icon: { url: "/favicon.png", type: "image/png" },
     apple: { url: "/apple-icon.png", type: "image/png" },
   },
+  verification: {
+    google: "l57wlc8o-iecwjIaQecZdBUPeO_oDM6MvU3Z4yMlyeY",
+  },
 };
 
 export default async function RootLayout({
