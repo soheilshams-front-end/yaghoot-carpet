@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AppChrome } from "@/components/AppChrome";
@@ -10,18 +10,16 @@ import { LogoMark, IconPhone, IconShield, IconCheck } from "@/components/Icons";
 import { img } from "@/lib/images";
 import { useLoading } from "@/components/loading/LoadingProvider";
 import { SaSpinner } from "@/components/loading/SaSpinner";
-import { isAdminPublicPath, adminHref } from "@/lib/admin-path";
 import { credentialsLoginAction } from "@/lib/auth-actions";
+import { safeCallbackUrl } from "@/lib/safe-callback-url";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-function safeCallbackUrl(raw: string | null): string {
-  if (!raw) return "/dashboard";
-  if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("://")) {
-    return "/dashboard";
-  }
-  return raw;
-}
+const asidePoints = [
+  "پیگیری سفارش و ارسال",
+  "علاقه‌مندی و سوابق خرید",
+  "دسترسی به قیمت درب کارخانه",
+];
 
 export default function LoginPage() {
   return (
@@ -40,10 +38,8 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
-  const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = safeCallbackUrl(params.get("callbackUrl"));
-  const isAdminLogin = isAdminPublicPath(callbackUrl) || callbackUrl.startsWith("/admin");
+  const callbackUrl = safeCallbackUrl(params.get("callbackUrl"), "");
   const { show, hide } = useLoading();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -57,7 +53,7 @@ function LoginForm() {
     setError("");
     show("در حال ورود…");
     try {
-      const res = await credentialsLoginAction(phone, password);
+      const res = await credentialsLoginAction(phone, password, callbackUrl || null);
       if (!res.ok) {
         setError("شماره موبایل یا رمز عبور نادرست است");
         hide();
@@ -65,13 +61,7 @@ function LoginForm() {
         return;
       }
       show("ورود موفق — در حال انتقال…");
-      const dest =
-        res.role === "ADMIN" &&
-        (callbackUrl === "/dashboard" || callbackUrl.startsWith("/dashboard/"))
-          ? adminHref()
-          : callbackUrl;
-      router.push(dest);
-      router.refresh();
+      window.location.replace(res.redirectTo);
     } catch {
       setError("خطایی رخ داد؛ دوباره تلاش کنید");
       hide();
@@ -79,12 +69,9 @@ function LoginForm() {
     }
   }
 
-  const asideTitle = isAdminLogin
-    ? "مدیریت فروشگاه فرش یاقوت"
-    : "خوش آمدید؛ حساب شما منتظر است";
-  const asidePoints = isAdminLogin
-    ? ["مدیریت محصولات و موجودی", "پیگیری و تغییر وضعیت سفارش‌ها", "تنظیم صفحه اصلی و محتوا"]
-    : ["پیگیری سفارش و ارسال", "علاقه‌مندی و سوابق خرید", "دسترسی به قیمت درب کارخانه"];
+  const registerHref = callbackUrl
+    ? `/register?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    : "/register";
 
   return (
     <section className="relative min-h-[calc(100dvh-4.5rem)] overflow-hidden">
@@ -124,9 +111,7 @@ function LoginForm() {
                 <LogoMark size={44} />
                 <div>
                   <p className="text-xl font-bold tracking-wide">فرش یاقوت</p>
-                  <p className="text-xs text-[var(--sa-text-on-navy)]/65">
-                    {isAdminLogin ? "ورود به پنل مدیریت" : "ورود به حساب کاربری"}
-                  </p>
+                  <p className="text-xs text-[var(--sa-text-on-navy)]/65">ورود به حساب کاربری</p>
                 </div>
               </motion.div>
 
@@ -137,7 +122,7 @@ function LoginForm() {
                 className="max-w-sm"
               >
                 <h2 className="text-3xl font-bold leading-snug text-[var(--sa-text-on-navy)] xl:text-[2.1rem]">
-                  {asideTitle}
+                  خوش آمدید؛ حساب شما منتظر است
                 </h2>
                 <ul className="mt-6 space-y-3">
                   {asidePoints.map((t, i) => (
@@ -173,30 +158,12 @@ function LoginForm() {
             </div>
 
             <p className="text-xs font-semibold tracking-wide text-[var(--sa-gold)]">
-              {isAdminLogin ? "پنل مدیریت" : "ورود به حساب کاربری"}
+              ورود به حساب کاربری
             </p>
-            <h1 className="mt-1.5 text-3xl font-bold text-[var(--sa-navy)] sm:text-[2rem]">
-              {isAdminLogin ? "ورود مدیر" : "ورود"}
-            </h1>
+            <h1 className="mt-1.5 text-3xl font-bold text-[var(--sa-navy)] sm:text-[2rem]">ورود</h1>
             <p className="mt-2 text-sm leading-7 text-[var(--sa-text-muted)]">
-              {isAdminLogin
-                ? "با شماره موبایل مدیر وارد شوید تا به پنل دسترسی پیدا کنید."
-                : "با شماره موبایل وارد شوید؛ سفارش‌ها و علاقه‌مندی‌ها در حساب شما می‌ماند."}
+              با شماره موبایل وارد شوید؛ سفارش‌ها و علاقه‌مندی‌ها در حساب شما می‌ماند.
             </p>
-
-            {isAdminLogin && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.45, ease }}
-                className="mt-5 rounded-2xl border border-[var(--sa-gold)]/35 bg-[var(--sa-cream)]/80 px-4 py-3.5 text-sm shadow-[0_1px_0_rgba(30,58,95,0.04)]"
-              >
-                <p className="font-semibold text-[var(--sa-navy)]">ورود مدیر</p>
-                <p className="mt-2 text-[var(--sa-text-muted)]">
-                  با شماره موبایل و رمز مدیریتی که هنگام راه‌اندازی سرور تنظیم شده وارد شوید.
-                </p>
-              </motion.div>
-            )}
 
             <form onSubmit={onSubmit} className="mt-7 space-y-3.5">
               <label className="block text-sm">
@@ -269,33 +236,27 @@ function LoginForm() {
                     <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                     در حال ورود…
                   </span>
-                ) : isAdminLogin ? (
-                  "ورود به پنل"
                 ) : (
                   "ورود به حساب یاقوت"
                 )}
               </motion.button>
             </form>
 
-            {!isAdminLogin && (
-              <>
-                <div className="mt-6 flex items-center gap-3">
-                  <span className="h-px flex-1 bg-[var(--sa-border)]" />
-                  <span className="text-[11px] text-[var(--sa-text-muted)]">یا</span>
-                  <span className="h-px flex-1 bg-[var(--sa-border)]" />
-                </div>
+            <div className="mt-6 flex items-center gap-3">
+              <span className="h-px flex-1 bg-[var(--sa-border)]" />
+              <span className="text-[11px] text-[var(--sa-text-muted)]">یا</span>
+              <span className="h-px flex-1 bg-[var(--sa-border)]" />
+            </div>
 
-                <p className="mt-5 text-center text-sm text-[var(--sa-text-muted)]">
-                  حساب ندارید؟{" "}
-                  <Link
-                    href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-                    className="font-semibold text-[var(--sa-navy)] underline decoration-[var(--sa-gold)]/50 underline-offset-4 hover:decoration-[var(--sa-gold)]"
-                  >
-                    ثبت‌نام
-                  </Link>
-                </p>
-              </>
-            )}
+            <p className="mt-5 text-center text-sm text-[var(--sa-text-muted)]">
+              حساب ندارید؟{" "}
+              <Link
+                href={registerHref}
+                className="font-semibold text-[var(--sa-navy)] underline decoration-[var(--sa-gold)]/50 underline-offset-4 hover:decoration-[var(--sa-gold)]"
+              >
+                ثبت‌نام
+              </Link>
+            </p>
           </motion.div>
         </div>
       </div>

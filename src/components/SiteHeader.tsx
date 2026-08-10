@@ -36,7 +36,7 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
   const { count: wishCount } = useWishlist();
   const { data: session } = useSession();
   const accountHref = !session?.user
-    ? `/login?callbackUrl=${encodeURIComponent(pathname)}`
+    ? "/login"
     : session.user.role === "ADMIN"
       ? adminHref()
       : "/dashboard";

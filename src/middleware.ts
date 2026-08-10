@@ -39,6 +39,14 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/", req.nextUrl.origin));
   }
 
+  if (pathname === "/login" || pathname === "/register") {
+    if (session?.user) {
+      const dest = session.user.role === "ADMIN" ? ADMIN_PATH : "/dashboard";
+      return NextResponse.redirect(new URL(dest, req.nextUrl.origin));
+    }
+    return NextResponse.next();
+  }
+
   if (isAdminPublicPath(pathname)) {
     if (!session?.user) {
       const url = new URL("/login", req.nextUrl.origin);
@@ -46,7 +54,7 @@ export default auth((req) => {
       return NextResponse.redirect(url);
     }
     if (session.user.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/", req.nextUrl.origin));
+      return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
     }
 
     const rewritten = req.nextUrl.clone();
@@ -79,6 +87,8 @@ export const config = {
     "/dashboard/:path*",
     "/checkout",
     "/checkout/:path*",
+    "/login",
+    "/register",
     "/api/search",
     "/api/cart/validate",
     "/api/admin/upload",

@@ -11,16 +11,9 @@ import { registerAction } from "@/lib/auth-actions";
 import { img } from "@/lib/images";
 import { useLoading } from "@/components/loading/LoadingProvider";
 import { SaSpinner } from "@/components/loading/SaSpinner";
+import { safeCallbackUrl } from "@/lib/safe-callback-url";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-
-function safeCallbackUrl(raw: string | null): string {
-  if (!raw) return "/dashboard";
-  if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("://")) {
-    return "/dashboard";
-  }
-  return raw;
-}
 
 export default function RegisterPage() {
   return (
@@ -41,7 +34,7 @@ export default function RegisterPage() {
 function RegisterForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = safeCallbackUrl(params.get("callbackUrl"));
+  const callbackUrl = safeCallbackUrl(params.get("callbackUrl"), "");
   const { show, hide } = useLoading();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -68,7 +61,10 @@ function RegisterForm() {
         return;
       }
       show("حساب ساخته شد — در حال ورود…");
-      router.push(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+      const loginHref = callbackUrl
+        ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+        : "/login";
+      router.push(loginHref);
     } catch {
       setError("خطایی رخ داد؛ دوباره تلاش کنید");
       hide();
@@ -258,7 +254,11 @@ function RegisterForm() {
               <p className="mt-5 text-center text-sm text-[var(--sa-text-muted)]">
                 قبلاً عضو شده‌اید؟{" "}
                 <Link
-                  href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+                  href={
+                    callbackUrl
+                      ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+                      : "/login"
+                  }
                   className="font-semibold text-[var(--sa-navy)] underline decoration-[var(--sa-gold)]/50 underline-offset-4 hover:decoration-[var(--sa-gold)]"
                 >
                   ورود به حساب

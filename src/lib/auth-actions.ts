@@ -6,6 +6,7 @@ import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
 import { prisma } from "@/lib/db";
 import { isValidIranMobile, normalizePhone } from "@/lib/phone";
+import { resolvePostLoginPath } from "@/lib/safe-callback-url";
 
 const registerSchema = z
   .object({
@@ -60,13 +61,14 @@ export async function registerAction(formData: FormData) {
 }
 
 export type LoginResult =
-  | { ok: true; role: "USER" | "ADMIN" }
+  | { ok: true; role: "USER" | "ADMIN"; redirectTo: string }
   | { ok: false; error: string };
 
 /** Server-side credentials login — avoids client CSRF/HTML parse failures. */
 export async function credentialsLoginAction(
   phoneRaw: string,
   password: string,
+  callbackUrl?: string | null,
 ): Promise<LoginResult> {
   const phone = normalizePhone(phoneRaw);
   if (!isValidIranMobile(phone) || password.length < 8) {
@@ -90,5 +92,10 @@ export async function credentialsLoginAction(
     where: { phone },
     select: { role: true },
   });
-  return { ok: true, role: user?.role === "ADMIN" ? "ADMIN" : "USER" };
+  const role = user?.role === "ADMIN" ? "ADMIN" : "USER";
+  return {
+    ok: true,
+    role,
+    redirectTo: resolvePostLoginPath(role, callbackUrl ?? null),
+  };
 }

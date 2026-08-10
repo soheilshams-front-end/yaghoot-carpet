@@ -33,9 +33,8 @@ function MobileTabBarInner() {
 
   if (isAdminPublicPath(pathname) || pathname.startsWith("/admin")) return null;
 
-  const currentPath = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
   const accountHref = !session?.user
-    ? `/login?callbackUrl=${encodeURIComponent(currentPath)}`
+    ? "/login"
     : session.user.role === "ADMIN"
       ? adminHref()
       : "/dashboard";
