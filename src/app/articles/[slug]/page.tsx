@@ -69,10 +69,10 @@ export default async function ArticleDetailPage({ params }: Props) {
       datePublished: article.publishedAt?.toISOString(),
       dateModified: article.updatedAt.toISOString(),
       mainEntityOfPage: pageUrl,
-      author: { "@type": "Organization", name: "فرش یاقوت" },
+      author: { "@type": "Organization", name: "فرش یاقوت نقش مشهد" },
       publisher: {
         "@type": "Organization",
-        name: "فرش یاقوت",
+        name: "فرش یاقوت نقش مشهد",
         logo: { "@type": "ImageObject", url: absoluteUrl("/brand/logo.png") },
       },
     },

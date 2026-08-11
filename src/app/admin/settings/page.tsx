@@ -8,7 +8,7 @@ export default async function AdminSettingsPage() {
     getSiteSetting("support", {
       phone: "09124496001",
       phoneDisplay: "۰۹۱۲۴۴۹۶۰۰۱",
-      city: "تهران",
+      city: "آران و بیدگل",
     }),
     getSiteSetting("footer", {
       about: "",

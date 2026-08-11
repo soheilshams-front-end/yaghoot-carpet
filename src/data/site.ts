@@ -88,6 +88,7 @@ export const footerLinks = {
     { href: "/", label: "صفحه اصلی" },
     { href: "/rugs", label: "فروشگاه" },
     { href: "/articles", label: "مقالات" },
+    { href: "/about", label: "درباره ما" },
     { href: "/dashboard", label: "داشبورد" },
   ],
   cats: [

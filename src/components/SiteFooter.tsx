@@ -2,20 +2,23 @@ import Link from "next/link";
 import { IconInstagram, IconPhone, LogoMark } from "@/components/Icons";
 import { footerLinks as defaultLinks } from "@/data/site";
 import { getSiteSetting, listCategories } from "@/lib/cms";
-
-const INSTAGRAM_HANDLE = "yaghoot._carpet";
-const INSTAGRAM_URL = `https://www.instagram.com/${INSTAGRAM_HANDLE}/`;
+import {
+  BRAND_ADDRESS,
+  BRAND_NAME,
+  INSTAGRAM_HANDLE,
+  INSTAGRAM_URL,
+} from "@/lib/brand";
 
 export async function SiteFooter() {
   const [support, footer, shopCats] = await Promise.all([
     getSiteSetting("support", {
       phone: "09124496001",
       phoneDisplay: "۰۹۱۲۴۴۹۶۰۰۱",
-      city: "تهران",
+      city: "آران و بیدگل",
     }),
     getSiteSetting("footer", {
       about:
-        "مجموعه فرش یاقوت با تمرکز بر کیفیت بافت، تنوع طرح و قیمت درب کارخانه، تجربه‌ای مطمئن از خرید فرش ایرانی را فراهم می‌کند.",
+        "فرش یاقوت نقش مشهد با تمرکز بر کیفیت بافت، تنوع طرح و قیمت درب کارخانه در آران و بیدگل (قطب فرش کاشان)، تجربه‌ای مطمئن از خرید فرش ایرانی را فراهم می‌کند.",
       links: defaultLinks,
     }),
     listCategories({ homeOnly: true, activeOnly: true }),
@@ -32,6 +35,10 @@ export async function SiteFooter() {
           label: c.title,
         }))
       : links.cats || defaultLinks.cats;
+
+  const city =
+    (typeof support.city === "string" && support.city.trim()) ||
+    BRAND_ADDRESS.addressLocality;
 
   return (
     <footer id="contact" className="relative mt-auto overflow-hidden bg-[var(--sa-cream)]">
@@ -55,12 +62,15 @@ export async function SiteFooter() {
               <span className="font-display text-lg leading-[1.45] sm:text-xl">فرش یاقوت</span>
             </div>
             <h3 className="mt-2 text-sm font-semibold text-[var(--sa-navy)] sm:mt-3 sm:text-base">
-              فروشگاه فرش یاقوت
+              فروشگاه {BRAND_NAME}
             </h3>
             <p className="mt-2 text-xs leading-6 text-[var(--sa-text-muted)] sm:mt-3 sm:text-sm sm:leading-7">
               {footer.about}
             </p>
-            <p className="mt-3 flex items-center gap-2 text-xs text-[var(--sa-text)] sm:mt-4 sm:text-sm">
+            <p className="mt-3 text-xs text-[var(--sa-text-muted)] sm:mt-4 sm:text-sm">
+              {city}، {BRAND_ADDRESS.streetAddress} — قطب فرش کاشان
+            </p>
+            <p className="mt-2 flex items-center gap-2 text-xs text-[var(--sa-text)] sm:text-sm">
               <IconPhone size={15} className="text-[var(--sa-gold)]" />
               <a href={`tel:${support.phone}`} className="hover:underline">
                 {support.phoneDisplay}
@@ -121,7 +131,7 @@ export async function SiteFooter() {
       </div>
 
       <div className="relative z-10 bg-[var(--sa-navy-deep)] px-4 py-3 text-center text-xs text-[var(--sa-text-on-navy)]/80">
-        کلیه حقوق برای فروشگاه فرش یاقوت محفوظ است
+        کلیه حقوق برای فروشگاه {BRAND_NAME} محفوظ است
       </div>
     </footer>
   );

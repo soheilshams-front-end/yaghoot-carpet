@@ -10,6 +10,7 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed-brand-articles": "tsx prisma/seed-brand-articles.ts",
     "db:setup": "prisma db push && tsx prisma/seed.ts"
   },
   "prisma": {

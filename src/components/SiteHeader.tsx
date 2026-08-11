@@ -22,6 +22,7 @@ const links = [
   { href: "/", label: "صفحه اصلی" },
   { href: "/rugs", label: "محصولات" },
   { href: "/articles", label: "مقالات" },
+  { href: "/about", label: "درباره ما" },
   { href: "/#faq", label: "سوالات متداول" },
   { href: "/#contact", label: "تماس با ما" },
 ];
@@ -72,7 +73,8 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
               const isActive =
                 (l.label === "صفحه اصلی" && pathname === "/") ||
                 (l.label === "محصولات" && pathname.startsWith("/rugs")) ||
-                (l.label === "مقالات" && pathname.startsWith("/articles"));
+                (l.label === "مقالات" && pathname.startsWith("/articles")) ||
+                (l.label === "درباره ما" && pathname.startsWith("/about"));
               return (
                 <Link
                   key={l.label}

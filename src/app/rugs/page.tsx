@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { RugsShop } from "@/components/rugs/RugsShop";
 import { SaSpinner } from "@/components/loading/SaSpinner";
@@ -5,8 +6,21 @@ import { countProducts, listProducts } from "@/lib/products";
 import { listCategories } from "@/lib/cms";
 import { getSupportPhone } from "@/lib/support";
 import type { SortKey } from "@/components/rugs/SortDropdown";
+import { BRAND_NAME } from "@/lib/brand";
+import { absoluteUrl } from "@/lib/site-url";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "خرید فرش",
+  description: `خرید آنلاین فرش از ${BRAND_NAME} — فرش کاشان و آران و بیدگل با قیمت درب کارخانه`,
+  alternates: { canonical: "/rugs" },
+  openGraph: {
+    title: `خرید فرش | ${BRAND_NAME}`,
+    description: `خرید آنلاین فرش از ${BRAND_NAME} — فرش کاشان و آران و بیدگل`,
+    url: absoluteUrl("/rugs"),
+  },
+};
 
 const VALID_SORT: SortKey[] = ["newest", "price-asc", "price-desc"];
 

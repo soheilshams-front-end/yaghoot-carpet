@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { ColorFilterSection } from "@/components/home/ColorFilterSection";
 import { FaqSection } from "@/components/home/FaqSection";
@@ -25,12 +26,29 @@ import {
   heroImage,
   heroLabels,
 } from "@/data/site";
-import { absoluteUrl, siteUrl } from "@/lib/site-url";
+import { BRAND_NAME, localBusinessJsonLd } from "@/lib/brand";
+import { absoluteUrl } from "@/lib/site-url";
+import { getSupportPhone } from "@/lib/support";
 
 export const dynamic = "force-dynamic";
 
+export const metadata: Metadata = {
+  title: {
+    absolute: `${BRAND_NAME} | خرید فرش کاشان و آران و بیدگل`,
+  },
+  description:
+    "فرش یاقوت نقش مشهد — خرید آنلاین فرش از کارخانه در آران و بیدگل و قطب فرش کاشان با قیمت درب کارخانه",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: `${BRAND_NAME} | خرید فرش کاشان و آران و بیدگل`,
+    description:
+      "فرش یاقوت نقش مشهد — خرید آنلاین فرش از کارخانه در آران و بیدگل و قطب فرش کاشان",
+    url: absoluteUrl("/"),
+  },
+};
+
 export default async function HomePage() {
-  const [rugs, sections, homeCats, heroSetting] = await Promise.all([
+  const [rugs, sections, homeCats, heroSetting, support] = await Promise.all([
     listProducts(),
     getHomepageSections(true),
     listCategories({ homeOnly: true, activeOnly: true }),
@@ -38,6 +56,7 @@ export default async function HomePage() {
       eyebrow: "تجربه‌ای متفاوت",
       headline: "به سبک فرش یاقوت",
     }),
+    getSupportPhone(),
   ]);
 
   const popular = rugs.slice(0, 4);
@@ -98,14 +117,7 @@ export default async function HomePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            name: "فرش یاقوت",
-            url: siteUrl(),
-            logo: absoluteUrl("/brand/logo.png"),
-            sameAs: [],
-          }),
+          __html: JSON.stringify(localBusinessJsonLd({ telephone: support.phone })),
         }}
       />
       <SectionDotsNav sections={navSections} />

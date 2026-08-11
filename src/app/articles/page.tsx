@@ -8,11 +8,13 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "مقالات",
-  description: "مقالات و راهنمای خرید فرش از فروشگاه فرش یاقوت",
+  description:
+    "مقالات و راهنمای خرید فرش از فرش یاقوت نقش مشهد — کاشان و آران و بیدگل",
   alternates: { canonical: "/articles" },
   openGraph: {
-    title: "مقالات | فرش یاقوت",
-    description: "مقالات و راهنمای خرید فرش از فروشگاه فرش یاقوت",
+    title: "مقالات | فرش یاقوت نقش مشهد",
+    description:
+      "مقالات و راهنمای خرید فرش از فرش یاقوت نقش مشهد — کاشان و آران و بیدگل",
     url: absoluteUrl("/articles"),
   },
 };

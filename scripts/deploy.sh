@@ -36,6 +36,7 @@ set -a
 set +a
 npx prisma generate
 npx prisma db push
+npm run db:seed-brand-articles || true
 npm run build
 
 echo "==> restart service"

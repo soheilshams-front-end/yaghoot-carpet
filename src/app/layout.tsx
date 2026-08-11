@@ -38,24 +38,26 @@ const siteUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "فرش یاقوت | فروشگاه فرش لوکس",
-    template: "%s | فرش یاقوت",
+    default: "فرش یاقوت نقش مشهد | خرید فرش کاشان و آران و بیدگل",
+    template: "%s | فرش یاقوت نقش مشهد",
   },
-  description: "فروشگاه فرش یاقوت — خرید آنلاین فرش دستباف و ماشینی لوکس",
-  alternates: { canonical: "/" },
+  description:
+    "فرش یاقوت نقش مشهد — خرید آنلاین فرش از قطب فرش کاشان و آران و بیدگل با قیمت درب کارخانه",
   openGraph: {
     type: "website",
     locale: "fa_IR",
     url: siteUrl,
-    siteName: "فرش یاقوت",
-    title: "فرش یاقوت | فروشگاه فرش لوکس",
-    description: "فروشگاه فرش یاقوت — خرید آنلاین فرش دستباف و ماشینی لوکس",
-    images: [{ url: "/brand/logo.png", alt: "فرش یاقوت" }],
+    siteName: "فرش یاقوت نقش مشهد",
+    title: "فرش یاقوت نقش مشهد | خرید فرش کاشان و آران و بیدگل",
+    description:
+      "فرش یاقوت نقش مشهد — خرید آنلاین فرش از قطب فرش کاشان و آران و بیدگل با قیمت درب کارخانه",
+    images: [{ url: "/brand/logo.png", alt: "فرش یاقوت نقش مشهد" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "فرش یاقوت | فروشگاه فرش لوکس",
-    description: "فروشگاه فرش یاقوت — خرید آنلاین فرش دستباف و ماشینی لوکس",
+    title: "فرش یاقوت نقش مشهد | خرید فرش کاشان و آران و بیدگل",
+    description:
+      "فرش یاقوت نقش مشهد — خرید آنلاین فرش از قطب فرش کاشان و آران و بیدگل با قیمت درب کارخانه",
     images: ["/brand/logo.png"],
   },
   icons: {
