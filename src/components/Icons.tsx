@@ -81,6 +81,33 @@ export function IconChat(p: IconProps) {
   );
 }
 
+/** Support headset — used on the contact FAB */
+export function IconHeadset(p: IconProps) {
+  const size = p.size ?? 22;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.85}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={p.className}
+      aria-hidden
+    >
+      <path d="M4.5 12a7.5 7.5 0 0 1 15 0" />
+      <path d="M4.5 12v3.2a2.3 2.3 0 0 0 2.3 2.3H8" />
+      <path d="M19.5 12v3.2a2.3 2.3 0 0 1-2.3 2.3H15.2" />
+      <rect x="2.8" y="11.2" width="3.4" height="5.2" rx="1.5" />
+      <rect x="17.8" y="11.2" width="3.4" height="5.2" rx="1.5" />
+      <path d="M15.2 17.5v.8a2.3 2.3 0 0 1-2.3 2.3h-1.1" />
+      <circle cx="11" cy="20.6" r="1.15" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 export function IconShield(p: IconProps) {
   return (
     <Svg {...p}>

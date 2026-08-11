@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  IconChat,
   IconClose,
+  IconHeadset,
   IconInstagram,
   IconTelegram,
   IconWhatsApp,
@@ -151,14 +151,14 @@ export function WhatsAppFab({ phone }: Props) {
             )}
             <AnimatePresence mode="wait" initial={false}>
               <motion.span
-                key={open ? "close" : "chat"}
+                key={open ? "close" : "headset"}
                 initial={{ opacity: 0, rotate: -40, scale: 0.7 }}
                 animate={{ opacity: 1, rotate: 0, scale: 1 }}
                 exit={{ opacity: 0, rotate: 40, scale: 0.7 }}
                 transition={{ duration: 0.2 }}
                 className="relative z-10"
               >
-                {open ? <IconClose size={22} /> : <IconChat size={24} />}
+                {open ? <IconClose size={22} /> : <IconHeadset size={26} />}
               </motion.span>
             </AnimatePresence>
           </motion.button>
