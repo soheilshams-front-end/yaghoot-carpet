@@ -56,6 +56,16 @@
   top: -0.32em;
 }
 
+/* iOS/iPadOS WebKit: centered text-stroke draws visible seams wherever Nastaliq
+   glyphs overlap (paint-order isn't supported for HTML text there), which shows
+   up as odd extra fragments. Drop the stroke on iOS only — its glyph rendering
+   already reads slightly heavier than desktop. */
+@supports (-webkit-touch-callout: none) {
+  .font-display {
+    -webkit-text-stroke: 0;
+  }
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
