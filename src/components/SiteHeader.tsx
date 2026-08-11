@@ -61,7 +61,7 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
           <Link href="/" className="flex shrink-0 items-center gap-2.5">
             <LogoMark size={38} />
             <span className="leading-none">
-              <span className="font-display block text-xl leading-[1.55] text-[var(--sa-gold)] sm:text-2xl">
+              <span className="font-display block text-lg leading-[1.45] text-[var(--sa-gold)] sm:text-xl">
                 فرش یاقوت
               </span>
             </span>
