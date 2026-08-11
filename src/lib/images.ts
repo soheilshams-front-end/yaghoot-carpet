@@ -1,6 +1,6 @@
 /** Local carpet images (downloaded) — no broken remote URLs */
 export const img = {
-  hero: "/shah-abbasi/hero.jpg",
+  hero: "/shah-abbasi/hero-minimal.webp",
   rug1: "/shah-abbasi/rug-1.jpg",
   rug2: "/shah-abbasi/rug-2.jpg",
   rug3: "/shah-abbasi/rug-3.jpg",
@@ -15,7 +15,7 @@ export const img = {
   living6: "/shah-abbasi/rug-1.jpg",
   kitchen: "/shah-abbasi/rug-6.jpg",
   kids: "/shah-abbasi/rug-5.jpg",
-  shaneh1500: "/shah-abbasi/hero.jpg",
+  shaneh1500: "/shah-abbasi/hero-minimal.webp",
   shaneh1200: "/shah-abbasi/rug-2.jpg",
   shaneh1000: "/shah-abbasi/rug-3.jpg",
   shaneh700: "/shah-abbasi/rug-4.jpg",
