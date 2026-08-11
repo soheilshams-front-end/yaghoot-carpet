@@ -169,6 +169,22 @@ export function IconInstagram(p: IconProps) {
   );
 }
 
+export function IconTelegram(p: IconProps) {
+  const size = p.size ?? 22;
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={p.className}
+      aria-hidden
+    >
+      <path d="M21.5 3.4 2.9 10.6c-1.27.5-1.26 1.2-.23 1.52l4.77 1.49 1.84 5.66c.23.7.41.97.85.97.55 0 .79-.25 1.1-.55l2.64-2.56 5.48 4.05c1.01.56 1.73.27 1.98-.93L22.9 4.7c.31-1.24-.45-1.8-1.4-1.3ZM9.4 14.2l-.3 3.35-.96-3.24L17.7 6.9 9.4 14.2Z" />
+    </svg>
+  );
+}
+
 export function IconMenu(p: IconProps) {
   return (
     <Svg {...p}>

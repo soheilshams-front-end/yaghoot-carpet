@@ -15,6 +15,7 @@ export const BRAND_AREA_SERVED = ["آران و بیدگل", "کاشان", "ای�
 
 export const INSTAGRAM_HANDLE = "yaghoot._carpet";
 export const INSTAGRAM_URL = `https://www.instagram.com/${INSTAGRAM_HANDLE}/`;
+export const TELEGRAM_URL = "https://t.me/yaghootmashhadd";
 
 /** Shared LocalBusiness / Store JSON-LD for homepage and about. */
 export function localBusinessJsonLd(opts?: { telephone?: string }) {
@@ -27,7 +28,7 @@ export function localBusinessJsonLd(opts?: { telephone?: string }) {
     logo: absoluteUrl("/brand/logo.png"),
     image: absoluteUrl("/brand/logo.png"),
     telephone: opts?.telephone || undefined,
-    sameAs: [INSTAGRAM_URL],
+    sameAs: [INSTAGRAM_URL, TELEGRAM_URL],
     address: {
       "@type": "PostalAddress",
       streetAddress: BRAND_ADDRESS.streetAddress,
