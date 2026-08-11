@@ -9,6 +9,14 @@ export const metadata: Metadata = {
 
 const sample = "فرش یاقوت — هنر اصیل ایرانی در خانه شما";
 
+const iranNastaliq = localFont({
+  src: "../../fonts/nastaliq/IranNastaliq.woff2",
+  display: "swap",
+  weight: "400",
+  style: "normal",
+  adjustFontFallback: false,
+});
+
 const noto = localFont({
   src: "../../fonts/nastaliq/NotoNastaliqUrdu-Regular.woff2",
   display: "swap",
@@ -21,30 +29,34 @@ const cases = [
   {
     id: "A",
     title: "A — IranNastaliq بدون فیچر",
-    className: "font-display",
+    className: iranNastaliq.className,
     style: {
+      lineHeight: 1.85,
       fontFeatureSettings: "normal",
       WebkitFontFeatureSettings: "normal",
     } as CSSProperties,
   },
   {
     id: "B",
-    title: "B — IranNastaliq با cswh (تنظیم فعلی سایت)",
+    title: "B — تنظیم فعلی سایت (Noto Nastaliq Urdu)",
     className: "font-display",
     style: undefined,
   },
   {
     id: "C",
-    title: "C — IranNastaliq فقط calt + rlig",
-    className: "font-display",
+    title: "C — IranNastaliq با cswh",
+    className: iranNastaliq.className,
     style: {
-      fontFeatureSettings: '"calt" 1, "rlig" 1, "liga" 1, "kern" 1',
-      WebkitFontFeatureSettings: '"calt" 1, "rlig" 1, "liga" 1, "kern" 1',
+      lineHeight: 1.85,
+      fontFeatureSettings: '"cswh" 1, "calt" 1, "rlig" 1, "liga" 1, "kern" 1',
+      WebkitFontFeatureSettings: '"cswh" 1, "calt" 1, "rlig" 1, "liga" 1, "kern" 1',
+      fontSynthesis: "none",
+      textRendering: "geometricPrecision",
     } as CSSProperties,
   },
   {
     id: "D",
-    title: "D — Noto Nastaliq Urdu",
+    title: "D — Noto Nastaliq Urdu (مرجع تأییدشده روی iOS)",
     className: noto.className,
     style: {
       lineHeight: 1.85,
@@ -61,8 +73,7 @@ export default function FontCheckPage() {
       <header className="space-y-2">
         <h1 className="text-xl font-bold text-[var(--sa-navy)]">تست فونت نستعلیق</h1>
         <p className="text-sm text-[var(--sa-text-muted)]">
-          این صفحه فقط برای تشخیص روی آیفون است. بگویید کدام نمونه (A/B/C/D) حروف را درست و
-          به‌هم‌چسبیده نشان می‌دهد.
+          نمونه B باید با D یکسان باشد (هر دو Noto). این صفحه فقط برای تشخیص روی آیفون است.
         </p>
       </header>
 

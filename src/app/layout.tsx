@@ -23,7 +23,8 @@ const iran = localFont({
 });
 
 const nastaliq = localFont({
-  src: "../fonts/nastaliq/IranNastaliq.woff2",
+  // Noto Nastaliq Urdu — joins correctly on iOS/WebKit (IranNastaliq does not)
+  src: "../fonts/nastaliq/NotoNastaliqUrdu-Regular.woff2",
   variable: "--font-nastaliq",
   display: "swap",
   weight: "400",
