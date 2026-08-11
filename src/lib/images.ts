@@ -1,6 +1,7 @@
 /** Local carpet images (downloaded) — no broken remote URLs */
 export const img = {
   hero: "/shah-abbasi/hero-minimal.webp",
+  heroMobile: "/shah-abbasi/hero-mobile.webp",
   rug1: "/shah-abbasi/rug-1.jpg",
   rug2: "/shah-abbasi/rug-2.jpg",
   rug3: "/shah-abbasi/rug-3.jpg",

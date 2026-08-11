@@ -146,21 +146,19 @@ export function TopBand({
     >
       <motion.div
         className="absolute inset-0"
-        initial={{ scale: 1.02 }}
-        animate={{ scale: 1.06 }}
-        transition={{
-          duration: 24,
-          ease: "linear",
-          repeat: Infinity,
-          repeatType: "reverse",
-        }}
+        initial={false}
+        animate={{ scale: 1 }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={heroImage}
-          alt="فرش یاقوت نقش مشهد"
-          className="h-full w-full object-cover object-[center_45%]"
-        />
+        <picture>
+          {/* 9:16 only on phones — tablet/desktop keep the 21:9 hero */}
+          <source media="(max-width: 767px)" srcSet="/shah-abbasi/hero-mobile.webp?v=3" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={heroImage}
+            alt="فرش یاقوت نقش مشهد"
+            className="h-full w-full object-cover object-[center_72%] md:object-center"
+          />
+        </picture>
       </motion.div>
 
       {/* Navy fade under header — same recipe as the category cards */}
@@ -185,7 +183,7 @@ export function TopBand({
 
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-end px-4 pb-8 pt-16 sm:px-6 sm:pb-12">
         <div className="max-w-xl">
-          <h1 className="font-display text-[2.45rem] leading-[1.55] sm:text-5xl sm:leading-[1.55] lg:text-[3.4rem]">
+          <h1 className="font-display text-[2rem] leading-[1.55] sm:text-4xl sm:leading-[1.55] lg:text-[2.75rem]">
             {title.split(/\s+/).map((word, i, arr) => (
               <motion.span
                 key={`${word}-${i}`}
@@ -195,9 +193,9 @@ export function TopBand({
                   y: 0,
                   filter: "blur(0px)",
                   textShadow: [
-                    "0 0 18px rgba(201,162,39,0.28), 0 2px 14px rgba(0,0,0,0.35)",
-                    "0 0 32px rgba(232,212,138,0.5), 0 2px 14px rgba(0,0,0,0.35)",
-                    "0 0 18px rgba(201,162,39,0.28), 0 2px 14px rgba(0,0,0,0.35)",
+                    "0 0 16px rgba(255,255,255,0.18), 0 2px 14px rgba(0,0,0,0.4)",
+                    "0 0 26px rgba(255,255,255,0.32), 0 2px 14px rgba(0,0,0,0.4)",
+                    "0 0 16px rgba(255,255,255,0.18), 0 2px 14px rgba(0,0,0,0.4)",
                   ],
                 }}
                 transition={{
@@ -211,7 +209,7 @@ export function TopBand({
                     ease: "easeInOut",
                   },
                 }}
-                className="inline-block text-[var(--sa-gold)] [-webkit-text-stroke:0]"
+                className="inline-block text-white [-webkit-text-stroke:0]"
               >
                 {word}
                 {i < arr.length - 1 ? "\u00A0" : ""}
@@ -223,7 +221,7 @@ export function TopBand({
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.55, ease }}
-            className="mt-5 max-w-md"
+            className="mt-5 hidden max-w-md lg:block"
           >
             <span
               aria-hidden
