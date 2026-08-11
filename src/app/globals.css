@@ -62,7 +62,7 @@
 @supports (-webkit-touch-callout: none) {
   .font-display {
     -webkit-text-stroke: 0;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.015em;
   }
 }
 
