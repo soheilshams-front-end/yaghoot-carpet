@@ -53,7 +53,7 @@
   paint-order: stroke fill;
   /* Noto glyph box sits optically low — lift toward UI marks */
   position: relative;
-  top: -0.42em;
+  top: -0.32em;
 }
 
 html {

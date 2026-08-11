@@ -29,13 +29,13 @@ export function SectionTitle({
           aria-hidden
         />
       )}
-      {/* Extra translate: unlayered .font-display { top } beats Tailwind top utilities */}
+      {/* Small extra lift so the ink centers on the gold bar */}
       <Typewriter
         text={children}
         whenInView
         speed={38}
         startDelay={120}
-        className="font-display -translate-y-3 leading-[1.35] sm:-translate-y-3.5"
+        className="font-display -translate-y-1.5 leading-[1.35]"
       />
     </h2>
   );
