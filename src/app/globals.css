@@ -193,6 +193,13 @@ html.sa-dash-active .sa-page {
   }
 }
 
+/* Hero fills the first screen everywhere. svh keeps mobile stable while the
+   browser chrome collapses; the vh line is the fallback for older WebKit. */
+.sa-hero-h {
+  min-height: 100vh;
+  min-height: 100svh;
+}
+
 /* Fully rounded frame (e.g. mid-page color section) */
 .sa-framed-round {
   border-radius: 26px;

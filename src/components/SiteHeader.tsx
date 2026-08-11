@@ -30,10 +30,21 @@ const links = [
 const ease = [0.22, 1, 0.36, 1] as const;
 
 /** Header only — sits inside unified top band (no separate chrome) */
-export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
+export function SiteHeader({
+  embedded = false,
+  suppressEntrance = false,
+  onImage = false,
+}: {
+  embedded?: boolean;
+  /** Parent already animates entrance (e.g. hero over image) */
+  suppressEntrance?: boolean;
+  /** Rendered over a dark photo fade — light chrome instead of navy on cream */
+  onImage?: boolean;
+}) {
   const [searchOpen, setSearchOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
+  const [prevPathname, setPrevPathname] = useState(pathname);
   const { count, ready: cartReady } = useCart();
   const { count: wishCount } = useWishlist();
   const { data: session } = useSession();
@@ -44,13 +55,24 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
       : "/dashboard";
   const cartBadge = cartReady ? count : 0;
 
-  useEffect(() => {
+  const iconBtn = onImage
+    ? "text-[var(--sa-text-on-navy)] hover:bg-white/12"
+    : "text-[var(--sa-navy)] hover:bg-[var(--sa-bone-deep)]";
+
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setSearchOpen(false);
-  }, [pathname]);
+  }
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const id = window.setTimeout(() => inputRef.current?.focus(), 40);
+    return () => window.clearTimeout(id);
+  }, [searchOpen]);
 
   return (
     <motion.header
-      initial={{ opacity: 0, y: -12 }}
+      initial={suppressEntrance ? false : { opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease }}
       className={`relative z-50 px-4 py-3 sm:px-6 ${
@@ -81,8 +103,12 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
                   href={l.href}
                   className={`relative whitespace-nowrap px-3 py-2 text-sm ${
                     isActive
-                      ? "font-semibold text-[var(--sa-navy)]"
-                      : "text-[var(--sa-text-muted)] hover:text-[var(--sa-navy)]"
+                      ? onImage
+                        ? "font-semibold text-[var(--sa-text-on-navy)]"
+                        : "font-semibold text-[var(--sa-navy)]"
+                      : onImage
+                        ? "text-[var(--sa-text-on-navy)]/75 hover:text-[var(--sa-gold)]"
+                        : "text-[var(--sa-text-muted)] hover:text-[var(--sa-navy)]"
                   }`}
                 >
                   {l.label}
@@ -96,14 +122,10 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <LiveSearch variant="desktop" className="hidden md:block" />
-
           <motion.button
             type="button"
-            className={`relative z-[80] flex h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] md:hidden ${
-              searchOpen
-                ? "bg-[var(--sa-navy)] text-[var(--sa-gold)]"
-                : "text-[var(--sa-navy)] hover:bg-[var(--sa-bone-deep)]"
+            className={`relative z-[80] flex h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] ${
+              searchOpen ? "bg-[var(--sa-navy)] text-[var(--sa-gold)]" : iconBtn
             }`}
             aria-label={searchOpen ? "بستن جستجو" : "جستجو"}
             aria-expanded={searchOpen}
@@ -137,7 +159,7 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
 
           <Link
             href="/cart?tab=wishlist"
-            className="relative hidden h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] text-[var(--sa-navy)] hover:bg-[var(--sa-bone-deep)] sm:flex"
+            className={`relative hidden h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] sm:flex ${iconBtn}`}
             aria-label={wishCount > 0 ? `علاقه‌مندی (${wishCount})` : "علاقه‌مندی"}
           >
             <IconHeart size={20} filled={wishCount > 0} />
@@ -149,7 +171,7 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
           </Link>
           <Link
             href="/cart"
-            className="relative flex h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] text-[var(--sa-navy)] hover:bg-[var(--sa-bone-deep)]"
+            className={`relative flex h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] ${iconBtn}`}
             aria-label={cartBadge > 0 ? `سبد خرید (${cartBadge})` : "سبد خرید"}
           >
             <IconCart size={20} />
@@ -161,7 +183,7 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
           </Link>
           <Link
             href={accountHref}
-            className="flex h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] text-[var(--sa-navy)] hover:bg-[var(--sa-bone-deep)]"
+            className={`flex h-10 w-10 items-center justify-center rounded-[var(--sa-radius-btn)] ${iconBtn}`}
             aria-label="حساب کاربری"
           >
             <IconUser size={20} />
@@ -172,12 +194,12 @@ export function SiteHeader({ embedded = false }: { embedded?: boolean }) {
       <AnimatePresence>
         {searchOpen && (
           <motion.div
-            key="mobile-search"
+            key="header-search"
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.22, ease }}
-            className="relative z-[90] mx-auto mt-3 max-w-6xl md:hidden"
+            className="relative z-[90] mx-auto mt-3 max-w-6xl"
           >
             <LiveSearch
               variant="mobile"
