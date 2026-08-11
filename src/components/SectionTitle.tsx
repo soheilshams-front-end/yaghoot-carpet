@@ -35,7 +35,7 @@ export function SectionTitle({
         whenInView
         speed={38}
         startDelay={120}
-        className="font-display -translate-y-1.5 leading-[1.35]"
+        className="font-display -translate-y-1 leading-[1.35]"
       />
     </h2>
   );
