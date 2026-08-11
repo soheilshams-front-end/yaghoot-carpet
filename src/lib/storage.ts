@@ -3,13 +3,14 @@ import path from "path";
 
 const MAX_UPLOADS_DIR_BYTES = 500 * 1024 * 1024;
 
+const FALLBACK_UPLOADS_DIR = ["public", "uploads"].join(path.sep);
+
 /** Absolute uploads dir when set (VPS); otherwise public/uploads under cwd. */
 function uploadsDir(): string {
   const fromEnv = process.env.UPLOADS_DIR?.trim();
-  if (fromEnv) return path.resolve(fromEnv);
-  // turbopackIgnore keeps the bundler from walking public/uploads (often a
-  // symlink to /srv/... outside the project root, which panics Turbopack).
-  return path.join(/* turbopackIgnore: true */ process.cwd(), "public", "uploads");
+  // Keeping the path non-constant stops the bundler from tracing the directory
+  // as a build asset; in production it is a mount outside the project root.
+  return path.resolve(process.cwd(), fromEnv || FALLBACK_UPLOADS_DIR);
 }
 
 async function folderByteSize(dir: string): Promise<number> {

@@ -52,6 +52,18 @@
   -webkit-font-feature-settings: "cswh" 1, "calt" 1, "rlig" 1, "liga" 1, "kern" 1;
 }
 
+/* iOS/iPadOS WebKit only (-webkit-touch-callout exists solely there): these two
+   properties are what keep IranNastaliq glyphs connected on iPhone. Synthetic
+   bold in WebKit widens glyph advances and visually detaches joined letters,
+   and geometricPrecision forces the shaping-accurate text path. Scoped so
+   desktop/Android rendering (size, weight) stays untouched. */
+@supports (-webkit-touch-callout: none) {
+  .font-display {
+    text-rendering: geometricPrecision;
+    font-synthesis: none;
+  }
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
