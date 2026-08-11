@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { IconPhone, LogoMark } from "@/components/Icons";
+import { IconInstagram, IconPhone, LogoMark } from "@/components/Icons";
 import { footerLinks as defaultLinks } from "@/data/site";
 import { getSiteSetting, listCategories } from "@/lib/cms";
+
+const INSTAGRAM_HANDLE = "yaghoot._carpet";
+const INSTAGRAM_URL = `https://www.instagram.com/${INSTAGRAM_HANDLE}/`;
 
 export async function SiteFooter() {
   const [support, footer, shopCats] = await Promise.all([
@@ -61,6 +64,18 @@ export async function SiteFooter() {
               <IconPhone size={15} className="text-[var(--sa-gold)]" />
               <a href={`tel:${support.phone}`} className="hover:underline">
                 {support.phoneDisplay}
+              </a>
+            </p>
+            <p className="mt-2 flex items-center gap-2 text-xs text-[var(--sa-text)] sm:text-sm">
+              <IconInstagram size={15} className="text-[var(--sa-gold)]" />
+              <a
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+                dir="ltr"
+              >
+                @{INSTAGRAM_HANDLE}
               </a>
             </p>
           </div>
