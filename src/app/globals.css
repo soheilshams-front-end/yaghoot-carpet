@@ -42,10 +42,18 @@
 
 .font-display {
   font-family: var(--sa-font-display);
-  line-height: 1.85;
-  letter-spacing: 0;
+  line-height: 1.65;
+  /* Noto reads wider/longer than IranNastaliq — tighten joins a touch */
+  letter-spacing: -0.045em;
+  word-spacing: -0.06em;
   font-synthesis: none;
   text-rendering: geometricPrecision;
+  /* Optical weight: Noto Regular is thinner than IranNastaliq at the same size */
+  -webkit-text-stroke: 0.55px currentColor;
+  paint-order: stroke fill;
+  /* Noto baseline sits optically low next to UI marks — lift slightly */
+  position: relative;
+  top: -0.14em;
 }
 
 html {
