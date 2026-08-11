@@ -53,8 +53,8 @@ export default async function HomePage() {
     getHomepageSections(true),
     listCategories({ homeOnly: true, activeOnly: true }),
     getSiteSetting("hero", {
-      eyebrow: "تجربه‌ای متفاوت",
-      headline: "به سبک فرش یاقوت",
+      eyebrow: "",
+      headline: "فرش یاقوت نقش مشهد",
     }),
     getSupportPhone(),
   ]);

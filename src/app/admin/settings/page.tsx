@@ -14,8 +14,8 @@ export default async function AdminSettingsPage() {
       about: "",
     }),
     getSiteSetting("hero", {
-      eyebrow: "تجربه‌ای متفاوت",
-      headline: "به سبک فرش یاقوت",
+      eyebrow: "",
+      headline: "فرش یاقوت نقش مشهد",
     }),
   ]);
 

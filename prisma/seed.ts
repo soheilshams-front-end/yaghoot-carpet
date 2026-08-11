@@ -235,8 +235,8 @@ async function main() {
       links: footerLinks,
     },
     hero: {
-      eyebrow: "فروشگاه آنلاین",
-      headline: "به سبک فرش یاقوت",
+      eyebrow: "",
+      headline: "فرش یاقوت نقش مشهد",
     },
   };
 
