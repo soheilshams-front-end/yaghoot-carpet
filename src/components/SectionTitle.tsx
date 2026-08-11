@@ -25,16 +25,17 @@ export function SectionTitle({
     >
       {bar && (
         <span
-          className="mb-[0.28em] h-[0.85em] w-0.5 shrink-0 self-center bg-[var(--sa-gold)]"
+          className="h-[0.9em] w-0.5 shrink-0 translate-y-[0.05em] bg-[var(--sa-gold)]"
           aria-hidden
         />
       )}
+      {/* Extra translate: unlayered .font-display { top } beats Tailwind top utilities */}
       <Typewriter
         text={children}
         whenInView
         speed={38}
         startDelay={120}
-        className="font-display min-h-[1.3em] leading-[1.4]"
+        className="font-display -translate-y-3 leading-[1.35] sm:-translate-y-3.5"
       />
     </h2>
   );
