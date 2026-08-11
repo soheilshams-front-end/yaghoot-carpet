@@ -19,13 +19,13 @@ export function SectionTitle({
 }: Props) {
   return (
     <h2
-      className={`flex min-w-0 items-center gap-2 text-xl sm:gap-3 sm:text-2xl lg:text-[2rem] ${
+      className={`flex min-w-0 items-center gap-2 text-lg sm:gap-3 sm:text-xl lg:text-[1.75rem] ${
         light ? "text-[var(--sa-text-on-navy)]" : "text-[var(--sa-navy)]"
       } ${className}`}
     >
       {bar && (
         <span
-          className="mb-[0.2em] h-[0.85em] w-0.5 shrink-0 self-center bg-[var(--sa-gold)]"
+          className="mb-[0.28em] h-[0.85em] w-0.5 shrink-0 self-center bg-[var(--sa-gold)]"
           aria-hidden
         />
       )}

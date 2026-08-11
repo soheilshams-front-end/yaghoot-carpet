@@ -43,9 +43,9 @@
 .font-display {
   font-family: var(--sa-font-display);
   line-height: 1.5;
-  /* Noto reads much wider than IranNastaliq — compress horizontally */
+  /* Tighten glyph spacing, keep readable gaps between words */
   letter-spacing: -0.07em;
-  word-spacing: -0.12em;
+  word-spacing: 0.08em;
   font-synthesis: none;
   text-rendering: geometricPrecision;
   /* Optical weight: Regular alone is too thin next to the old face */
@@ -53,7 +53,7 @@
   paint-order: stroke fill;
   /* Noto glyph box sits optically low — lift more */
   position: relative;
-  top: -0.22em;
+  top: -0.32em;
 }
 
 html {
