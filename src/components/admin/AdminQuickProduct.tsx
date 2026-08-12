@@ -41,6 +41,7 @@ export function AdminQuickProduct({
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const [shaneh, setShaneh] = useState(1200);
+  const [density, setDensity] = useState(0);
   const [image, setImage] = useState("");
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [colorTag, setColorTag] = useState("");
@@ -55,6 +56,7 @@ export function AdminQuickProduct({
     setName("");
     setPrice(0);
     setShaneh(shanehSelect[0]?.shaneh ?? 1200);
+    setDensity(0);
     setImage("");
     setCategoryIds(presetCategoryId ? [presetCategoryId] : []);
     setColorTag("");
@@ -100,6 +102,7 @@ export function AdminQuickProduct({
         code,
         price,
         shaneh,
+        density,
         description: "",
         image: image.trim(),
         active: true,
@@ -169,6 +172,18 @@ export function AdminQuickProduct({
                   />
                 </label>
               </div>
+              <label className="block text-sm">
+                <span className="mb-1 block font-medium">تراکم (عدد)</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  value={density || ""}
+                  onChange={(e) => setDensity(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
+                  placeholder="مثلاً ۳۶۰۰"
+                  className={inputClass}
+                />
+              </label>
               <AvailableSizesField value={availableSizes} onChange={setAvailableSizes} />
               <label className="block text-sm">
                 <span className="mb-1 block font-medium">رنگ</span>

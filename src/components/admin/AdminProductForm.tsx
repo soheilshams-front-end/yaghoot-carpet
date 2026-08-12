@@ -41,6 +41,7 @@ export function AdminProductForm({
   const [price, setPrice] = useState(product?.price ?? 0);
   const defaultShaneh = product?.shaneh ?? shanehOptions[0]?.shaneh ?? 1200;
   const [shaneh, setShaneh] = useState<number>(defaultShaneh);
+  const [density, setDensity] = useState(product?.density ?? 0);
   const [description, setDescription] = useState(product?.description ?? "");
   const [image, setImage] = useState(product?.image ?? "");
   const [active, setActive] = useState(product?.active ?? true);
@@ -92,6 +93,7 @@ export function AdminProductForm({
         code: code.trim() || `P-${Date.now().toString().slice(-6)}`,
         price,
         shaneh,
+        density,
         description,
         image: image || gallery[0] || "",
         active,
@@ -141,6 +143,18 @@ export function AdminProductForm({
                 value: String(s.shaneh),
                 label: `${s.shaneh} شانه`,
               }))}
+            />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block font-medium">تراکم (عدد)</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={density || ""}
+              onChange={(e) => setDensity(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
+              placeholder="مثلاً ۳۶۰۰"
+              className={inputClass}
             />
           </label>
           <TomanPriceInput required value={price} onChange={setPrice} className={inputClass} />

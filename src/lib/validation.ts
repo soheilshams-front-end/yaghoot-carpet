@@ -11,6 +11,7 @@ export const productInputSchema = z.object({
   code: z.string().trim().min(1).max(64),
   price: z.number().int().min(0).max(999_999_999_999),
   shaneh: z.number().int().min(20).max(5000),
+  density: z.number().int().min(0).max(99_999_999).optional(),
   description: z.string().max(10_000),
   image: z.string().max(500),
   active: z.boolean(),
@@ -52,6 +53,7 @@ export function parseProductInput(input: unknown) {
       gallery: gallery.length ? gallery : imageUrl ? [imageUrl] : [],
       availableSizes,
       availableSizesJson: serializeAvailableSizes(availableSizes),
+      density: Math.max(0, Math.floor(data.density ?? 0)),
       stock: CATALOG_STOCK,
     },
   };

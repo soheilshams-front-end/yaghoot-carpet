@@ -78,17 +78,22 @@ export function RugDetail({
   // no auto-rotate — only real product image for honest UX
 
   const specs = useMemo(
-    () => [
-      { label: "شانه", value: `${toFa(rug.shaneh)} شانه` },
-      { label: "تراکم", value: meta.density },
-      { label: "کالکشن", value: collection },
-      { label: "کد محصول", value: rug.code },
-      {
-        label: "جنس طرح",
-        value: rug.collection === "silk" ? "ابریشم" : "اکریلیک / گل‌ابریشم",
-      },
-    ],
-    [rug, meta, collection],
+    () => {
+      const rows = [
+        { label: "شانه", value: `${toFa(rug.shaneh)} شانه` },
+        ...(rug.density > 0
+          ? [{ label: "تراکم", value: toFa(rug.density) }]
+          : []),
+        { label: "کالکشن", value: collection },
+        { label: "کد محصول", value: rug.code },
+        {
+          label: "جنس طرح",
+          value: rug.collection === "silk" ? "ابریشم" : "اکریلیک / گل‌ابریشم",
+        },
+      ];
+      return rows;
+    },
+    [rug, collection],
   );
 
   const slide = {
@@ -127,6 +132,7 @@ export function RugDetail({
       price: rug.price,
       collection: rug.collection,
       shaneh: rug.shaneh,
+      density: rug.density,
       stock: 9999,
       description: rug.description,
     });

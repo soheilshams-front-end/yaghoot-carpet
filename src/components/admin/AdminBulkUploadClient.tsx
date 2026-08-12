@@ -35,6 +35,7 @@ export function AdminBulkUploadClient({ categories, shanehOptions }: Props) {
   const [pending, start] = useTransition();
   const [rows, setRows] = useState<Row[]>([]);
   const [shaneh, setShaneh] = useState(shanehOptions[0]?.shaneh ?? 700);
+  const [density, setDensity] = useState(0);
   const [price, setPrice] = useState(0);
   const [active, setActive] = useState(true);
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
@@ -134,6 +135,7 @@ export function AdminBulkUploadClient({ categories, shanehOptions }: Props) {
           imageUrl: u.imageUrl,
         })),
         shaneh,
+        density,
         price,
         active,
         categoryIds,
@@ -187,6 +189,18 @@ export function AdminBulkUploadClient({ categories, shanehOptions }: Props) {
               value: String(s.shaneh),
               label: `${s.shaneh} شانه`,
             }))}
+          />
+        </label>
+        <label className="block text-sm">
+          <span className="mb-1.5 block text-[var(--sa-text-muted)]">تراکم (عدد)</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={density || ""}
+            onChange={(e) => setDensity(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
+            placeholder="مثلاً ۳۶۰۰"
+            className="w-full rounded-xl border border-[var(--sa-border)] bg-white px-3 py-2.5 text-sm outline-none focus:border-[var(--sa-gold)]"
           />
         </label>
         <label className="block text-sm">

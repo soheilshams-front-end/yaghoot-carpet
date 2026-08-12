@@ -24,6 +24,7 @@ function toRug(p: {
   code: string;
   price: number;
   shaneh: number;
+  density?: number | null;
   collection: string;
   image: string;
   stock: number;
@@ -43,6 +44,7 @@ function toRug(p: {
     code: p.code,
     price: p.price,
     shaneh: p.shaneh,
+    density: Math.max(0, Math.floor(p.density ?? 0)),
     collection: p.collection,
     image: p.image || gallery[0] || "",
     stock: CATALOG_STOCK,
@@ -154,6 +156,7 @@ export async function listProductsAdmin(): Promise<AdminProduct[]> {
       code: true,
       price: true,
       shaneh: true,
+      density: true,
       collection: true,
       image: true,
       stock: true,

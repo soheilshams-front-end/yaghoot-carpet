@@ -8,6 +8,8 @@ export type Rug = {
   code: string;
   price: number;
   shaneh: number;
+  /** Knot density number entered by admin (e.g. 3600) */
+  density: number;
   /** Primary category slug (free-form from CMS) */
   collection: string;
   image: string;
@@ -38,6 +40,7 @@ export const rugs: Rug[] = [
     code: "۲۴۱",
     price: 370_000_000,
     shaneh: 1500,
+    density: 0,
     collection: "silk",
     image: img.rug1,
     stock: 9999,
@@ -50,6 +53,7 @@ export const rugs: Rug[] = [
     code: "۱۸۸",
     price: 184_000_000,
     shaneh: 1200,
+    density: 0,
     collection: "classic",
     image: img.rug2,
     stock: 9999,
@@ -62,6 +66,7 @@ export const rugs: Rug[] = [
     code: "۳۱۲",
     price: 96_000_000,
     shaneh: 1000,
+    density: 0,
     collection: "modern",
     image: img.living1,
     stock: 9999,
@@ -74,6 +79,7 @@ export const rugs: Rug[] = [
     code: "۰۷۵",
     price: 420_000_000,
     shaneh: 1500,
+    density: 0,
     collection: "classic",
     image: img.rug4,
     stock: 9999,
@@ -86,6 +92,7 @@ export const rugs: Rug[] = [
     code: "۴۵۶",
     price: 312_000_000,
     shaneh: 1200,
+    density: 0,
     collection: "silk",
     image: img.rug5,
     stock: 9999,
@@ -98,6 +105,7 @@ export const rugs: Rug[] = [
     code: "۵۰۱",
     price: 56_000_000,
     shaneh: 700,
+    density: 0,
     collection: "modern",
     image: img.living3,
     stock: 9999,
@@ -110,6 +118,7 @@ export const rugs: Rug[] = [
     code: "۶۱۸",
     price: 148_000_000,
     shaneh: 1200,
+    density: 0,
     collection: "classic",
     image: img.living4,
     stock: 9999,
@@ -122,6 +131,7 @@ export const rugs: Rug[] = [
     code: "۷۰۲",
     price: 132_000_000,
     shaneh: 1000,
+    density: 0,
     collection: "modern",
     image: img.living5,
     stock: 9999,
@@ -134,6 +144,7 @@ export const rugs: Rug[] = [
     code: "۸۳۰",
     price: 396_000_000,
     shaneh: 1500,
+    density: 0,
     collection: "silk",
     image: img.rug3,
     stock: 9999,

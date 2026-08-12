@@ -42,6 +42,7 @@ model Product {
   code        String
   price       Int
   shaneh      Int
+  density     Int               @default(0)
   collection  String
   image       String
   stock           Int               @default(9999)

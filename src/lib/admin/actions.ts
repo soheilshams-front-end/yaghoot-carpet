@@ -105,6 +105,7 @@ export async function saveProductFullAction(input: {
   code: string;
   price: number;
   shaneh: number;
+  density?: number;
   description: string;
   image: string;
   active: boolean;
@@ -128,6 +129,7 @@ export async function saveProductFullAction(input: {
     price,
     stock,
     shaneh,
+    density,
     description,
     image: imageUrl,
     active,
@@ -169,6 +171,7 @@ export async function saveProductFullAction(input: {
         price,
         stock,
         shaneh,
+        density,
         description,
         image: imageUrl || existing.image || "",
         active,
@@ -188,6 +191,7 @@ export async function saveProductFullAction(input: {
         price,
         stock,
         shaneh,
+        density,
         description,
         image: imageUrl,
         active,
@@ -231,6 +235,7 @@ function titleFromFilename(name: string) {
 export async function bulkCreateProductsAction(input: {
   items: { filename: string; imageUrl: string }[];
   shaneh: number;
+  density?: number;
   price?: number;
   active?: boolean;
   categoryIds?: string[];
@@ -250,6 +255,10 @@ export async function bulkCreateProductsAction(input: {
   const shaneh = Math.round(Number(input.shaneh));
   if (!Number.isFinite(shaneh) || shaneh < 20 || shaneh > 5000) {
     return { ok: false as const, error: "شانه نامعتبر است" };
+  }
+  const density = Math.max(0, Math.floor(Number(input.density ?? 0)));
+  if (!Number.isFinite(density) || density > 99_999_999) {
+    return { ok: false as const, error: "تراکم نامعتبر است" };
   }
 
   const price = Math.max(0, Math.floor(input.price ?? 0));
@@ -281,6 +290,7 @@ export async function bulkCreateProductsAction(input: {
           price,
           stock: CATALOG_STOCK,
           shaneh,
+          density,
           description: "",
           image: it.imageUrl,
           active,

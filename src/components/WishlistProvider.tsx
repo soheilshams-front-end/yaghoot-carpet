@@ -12,7 +12,7 @@ import type { Rug } from "@/data/rugs";
 
 export type WishItem = Pick<
   Rug,
-  "id" | "title" | "image" | "code" | "price" | "collection" | "shaneh" | "stock" | "description"
+  "id" | "title" | "image" | "code" | "price" | "collection" | "shaneh" | "density" | "stock" | "description"
 >;
 
 type WishlistContextValue = {
