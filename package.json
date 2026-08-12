@@ -11,6 +11,7 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed-brand-articles": "tsx prisma/seed-brand-articles.ts",
+    "db:migrate-prices-12m": "tsx scripts/migrate-prices-to-12m.ts",
     "db:setup": "prisma db push && tsx prisma/seed.ts"
   },
   "prisma": {

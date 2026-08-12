@@ -106,15 +106,9 @@ export async function getArticleById(id: string): Promise<CmsArticle | null> {
 }
 
 export async function getAdminDashboard() {
-  const [productCount, orderCount, lowStock, paidAgg, pendingOrders] = await Promise.all([
+  const [productCount, orderCount, paidAgg, pendingOrders] = await Promise.all([
     prisma.product.count({ where: { active: true } }),
     prisma.order.count(),
-    prisma.product.findMany({
-      where: { active: true, stock: { lte: 3 } },
-      orderBy: { stock: "asc" },
-      take: 8,
-      select: { id: true, title: true, stock: true, code: true },
-    }),
     prisma.order.aggregate({
       where: { status: { in: ["PAID", "PREPARING", "SHIPPING", "DELIVERED"] } },
       _sum: { total: true },
@@ -126,7 +120,6 @@ export async function getAdminDashboard() {
   return {
     productCount,
     orderCount,
-    lowStock,
     paidRevenue: paidAgg._sum.total ?? 0,
     paidCount: paidAgg._count,
     pendingOrders,

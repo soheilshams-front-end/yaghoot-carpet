@@ -58,10 +58,7 @@ export default async function RugDetailPage({ params }: Props) {
       "@type": "Offer",
       priceCurrency: "IRR",
       price: rug.price,
-      availability:
-        rug.stock > 0
-          ? "https://schema.org/InStock"
-          : "https://schema.org/OutOfStock",
+      availability: "https://schema.org/InStock",
       url: absoluteUrl(`/rugs/${rug.id}`),
     },
   };

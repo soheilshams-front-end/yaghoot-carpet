@@ -38,6 +38,8 @@ type Props = {
   categories?: ShopCategory[];
   supportPhone?: string;
   supportPhoneDisplay?: string;
+  shanehOptions: import("@/lib/filters").ShanehFilterItem[];
+  colorOptions: import("@/lib/filters").ColorFilterItem[];
 };
 
 export function RugsShop({
@@ -51,6 +53,8 @@ export function RugsShop({
   categories = [],
   supportPhone = "09124496001",
   supportPhoneDisplay = "۰۹۱۲۴۴۹۶۰۰۱",
+  shanehOptions,
+  colorOptions,
 }: Props) {
   const router = useRouter();
   const [page, setPage] = useState(0);
@@ -131,7 +135,7 @@ export function RugsShop({
       : null,
     color
       ? {
-          label: `رنگ: ${rugColorLabel(color)}`,
+          label: `رنگ: ${rugColorLabel(color, colorOptions)}`,
           href: buildRugsHref({ shaneh, collection, color: null, q: query, sort }),
         }
       : null,
@@ -201,6 +205,8 @@ export function RugsShop({
               categories={categories}
               values={filterValues}
               onChange={applyFilters}
+              shanehOptions={shanehOptions}
+              colorOptions={colorOptions}
             />
 
             <div className="min-w-0 flex-1">
@@ -211,6 +217,8 @@ export function RugsShop({
                     values={filterValues}
                     onChange={applyFilters}
                     resultCount={sorted.length}
+                    shanehOptions={shanehOptions}
+                    colorOptions={colorOptions}
                   />
                   <div className="mr-auto">
                     <SortDropdown value={sort} onChange={setSort} />
@@ -410,18 +418,8 @@ function toFa(n: number) {
   return new Intl.NumberFormat("fa-IR", { useGrouping: false }).format(n);
 }
 
-function rugColorLabel(id: string) {
-  const labels: Record<string, string> = {
-    navy: "سرمه‌ای",
-    sky: "آبی",
-    green: "سبز",
-    yellow: "زرد",
-    red: "لاکی",
-    cream: "کرم",
-    beige: "نسکافه‌ای",
-    gray: "طوسی",
-    black: "مشکی",
-    brown: "موکا",
-  };
-  return labels[id] ?? id;
+function rugColorLabel(id: string, colorOptions: { id: string; label: string }[]) {
+  const hit = colorOptions.find((c) => c.id === id);
+  if (hit) return hit.label.replace(/^فرش\s+/, "");
+  return id;
 }

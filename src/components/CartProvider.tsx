@@ -19,7 +19,6 @@ export type CartItem = {
   sizeLabel: string;
   factor: number;
   qty: number;
-  stock: number;
 };
 
 const MAX_QTY = 10;
@@ -44,8 +43,8 @@ function lineTotal(item: CartItem) {
   return Math.round(item.unitPrice * item.factor * item.qty);
 }
 
-function maxAllowedQty(stock: number) {
-  return Math.max(0, Math.min(stock, MAX_QTY));
+function clampQty(qty: number) {
+  return Math.max(0, Math.min(MAX_QTY, qty));
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
@@ -67,7 +66,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Show stored cart immediately; prune after validate settles.
     setItems(loaded);
 
     void (async () => {
@@ -79,7 +77,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         });
         const res = (await response.json()) as {
           ok: boolean;
-          items: { id: string; active: boolean; stock: number; price: number; title: string }[];
+          items: {
+            id: string;
+            active: boolean;
+            price: number;
+            title: string;
+            availableSizes: string[];
+          }[];
         };
         if (!response.ok || !res.ok) {
           setReady(true);
@@ -92,17 +96,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const next = loaded
           .map((item) => {
             const product = byId.get(item.rugId);
-            if (!product || !product.active || product.stock < 1) {
+            if (!product || !product.active) {
               removed++;
               return null;
             }
-            const cap = maxAllowedQty(product.stock);
-            const qty = Math.min(item.qty, cap);
+            if (!product.availableSizes.includes(item.sizeId)) {
+              removed++;
+              return null;
+            }
+            const qty = clampQty(item.qty);
             if (qty !== item.qty) adjusted++;
             return {
               ...item,
               qty,
-              stock: product.stock,
               unitPrice: product.price,
               title: product.title,
             };
@@ -116,7 +122,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           } else if (removed > 0) {
             setPruneNotice("برخی اقلام نامعتبر از سبد حذف شدند");
           } else {
-            setPruneNotice("موجودی یا قیمت برخی اقلام به‌روز شد");
+            setPruneNotice("قیمت برخی اقلام به‌روز شد");
           }
         }
       } catch {
@@ -134,21 +140,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = useCallback(
     (incoming: Omit<CartItem, "qty"> & { qty?: number; active?: boolean }) => {
-      if (incoming.active === false || incoming.stock < 1) {
+      if (incoming.active === false) {
         return false;
       }
-      const qty = Math.max(1, Math.min(incoming.qty ?? 1, maxAllowedQty(incoming.stock)));
+      const qty = Math.max(1, clampQty(incoming.qty ?? 1));
       setItems((prev) => {
         const idx = prev.findIndex(
           (i) => i.rugId === incoming.rugId && i.sizeId === incoming.sizeId,
         );
         if (idx >= 0) {
           const next = [...prev];
-          const merged = Math.min(maxAllowedQty(incoming.stock), next[idx].qty + qty);
-          next[idx] = { ...next[idx], qty: merged, stock: incoming.stock };
+          const merged = clampQty(next[idx].qty + qty);
+          next[idx] = { ...next[idx], qty: merged };
           return next;
         }
-        return [...prev, { ...incoming, qty }];
+        const { active: _a, ...rest } = incoming;
+        void _a;
+        return [...prev, { ...rest, qty }];
       });
       return true;
     },
@@ -160,7 +168,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       prev
         .map((i) =>
           i.rugId === rugId && i.sizeId === sizeId
-            ? { ...i, qty: Math.max(0, Math.min(maxAllowedQty(i.stock), qty)) }
+            ? { ...i, qty: clampQty(qty) }
             : i,
         )
         .filter((i) => i.qty > 0),

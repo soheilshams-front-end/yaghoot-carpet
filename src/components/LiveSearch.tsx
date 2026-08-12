@@ -242,11 +242,6 @@ export function LiveSearch({
                             alt=""
                             className="h-full w-full object-cover"
                           />
-                          {item.stock <= 0 && (
-                            <span className="absolute inset-x-0 bottom-0 bg-[var(--sa-navy)]/85 py-0.5 text-center text-[8px] text-white">
-                              ناموجود
-                            </span>
-                          )}
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-[13px] font-semibold leading-5">

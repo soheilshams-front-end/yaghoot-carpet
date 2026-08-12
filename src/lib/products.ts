@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import type { Rug } from "@/data/rugs";
+import { parseAvailableSizes } from "@/lib/sizes";
+import { CATALOG_STOCK } from "@/lib/filters";
 
 export type ProductFilters = {
   shaneh?: number | null;
@@ -27,6 +29,7 @@ function toRug(p: {
   stock: number;
   description: string;
   colorTag?: string | null;
+  availableSizes?: string | null;
   createdAt: Date;
   images?: { url: string; sortOrder: number }[];
 }): Rug {
@@ -39,13 +42,14 @@ function toRug(p: {
     title: p.title,
     code: p.code,
     price: p.price,
-    shaneh: p.shaneh as Rug["shaneh"],
+    shaneh: p.shaneh,
     collection: p.collection,
     image: p.image || gallery[0] || "",
-    stock: p.stock,
+    stock: CATALOG_STOCK,
     description: p.description,
     createdAt: p.createdAt.toISOString(),
     colorTag: p.colorTag ?? null,
+    availableSizes: parseAvailableSizes(p.availableSizes),
     gallery,
   };
 }
@@ -155,6 +159,7 @@ export async function listProductsAdmin(): Promise<AdminProduct[]> {
       stock: true,
       description: true,
       colorTag: true,
+      availableSizes: true,
       active: true,
       createdAt: true,
       images: { select: { url: true, sortOrder: true } },

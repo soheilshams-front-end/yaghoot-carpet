@@ -4,42 +4,58 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { AvailableSizesField } from "@/components/admin/AvailableSizesField";
 import { saveProductFullAction } from "@/lib/admin/actions";
 import type { AdminProduct } from "@/lib/products";
 import type { CmsCategory } from "@/lib/cms";
+import type { ColorFilterItem, ShanehFilterItem } from "@/lib/filters";
 import { AdminHeader } from "@/components/admin/AdminShell";
-import { colorFilters } from "@/data/site";
 import { adminHref } from "@/lib/admin-path";
 import { SaCheckbox } from "@/components/SaCheckbox";
 import { SaCheckChip } from "@/components/SaCheckChip";
 import { SaSelect } from "@/components/SaSelect";
+import { TomanPriceInput } from "@/components/admin/TomanPriceInput";
+import { ALL_SIZE_IDS, type SizeId } from "@/lib/sizes";
 
-const SHANEH = [700, 1000, 1200, 1500];
 const inputClass =
   "w-full rounded-xl border border-[var(--sa-border)] bg-white px-3 py-2.5 text-sm outline-none focus:border-[var(--sa-gold)]";
 
 type Props = {
   product: AdminProduct | null;
   categories: CmsCategory[];
+  shanehOptions: ShanehFilterItem[];
+  colorOptions: ColorFilterItem[];
 };
 
-export function AdminProductForm({ product, categories }: Props) {
+export function AdminProductForm({
+  product,
+  categories,
+  shanehOptions,
+  colorOptions,
+}: Props) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [error, setError] = useState("");
   const [title, setTitle] = useState(product?.title ?? "");
   const [code, setCode] = useState(product?.code ?? "");
   const [price, setPrice] = useState(product?.price ?? 0);
-  const [stock, setStock] = useState(product?.stock ?? (product ? 0 : 1));
-  const [shaneh, setShaneh] = useState<number>(product?.shaneh ?? 1200);
+  const defaultShaneh = product?.shaneh ?? shanehOptions[0]?.shaneh ?? 1200;
+  const [shaneh, setShaneh] = useState<number>(defaultShaneh);
   const [description, setDescription] = useState(product?.description ?? "");
   const [image, setImage] = useState(product?.image ?? "");
   const [active, setActive] = useState(product?.active ?? true);
   const [categoryIds, setCategoryIds] = useState<string[]>(product?.categoryIds ?? []);
   const [colorTag, setColorTag] = useState(product?.colorTag ?? "");
+  const [availableSizes, setAvailableSizes] = useState<SizeId[]>(
+    product?.availableSizes?.length ? product.availableSizes : [...ALL_SIZE_IDS],
+  );
   const [gallery, setGallery] = useState<string[]>(
     product?.gallery?.length ? product.gallery : product?.image ? [product.image] : [],
   );
+
+  const shanehSelect = shanehOptions.length
+    ? shanehOptions
+    : [{ shaneh: 700 }, { shaneh: 1000 }, { shaneh: 1200 }, { shaneh: 1500 }];
 
   function addGalleryUrl(url: string) {
     if (!url.trim()) return;
@@ -64,8 +80,8 @@ export function AdminProductForm({ product, categories }: Props) {
       setError("حداقل یک گروه انتخاب کنید");
       return;
     }
-    if (active && stock < 1) {
-      setError("محصول فعال با موجودی صفر در فروشگاه «ناموجود» دیده می‌شود");
+    if (!availableSizes.length) {
+      setError("حداقل یک سایز فعال انتخاب کنید");
       return;
     }
     setError("");
@@ -75,7 +91,6 @@ export function AdminProductForm({ product, categories }: Props) {
         title,
         code: code.trim() || `P-${Date.now().toString().slice(-6)}`,
         price,
-        stock,
         shaneh,
         description,
         image: image || gallery[0] || "",
@@ -83,6 +98,7 @@ export function AdminProductForm({ product, categories }: Props) {
         colorTag: colorTag || null,
         gallery: gallery.length ? gallery : image ? [image] : [],
         categoryIds,
+        availableSizes,
       });
       if (!res.ok) {
         setError(res.error);
@@ -121,27 +137,19 @@ export function AdminProductForm({ product, categories }: Props) {
             <SaSelect
               value={String(shaneh)}
               onChange={(v) => setShaneh(Number(v))}
-              options={SHANEH.map((s) => ({ value: String(s), label: `${s} شانه` }))}
+              options={shanehSelect.map((s) => ({
+                value: String(s.shaneh),
+                label: `${s.shaneh} شانه`,
+              }))}
             />
           </label>
-          <label className="block text-sm">
-            <span className="mb-1 block font-medium">قیمت (تومان)</span>
-            <input type="number" required value={price} onChange={(e) => setPrice(Number(e.target.value))} className={inputClass} />
-          </label>
-          <label className="block text-sm">
-            <span className="mb-1 block font-medium">موجودی</span>
-            <input type="number" value={stock} onChange={(e) => setStock(Number(e.target.value))} className={inputClass} />
-          </label>
+          <TomanPriceInput required value={price} onChange={setPrice} className={inputClass} />
         </div>
+        <AvailableSizesField value={availableSizes} onChange={setAvailableSizes} />
         <label className="block text-sm">
           <span className="mb-1 block font-medium">توضیح طرح</span>
           <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} className={inputClass} placeholder="رنگ، نقش، جنس…" />
         </label>
-        {active && stock < 1 && (
-          <p className="text-xs text-amber-800">
-            محصول فعال با موجودی صفر در فروشگاه «ناموجود» دیده می‌شود.
-          </p>
-        )}
         <label className="block text-sm">
           <span className="mb-1 block font-medium">رنگ (فیلتر صفحه اصلی)</span>
           <SaSelect
@@ -150,9 +158,9 @@ export function AdminProductForm({ product, categories }: Props) {
             placeholder="بدون برچسب رنگ"
             options={[
               { value: "", label: "بدون برچسب رنگ" },
-              ...colorFilters.map((c) => ({
+              ...colorOptions.map((c) => ({
                 value: c.id,
-                label: c.label.replace("فرش ", ""),
+                label: c.label.replace(/^فرش\s+/, ""),
               })),
             ]}
           />

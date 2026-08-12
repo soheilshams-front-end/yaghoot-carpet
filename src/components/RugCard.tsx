@@ -16,24 +16,19 @@ export function RugCard({ rug }: { rug: Rug }) {
       className="group relative overflow-hidden rounded-xl border border-[var(--sa-border)] bg-[var(--sa-bg)] shadow-[0_8px_22px_rgba(30,58,95,0.08)] sm:rounded-2xl"
     >
       <Link href={`/rugs/${rug.id}`} className="block">
-        <div className="relative aspect-[3/4] overflow-hidden sm:aspect-[4/5]">
+        <div className="relative aspect-[2/3] overflow-hidden bg-[var(--sa-navy-deep)] p-3 sm:p-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={rug.image}
             alt={rug.title}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+            className="h-full w-full object-contain object-center transition duration-500 group-hover:scale-[1.02]"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[var(--sa-navy)]/80 via-[var(--sa-navy)]/10 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--sa-navy)]/75 via-[var(--sa-navy)]/5 to-transparent" />
 
           <div className="absolute right-2 top-2 flex flex-col items-end gap-1 sm:right-3 sm:top-3">
             <span className="rounded-full bg-[var(--sa-cream)]/95 px-2 py-0.5 text-[9px] font-medium text-[var(--sa-navy)] shadow-sm backdrop-blur-sm sm:px-2.5 sm:py-1 sm:text-xs">
               {new Intl.NumberFormat("fa-IR", { useGrouping: false }).format(rug.shaneh)} شانه
             </span>
-            {rug.stock <= 0 && (
-              <span className="rounded-full bg-[var(--sa-navy)]/90 px-2 py-0.5 text-[9px] font-medium text-[var(--sa-text-on-navy)] shadow-sm sm:px-2.5 sm:py-1 sm:text-xs">
-                ناموجود
-              </span>
-            )}
           </div>
 
           <div className="absolute inset-x-0 bottom-0 p-2.5 sm:p-4">

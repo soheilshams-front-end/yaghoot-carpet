@@ -17,6 +17,7 @@ import { formatPrice } from "@/data/rugs";
 import { adminHref } from "@/lib/admin-path";
 import { SaCheckbox } from "@/components/SaCheckbox";
 import { useConfirm } from "@/components/ConfirmProvider";
+import type { ColorFilterItem, ShanehFilterItem } from "@/lib/filters";
 
 const empty = {
   id: "",
@@ -32,9 +33,16 @@ const empty = {
 type Props = {
   categories: CmsCategory[];
   products: AdminProduct[];
+  shanehOptions: ShanehFilterItem[];
+  colorOptions: ColorFilterItem[];
 };
 
-export function AdminCategoriesClient({ categories, products }: Props) {
+export function AdminCategoriesClient({
+  categories,
+  products,
+  shanehOptions,
+  colorOptions,
+}: Props) {
   const router = useRouter();
   const confirm = useConfirm();
   const [pending, start] = useTransition();
@@ -235,6 +243,8 @@ export function AdminCategoriesClient({ categories, products }: Props) {
           categories={categories}
           presetCategoryId={assignCat.id}
           title={`محصول جدید · ${assignCat.title}`}
+          shanehOptions={shanehOptions}
+          colorOptions={colorOptions}
           onSaved={(id) => {
             setSelected((prev) => (prev.includes(id) ? prev : [...prev, id]));
             setMsg("محصول ساخته و به این گروه اضافه شد — در پایان «ذخیره» را بزنید");

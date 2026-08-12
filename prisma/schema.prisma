@@ -44,10 +44,11 @@ model Product {
   shaneh      Int
   collection  String
   image       String
-  stock       Int               @default(0)
-  description String
-  active      Boolean           @default(true)
-  colorTag    String?
+  stock           Int               @default(9999)
+  availableSizes  String            @default("[\"2x3\",\"2.5x3.5\",\"3x4\",\"4x6\"]")
+  description     String
+  active          Boolean           @default(true)
+  colorTag        String?
   orderItems  OrderItem[]
   wishlist    WishlistItem[]
   categories  ProductCategory[]

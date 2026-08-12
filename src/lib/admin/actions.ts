@@ -15,6 +15,8 @@ import {
 import { sanitizeImageUrl } from "@/lib/safe-image-url";
 import { sanitizeArticleHtml } from "@/lib/sanitize-html";
 import { slugify, uniqueSlug } from "@/lib/slug";
+import { CATALOG_STOCK } from "@/lib/filters";
+import { serializeAvailableSizes, ALL_SIZE_IDS } from "@/lib/sizes";
 import type { OrderStatus } from "@/generated/prisma/client";
 
 function revalidateCatalog() {
@@ -102,7 +104,6 @@ export async function saveProductFullAction(input: {
   title: string;
   code: string;
   price: number;
-  stock: number;
   shaneh: number;
   description: string;
   image: string;
@@ -111,6 +112,9 @@ export async function saveProductFullAction(input: {
   /** اگر undefined باشد دسته‌ها دست نمی‌خورند */
   categoryIds?: string[];
   gallery: string[];
+  availableSizes?: string[];
+  /** @deprecated ignored — inventory removed */
+  stock?: number;
 }) {
   if (!(await requireAdmin())) return { ok: false as const, error: "دسترسی غیرمجاز" };
 
@@ -122,7 +126,7 @@ export async function saveProductFullAction(input: {
     title,
     code,
     price,
-    stock: rawStock,
+    stock,
     shaneh,
     description,
     image: imageUrl,
@@ -130,20 +134,13 @@ export async function saveProductFullAction(input: {
     colorTag,
     categoryIds,
     gallery,
+    availableSizesJson,
   } = parsed.data;
 
-  const stock = Math.max(0, Math.floor(rawStock));
-  const isNew = !id?.trim();
   const productIdInput = id?.trim() || "";
 
   if (categoryIds !== undefined && categoryIds.length === 0) {
     return { ok: false as const, error: "حداقل یک گروه انتخاب کنید" };
-  }
-  if (active && stock < 1) {
-    return {
-      ok: false as const,
-      error: "محصول فعال با موجودی صفر در فروشگاه «ناموجود» دیده می‌شود — موجودی را حداقل ۱ بگذارید",
-    };
   }
 
   let productId = productIdInput;
@@ -176,26 +173,27 @@ export async function saveProductFullAction(input: {
         image: imageUrl || existing.image || "",
         active,
         collection,
+        availableSizes: availableSizesJson,
         ...(colorTag !== undefined ? { colorTag: colorTag || null } : {}),
       },
     });
     await prisma.productImage.deleteMany({ where: { productId } });
   } else {
     productId = `p-${Date.now()}`;
-    const effectiveStock = stock < 1 ? 1 : stock;
     await prisma.product.create({
       data: {
         id: productId,
         title,
         code,
         price,
-        stock: effectiveStock,
+        stock,
         shaneh,
         description,
         image: imageUrl,
         active,
         collection,
         colorTag: colorTag?.trim() || null,
+        availableSizes: availableSizesJson,
       },
     });
   }
@@ -218,6 +216,156 @@ export async function saveProductFullAction(input: {
   revalidateCatalog();
   revalidatePath(`/rugs/${productId}`);
   return { ok: true as const, id: productId };
+}
+
+function titleFromFilename(name: string) {
+  const base = name.replace(/\.[^.]+$/, "").trim();
+  const cleaned = base
+    .replace(/[_+]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned.slice(0, 200) || "فرش بدون عنوان";
+}
+
+/** آپلود گروهی: هر عکس یک محصول (عنوان از اسم فایل) */
+export async function bulkCreateProductsAction(input: {
+  items: { filename: string; imageUrl: string }[];
+  shaneh: number;
+  price?: number;
+  active?: boolean;
+  categoryIds?: string[];
+  availableSizes?: string[];
+}) {
+  if (!(await requireAdmin())) return { ok: false as const, error: "دسترسی غیرمجاز" };
+
+  const items = input.items
+    .map((it) => ({
+      filename: String(it.filename ?? "").trim(),
+      imageUrl: sanitizeImageUrl(String(it.imageUrl ?? "").trim()) ?? "",
+    }))
+    .filter((it) => it.imageUrl);
+
+  if (!items.length) return { ok: false as const, error: "هیچ عکسی برای ساخت محصول نیست" };
+  if (items.length > 150) return { ok: false as const, error: "حداکثر ۱۵۰ فایل در هر بار" };
+  const shaneh = Math.round(Number(input.shaneh));
+  if (!Number.isFinite(shaneh) || shaneh < 20 || shaneh > 5000) {
+    return { ok: false as const, error: "شانه نامعتبر است" };
+  }
+
+  const price = Math.max(0, Math.floor(input.price ?? 0));
+  const active = input.active !== false;
+  const categoryIds = (input.categoryIds ?? []).filter(Boolean);
+  const availableSizesJson = serializeAvailableSizes(
+    input.availableSizes?.length ? input.availableSizes : ALL_SIZE_IDS,
+  );
+
+  let collection = "classic";
+  if (categoryIds.length) {
+    const cats = await prisma.category.findMany({ where: { id: { in: categoryIds } } });
+    collection = cats[0]?.slug ?? collection;
+  }
+
+  const stamp = Date.now();
+  const createdIds: string[] = [];
+
+  await prisma.$transaction(async (tx) => {
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i]!;
+      const productId = `p-${stamp}-${i}-${Math.random().toString(36).slice(2, 7)}`;
+      const code = `P-${String(stamp).slice(-6)}${String(i).padStart(3, "0")}`;
+      await tx.product.create({
+        data: {
+          id: productId,
+          title: titleFromFilename(it.filename),
+          code,
+          price,
+          stock: CATALOG_STOCK,
+          shaneh,
+          description: "",
+          image: it.imageUrl,
+          active,
+          collection,
+          colorTag: null,
+          availableSizes: availableSizesJson,
+        },
+      });
+      await tx.productImage.create({
+        data: { productId, url: it.imageUrl, sortOrder: 0 },
+      });
+      if (categoryIds.length) {
+        await tx.productCategory.createMany({
+          data: categoryIds.map((categoryId) => ({ productId, categoryId })),
+        });
+      }
+      createdIds.push(productId);
+    }
+  });
+
+  revalidateCatalog();
+  return { ok: true as const, ids: createdIds, count: createdIds.length };
+}
+
+/** ویرایش گروهی شانه (و اختیاری دسته) روی محصولات انتخاب‌شده */
+export async function bulkUpdateProductsAction(input: {
+  productIds: string[];
+  shaneh?: number;
+  categoryIds?: string[];
+  active?: boolean;
+  price?: number;
+}) {
+  if (!(await requireAdmin())) return { ok: false as const, error: "دسترسی غیرمجاز" };
+
+  const productIds = [...new Set(input.productIds.map((id) => id.trim()).filter(Boolean))];
+  if (!productIds.length) return { ok: false as const, error: "محصولی انتخاب نشده" };
+  if (productIds.length > 200) return { ok: false as const, error: "حداکثر ۲۰۰ محصول در هر بار" };
+
+  if (input.shaneh !== undefined) {
+    const shaneh = Math.round(Number(input.shaneh));
+    if (!Number.isFinite(shaneh) || shaneh < 20 || shaneh > 5000) {
+      return { ok: false as const, error: "شانه نامعتبر است" };
+    }
+  }
+
+  const data: {
+    shaneh?: number;
+    active?: boolean;
+    price?: number;
+    collection?: string;
+  } = {};
+  if (input.shaneh !== undefined) data.shaneh = input.shaneh;
+  if (input.active !== undefined) data.active = input.active;
+  if (input.price !== undefined) data.price = Math.max(0, Math.floor(input.price));
+
+  if (input.categoryIds !== undefined) {
+    const categoryIds = input.categoryIds.filter(Boolean);
+    const cats = categoryIds.length
+      ? await prisma.category.findMany({ where: { id: { in: categoryIds } } })
+      : [];
+    if (categoryIds.length) data.collection = cats[0]?.slug ?? "classic";
+
+    await prisma.$transaction(async (tx) => {
+      if (Object.keys(data).length) {
+        await tx.product.updateMany({ where: { id: { in: productIds } }, data });
+      }
+      await tx.productCategory.deleteMany({
+        where: { productId: { in: productIds } },
+      });
+      if (categoryIds.length) {
+        await tx.productCategory.createMany({
+          data: productIds.flatMap((productId) =>
+            categoryIds.map((categoryId) => ({ productId, categoryId })),
+          ),
+        });
+      }
+    });
+  } else if (Object.keys(data).length) {
+    await prisma.product.updateMany({ where: { id: { in: productIds } }, data });
+  } else {
+    return { ok: false as const, error: "هیچ تغییری انتخاب نشده" };
+  }
+
+  revalidateCatalog();
+  return { ok: true as const, count: productIds.length };
 }
 
 /** محصولات یک دسته را یکجا تنظیم می‌کند (انتساب گروهی) */
@@ -246,7 +394,6 @@ export async function setCategoryProductsAction(categoryId: string, productIds: 
 export async function quickUpdateProductAction(input: {
   id: string;
   price?: number;
-  stock?: number;
   active?: boolean;
 }) {
   if (!(await requireAdmin())) return { ok: false as const, error: "دسترسی غیرمجاز" };
@@ -254,7 +401,6 @@ export async function quickUpdateProductAction(input: {
     where: { id: input.id },
     data: {
       ...(input.price !== undefined ? { price: input.price } : {}),
-      ...(input.stock !== undefined ? { stock: input.stock } : {}),
       ...(input.active !== undefined ? { active: input.active } : {}),
     },
   });
@@ -283,8 +429,6 @@ export async function deleteProductAction(id: string) {
 
 /* ─── Orders ─── */
 
-const STOCK_HELD_STATUSES = new Set<OrderStatus>(["PAID", "PREPARING", "SHIPPING"]);
-
 export async function setOrderStatusAction(orderId: string, status: OrderStatus) {
   if (!(await requireAdmin())) return { ok: false as const, error: "دسترسی غیرمجاز" };
 
@@ -304,15 +448,6 @@ export async function setOrderStatusAction(orderId: string, status: OrderStatus)
   }
 
   await prisma.$transaction(async (tx) => {
-    if (status === "CANCELLED" && STOCK_HELD_STATUSES.has(order.status)) {
-      for (const item of order.items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { increment: item.qty } },
-        });
-      }
-    }
-
     if (status === "PAID" && order.status === "PENDING_PAYMENT") {
       await markOrderPaid(tx, orderId, order.items);
       return;

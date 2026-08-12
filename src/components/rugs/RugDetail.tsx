@@ -21,7 +21,12 @@ import {
   shanehMeta,
   type Rug,
 } from "@/data/rugs";
-import { SIZES, type SizeId } from "@/lib/sizes";
+import {
+  defaultSizeId,
+  sizesForProduct,
+  type SizeId,
+} from "@/lib/sizes";
+import { MAX_QTY } from "@/components/CartProvider";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -42,17 +47,21 @@ export function RugDetail({
   const { addItem } = useCart();
   const { has, toggle } = useWishlist();
   const liked = has(rug.id);
-  const [sizeId, setSizeId] = useState<SizeId>("2x3");
+  const offeredSizes = useMemo(
+    () => sizesForProduct(rug.availableSizes),
+    [rug.availableSizes],
+  );
+  const [sizeId, setSizeId] = useState<SizeId>(() =>
+    defaultSizeId(rug.availableSizes),
+  );
   const [qty, setQty] = useState(1);
   const [photo, setPhoto] = useState(0);
   const [dir, setDir] = useState(1);
 
-  const size = SIZES.find((s) => s.id === sizeId) ?? SIZES[0];
+  const size = offeredSizes.find((s) => s.id === sizeId) ?? offeredSizes[0]!;
   const meta = shanehMeta(rug.shaneh);
   const collection = collectionLabel(rug.collection);
   const total = Math.round(rug.price * size.factor * qty);
-  const inStock = rug.stock > 0;
-  const lowStock = rug.stock > 0 && rug.stock <= 3;
 
   const photos = useMemo(() => {
     const g = rug.gallery?.filter(Boolean) ?? [];
@@ -62,7 +71,9 @@ export function RugDetail({
 
   useEffect(() => {
     setPhoto(0);
-  }, [rug.id]);
+    setSizeId(defaultSizeId(rug.availableSizes));
+    setQty(1);
+  }, [rug.id, rug.availableSizes]);
 
   // no auto-rotate — only real product image for honest UX
 
@@ -72,13 +83,12 @@ export function RugDetail({
       { label: "تراکم", value: meta.density },
       { label: "کالکشن", value: collection },
       { label: "کد محصول", value: rug.code },
-      { label: "موجودی", value: inStock ? `${toFa(rug.stock)} عدد` : "ناموجود" },
       {
         label: "جنس طرح",
         value: rug.collection === "silk" ? "ابریشم" : "اکریلیک / گل‌ابریشم",
       },
     ],
-    [rug, meta, collection, inStock],
+    [rug, meta, collection],
   );
 
   const slide = {
@@ -88,7 +98,6 @@ export function RugDetail({
   };
 
   function addToCart() {
-    if (!inStock) return;
     addItem({
       rugId: rug.id,
       title: rug.title,
@@ -99,7 +108,6 @@ export function RugDetail({
       sizeLabel: size.label,
       factor: size.factor,
       qty,
-      stock: rug.stock,
       active: true,
     });
     notify(
@@ -119,7 +127,7 @@ export function RugDetail({
       price: rug.price,
       collection: rug.collection,
       shaneh: rug.shaneh,
-      stock: rug.stock,
+      stock: 9999,
       description: rug.description,
     });
     notify(
@@ -172,7 +180,8 @@ export function RugDetail({
               transition={{ duration: 0.5, ease }}
               className="flex h-full min-h-[20rem] flex-col lg:min-h-0"
             >
-              <div className="relative flex-1 overflow-hidden rounded-2xl border border-[var(--sa-border)] bg-[var(--sa-navy)] shadow-[0_12px_32px_rgba(30,58,95,0.14)]">
+              <div className="relative flex-1 overflow-hidden rounded-2xl border border-[var(--sa-border)] bg-[var(--sa-navy-deep)] p-3 shadow-[0_12px_32px_rgba(30,58,95,0.14)] sm:p-4">
+                <div className="relative h-full min-h-[18rem]">
                 <AnimatePresence mode="wait" custom={dir} initial={false}>
                   <motion.img
                     key={`${rug.id}-${photo}`}
@@ -184,21 +193,15 @@ export function RugDetail({
                     animate="center"
                     exit="exit"
                     transition={{ duration: 0.5, ease }}
-                    className="absolute inset-0 h-full w-full object-cover"
+                    className="absolute inset-0 h-full w-full object-contain"
                   />
                 </AnimatePresence>
-
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--sa-navy)]/40 via-transparent to-transparent" />
+                </div>
 
                 <div className="absolute right-3 top-3 z-10 flex flex-col gap-1.5">
                   <span className="rounded-full bg-[var(--sa-cream)]/95 px-2.5 py-1 text-[11px] font-medium text-[var(--sa-navy)] shadow-sm backdrop-blur-sm">
                     {toFa(rug.shaneh)} شانه
                   </span>
-                  {lowStock && (
-                    <span className="rounded-full bg-[var(--sa-gold)] px-2.5 py-1 text-[11px] font-semibold text-[var(--sa-text)] shadow-sm">
-                      موجودی محدود
-                    </span>
-                  )}
                 </div>
 
                 {photos.length > 1 && (
@@ -276,10 +279,10 @@ export function RugDetail({
               <div className="mt-5">
                 <p className="text-xs font-medium text-[var(--sa-navy)] sm:text-sm">انتخاب ابعاد</p>
                 <p className="mt-0.5 text-[11px] text-[var(--sa-text-muted)]">
-                  قیمت پایه برای ۲×۳ متر است.
+                  قیمت پایه برای ۳×۴ متر (۱۲ متری) است.
                 </p>
                 <div className="mt-2.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {SIZES.map((s) => {
+                  {offeredSizes.map((s) => {
                     const active = s.id === sizeId;
                     return (
                       <button
@@ -340,8 +343,8 @@ export function RugDetail({
                   <button
                     type="button"
                     aria-label="افزایش"
-                    disabled={qty >= rug.stock}
-                    onClick={() => setQty((q) => Math.min(rug.stock, q + 1))}
+                    disabled={qty >= MAX_QTY}
+                    onClick={() => setQty((q) => Math.min(MAX_QTY, q + 1))}
                     className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--sa-navy)] transition hover:bg-[var(--sa-cream)] disabled:opacity-30"
                   >
                     +
@@ -352,11 +355,10 @@ export function RugDetail({
               <div className="mt-4 grid grid-cols-[1fr_auto] gap-2 sm:grid-cols-[1fr_1fr_auto]">
                 <button
                   type="button"
-                  disabled={!inStock}
                   onClick={addToCart}
-                  className="inline-flex h-10 items-center justify-center rounded-full bg-[var(--sa-gold)] text-sm font-semibold text-[var(--sa-text)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-10 items-center justify-center rounded-full bg-[var(--sa-gold)] text-sm font-semibold text-[var(--sa-text)] transition hover:brightness-105"
                 >
-                  {inStock ? "افزودن به سبد" : "ناموجود"}
+                  افزودن به سبد
                 </button>
                 <a
                   href={`tel:${supportPhone}`}
@@ -506,11 +508,10 @@ export function RugDetail({
           </button>
           <button
             type="button"
-            disabled={!inStock}
             onClick={addToCart}
-            className="flex h-10 flex-1 items-center justify-center rounded-full bg-[var(--sa-gold)] text-sm font-semibold text-[var(--sa-text)] disabled:opacity-50"
+            className="flex h-10 flex-1 items-center justify-center rounded-full bg-[var(--sa-gold)] text-sm font-semibold text-[var(--sa-text)]"
           >
-            {inStock ? "افزودن به سبد" : "ناموجود"}
+            افزودن به سبد
           </button>
         </div>
       </div>

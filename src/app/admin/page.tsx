@@ -35,23 +35,11 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <AdminBox title="موجودی کم" actionLabel="کاتالوگ" actionHref={adminHref("/products")}>
-          {d.lowStock.length === 0 ? (
-            <p className="text-sm text-[var(--sa-text-muted)]">همه چیز خوب است</p>
-          ) : (
-            <ul className="space-y-2">
-              {d.lowStock.map((p) => (
-                <li key={p.id} className="flex items-center justify-between text-sm">
-                  <Link href={adminHref(`/products/${p.id}`)} className="font-medium hover:underline">
-                    {p.title}
-                  </Link>
-                  <span className={p.stock <= 0 ? "text-red-700" : "text-amber-700"}>
-                    {fa(p.stock)} عدد
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+        <AdminBox title="راهنما" actionLabel="کاتالوگ" actionHref={adminHref("/products")}>
+          <p className="text-sm leading-6 text-[var(--sa-text-muted)]">
+            قیمت پایه هر محصول ۱۲ متری (۳×۴) است. سایزهای فعال، شانه و رنگ را از فرم محصول و صفحه
+            اصلی تنظیم کنید.
+          </p>
         </AdminBox>
 
         <AdminBox title="کارهای سریع">

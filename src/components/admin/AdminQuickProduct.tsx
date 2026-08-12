@@ -3,13 +3,15 @@
 import { useEffect, useState, useTransition } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ImageUploadField } from "@/components/admin/ImageUploadField";
+import { AvailableSizesField } from "@/components/admin/AvailableSizesField";
 import { saveProductFullAction } from "@/lib/admin/actions";
 import type { CmsCategory } from "@/lib/cms";
-import { colorFilters } from "@/data/site";
+import type { ColorFilterItem, ShanehFilterItem } from "@/lib/filters";
 import { SaCheckChip } from "@/components/SaCheckChip";
 import { SaSelect } from "@/components/SaSelect";
+import { TomanPriceInput } from "@/components/admin/TomanPriceInput";
+import { ALL_SIZE_IDS, type SizeId } from "@/lib/sizes";
 
-const SHANEH = [700, 1000, 1200, 1500];
 const inputClass =
   "w-full rounded-xl border border-[var(--sa-border)] bg-white px-3 py-2.5 text-sm outline-none focus:border-[var(--sa-gold)]";
 
@@ -20,6 +22,8 @@ type Props = {
   categories?: CmsCategory[];
   presetCategoryId?: string | null;
   title?: string;
+  shanehOptions?: ShanehFilterItem[];
+  colorOptions?: ColorFilterItem[];
 };
 
 export function AdminQuickProduct({
@@ -29,6 +33,8 @@ export function AdminQuickProduct({
   categories = [],
   presetCategoryId = null,
   title = "افزودن سریع محصول",
+  shanehOptions = [],
+  colorOptions = [],
 }: Props) {
   const [pending, start] = useTransition();
   const [error, setError] = useState("");
@@ -38,15 +44,21 @@ export function AdminQuickProduct({
   const [image, setImage] = useState("");
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [colorTag, setColorTag] = useState("");
+  const [availableSizes, setAvailableSizes] = useState<SizeId[]>([...ALL_SIZE_IDS]);
+
+  const shanehSelect = shanehOptions.length
+    ? shanehOptions
+    : [{ shaneh: 700 }, { shaneh: 1000 }, { shaneh: 1200 }, { shaneh: 1500 }];
 
   useEffect(() => {
     if (!open) return;
     setName("");
     setPrice(0);
-    setShaneh(1200);
+    setShaneh(shanehSelect[0]?.shaneh ?? 1200);
     setImage("");
     setCategoryIds(presetCategoryId ? [presetCategoryId] : []);
     setColorTag("");
+    setAvailableSizes([...ALL_SIZE_IDS]);
     setError("");
   }, [open, presetCategoryId]);
 
@@ -70,6 +82,10 @@ export function AdminQuickProduct({
       setError("قیمت معتبر وارد کنید");
       return;
     }
+    if (!availableSizes.length) {
+      setError("حداقل یک سایز فعال انتخاب کنید");
+      return;
+    }
 
     setError("");
     start(async () => {
@@ -83,7 +99,6 @@ export function AdminQuickProduct({
         title: name.trim(),
         code,
         price,
-        stock: 1,
         shaneh,
         description: "",
         image: image.trim(),
@@ -91,6 +106,7 @@ export function AdminQuickProduct({
         colorTag: colorTag || null,
         gallery: [image.trim()],
         categoryIds: ids,
+        availableSizes,
       });
       if (!res.ok) {
         setError(res.error);
@@ -140,25 +156,20 @@ export function AdminQuickProduct({
                 />
               </label>
               <div className="grid grid-cols-2 gap-2">
-                <label className="block text-sm">
-                  <span className="mb-1 block font-medium">قیمت</span>
-                  <input
-                    type="number"
-                    value={price || ""}
-                    onChange={(e) => setPrice(Number(e.target.value))}
-                    className={inputClass}
-                    placeholder="تومان"
-                  />
-                </label>
+                <TomanPriceInput value={price} onChange={setPrice} className={inputClass} />
                 <label className="block text-sm">
                   <span className="mb-1 block font-medium">شانه</span>
                   <SaSelect
                     value={String(shaneh)}
                     onChange={(v) => setShaneh(Number(v))}
-                    options={SHANEH.map((s) => ({ value: String(s), label: String(s) }))}
+                    options={shanehSelect.map((s) => ({
+                      value: String(s.shaneh),
+                      label: String(s.shaneh),
+                    }))}
                   />
                 </label>
               </div>
+              <AvailableSizesField value={availableSizes} onChange={setAvailableSizes} />
               <label className="block text-sm">
                 <span className="mb-1 block font-medium">رنگ</span>
                 <SaSelect
@@ -167,9 +178,9 @@ export function AdminQuickProduct({
                   placeholder="بدون برچسب رنگ"
                   options={[
                     { value: "", label: "بدون برچسب رنگ" },
-                    ...colorFilters.map((c) => ({
+                    ...colorOptions.map((c) => ({
                       value: c.id,
-                      label: c.label.replace("فرش ", ""),
+                      label: c.label.replace(/^فرش\s+/, ""),
                     })),
                   ]}
                 />
@@ -190,10 +201,6 @@ export function AdminQuickProduct({
                   </div>
                 </div>
               )}
-
-              <p className="text-[10px] text-[var(--sa-text-muted)]">
-                کد محصول خودکار ساخته می‌شود. موجودی پیش‌فرض: ۱
-              </p>
 
               {error && <p className="text-sm text-red-700">{error}</p>}
 

@@ -215,7 +215,7 @@ function CartView() {
                                   type="button"
                                   aria-label="افزایش تعداد"
                                   className="flex h-8 w-8 items-center justify-center text-[var(--sa-navy)] disabled:opacity-30"
-                                  disabled={item.qty >= Math.min(item.stock, MAX_QTY)}
+                                  disabled={item.qty >= MAX_QTY}
                                   onClick={() =>
                                     setQty(item.rugId, item.sizeId, item.qty + 1)
                                   }

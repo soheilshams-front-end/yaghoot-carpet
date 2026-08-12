@@ -19,8 +19,8 @@ const HINTS: Record<string, string> = {
   categories: "شبکه دسته‌ها از بخش «گروه‌ها» می‌آید",
   newest: "کاروسل جدیدترین محصولات",
   popular: "ردیف محبوب‌ترین‌ها",
-  shaneh: "کاشی‌های فیلتر شانه",
-  colors: "اکسپلورر رنگ",
+  shaneh: "کاشی‌های فیلتر شانه — قابل ویرایش (صفحه اول + فروشگاه)",
+  colors: "اکسپلورر رنگ — قابل ویرایش (صفحه اول + فروشگاه)",
   silk: "سکشن ابریشم",
   guarantees: "کارت‌های چرا یاقوت",
   faq: "سوالات متداول",
@@ -239,11 +239,35 @@ export function AdminHomepageClient({ sections }: { sections: HomepageSectionRow
                     />
                   )}
 
-                  {(s.key === "categories" ||
-                    s.key === "newest" ||
-                    s.key === "silk" ||
-                    s.key === "shaneh" ||
-                    s.key === "colors") && (
+                  {s.key === "shaneh" && (
+                    <ShanehItemsEditor
+                      items={
+                        (d.payload.items as {
+                          shaneh: number;
+                          image: string;
+                          hint?: string;
+                          label?: string;
+                        }[]) ?? []
+                      }
+                      onChange={(items) => patchPayload(s.id, { items })}
+                    />
+                  )}
+
+                  {s.key === "colors" && (
+                    <ColorItemsEditor
+                      items={
+                        (d.payload.items as {
+                          id: string;
+                          label: string;
+                          hex: string;
+                          image: string;
+                        }[]) ?? []
+                      }
+                      onChange={(items) => patchPayload(s.id, { items })}
+                    />
+                  )}
+
+                  {(s.key === "categories" || s.key === "newest" || s.key === "silk") && (
                     <p className="text-xs leading-6 text-[var(--sa-text-muted)]">
                       محتوای این بخش از کاتالوگ / گروه‌ها یا تنظیمات پیش‌فرض سایت پر می‌شود.
                       کافی است روشن باشد و ترتیبش را تنظیم کنید.
@@ -364,6 +388,160 @@ function GuaranteesEditor({
           />
         </div>
       ))}
+    </div>
+  );
+}
+
+function ShanehItemsEditor({
+  items,
+  onChange,
+}: {
+  items: { shaneh: number; image: string; hint?: string; label?: string }[];
+  onChange: (items: { shaneh: number; image: string; hint?: string; label?: string }[]) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-semibold">کاشی‌های شانه (صفحه اول + فیلتر فروشگاه)</p>
+      {items.map((item, i) => (
+        <div key={i} className="space-y-2 rounded-xl border border-[var(--sa-border)] p-3">
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label className="block text-xs">
+              <span className="mb-1 block">عدد شانه</span>
+              <input
+                type="number"
+                value={item.shaneh}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[i] = { ...item, shaneh: Number(e.target.value) || 0 };
+                  onChange(next);
+                }}
+                className="w-full rounded-lg border border-[var(--sa-border)] px-2 py-1.5 text-sm"
+              />
+            </label>
+            <label className="block text-xs">
+              <span className="mb-1 block">زیرعنوان / hint</span>
+              <input
+                value={item.hint ?? item.label ?? ""}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[i] = { ...item, hint: e.target.value, label: e.target.value };
+                  onChange(next);
+                }}
+                className="w-full rounded-lg border border-[var(--sa-border)] px-2 py-1.5 text-sm"
+              />
+            </label>
+          </div>
+          <ImageUploadField
+            label="عکس کاشی"
+            value={item.image}
+            onChange={(image) => {
+              const next = [...items];
+              next[i] = { ...item, image };
+              onChange(next);
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => onChange(items.filter((_, idx) => idx !== i))}
+            className="text-[11px] text-red-700"
+          >
+            حذف
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() =>
+          onChange([...items, { shaneh: 1000, image: "", hint: "", label: "" }])
+        }
+        className="text-xs font-medium text-[var(--sa-navy)] underline"
+      >
+        + شانه جدید
+      </button>
+    </div>
+  );
+}
+
+function ColorItemsEditor({
+  items,
+  onChange,
+}: {
+  items: { id: string; label: string; hex: string; image: string }[];
+  onChange: (items: { id: string; label: string; hex: string; image: string }[]) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-semibold">رنگ‌ها (صفحه اول + فیلتر فروشگاه)</p>
+      {items.map((item, i) => (
+        <div key={i} className="space-y-2 rounded-xl border border-[var(--sa-border)] p-3">
+          <div className="grid gap-2 sm:grid-cols-3">
+            <label className="block text-xs">
+              <span className="mb-1 block">شناسه (لاتین)</span>
+              <input
+                value={item.id}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[i] = {
+                    ...item,
+                    id: e.target.value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, ""),
+                  };
+                  onChange(next);
+                }}
+                className="w-full rounded-lg border border-[var(--sa-border)] px-2 py-1.5 text-sm"
+              />
+            </label>
+            <label className="block text-xs">
+              <span className="mb-1 block">برچسب</span>
+              <input
+                value={item.label}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[i] = { ...item, label: e.target.value };
+                  onChange(next);
+                }}
+                className="w-full rounded-lg border border-[var(--sa-border)] px-2 py-1.5 text-sm"
+              />
+            </label>
+            <label className="block text-xs">
+              <span className="mb-1 block">رنگ (hex)</span>
+              <input
+                value={item.hex}
+                onChange={(e) => {
+                  const next = [...items];
+                  next[i] = { ...item, hex: e.target.value };
+                  onChange(next);
+                }}
+                className="w-full rounded-lg border border-[var(--sa-border)] px-2 py-1.5 text-sm"
+              />
+            </label>
+          </div>
+          <ImageUploadField
+            label="عکس رنگ"
+            value={item.image}
+            onChange={(image) => {
+              const next = [...items];
+              next[i] = { ...item, image };
+              onChange(next);
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => onChange(items.filter((_, idx) => idx !== i))}
+            className="text-[11px] text-red-700"
+          >
+            حذف
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={() =>
+          onChange([...items, { id: "new-color", label: "فرش جدید", hex: "#888888", image: "" }])
+        }
+        className="text-xs font-medium text-[var(--sa-navy)] underline"
+      >
+        + رنگ جدید
+      </button>
     </div>
   );
 }

@@ -3,9 +3,7 @@
 import { useEffect, useId, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { IconChevronDown, IconSliders, IconX } from "@/components/Icons";
-import { colorFilters } from "@/data/site";
-
-const SHANEH = [1500, 1200, 1000, 700] as const;
+import type { ColorFilterItem, ShanehFilterItem } from "@/lib/filters";
 
 export type ShopFilterCategory = { id: string; title: string };
 
@@ -19,24 +17,17 @@ type PanelProps = {
   categories: ShopFilterCategory[];
   values: ShopFilterValues;
   onChange: (next: ShopFilterValues) => void;
+  shanehOptions: ShanehFilterItem[];
+  colorOptions: ColorFilterItem[];
 };
 
 function toFa(n: number) {
   return new Intl.NumberFormat("fa-IR", { useGrouping: false }).format(n);
 }
 
-const COLOR_LABELS: Record<string, string> = {
-  navy: "سرمه‌ای",
-  sky: "آبی",
-  green: "سبز",
-  yellow: "زرد",
-  red: "لاکی",
-  cream: "کرم",
-  beige: "نسکافه‌ای",
-  gray: "طوسی",
-  black: "مشکی",
-  brown: "موکا",
-};
+function colorShortLabel(c: ColorFilterItem) {
+  return c.label.replace(/^فرش\s+/, "");
+}
 
 function Chip({
   active,
@@ -108,13 +99,20 @@ function Accordion({
 }
 
 /** Compact facet panel — chips + color swatch grid */
-export function ShopFiltersPanel({ categories, values, onChange }: PanelProps) {
+export function ShopFiltersPanel({
+  categories,
+  values,
+  onChange,
+  shanehOptions,
+  colorOptions,
+}: PanelProps) {
   const catSummary =
     categories.find((c) => c.id === values.collection)?.title ?? "همه";
   const shanehSummary =
     values.shaneh != null ? `${toFa(values.shaneh)} شانه` : "همه";
+  const activeColor = colorOptions.find((c) => c.id === values.color);
   const colorSummary = values.color
-    ? COLOR_LABELS[values.color] ?? values.color
+    ? colorShortLabel(activeColor ?? { id: values.color, label: values.color, hex: "#ccc", image: "" })
     : "همه";
 
   return (
@@ -147,13 +145,13 @@ export function ShopFiltersPanel({ categories, values, onChange }: PanelProps) {
           >
             همه
           </Chip>
-          {SHANEH.map((s) => (
+          {shanehOptions.map((s) => (
             <Chip
-              key={s}
-              active={values.shaneh === s}
-              onClick={() => onChange({ ...values, shaneh: s })}
+              key={s.shaneh}
+              active={values.shaneh === s.shaneh}
+              onClick={() => onChange({ ...values, shaneh: s.shaneh })}
             >
-              {toFa(s)}
+              {toFa(s.shaneh)}
             </Chip>
           ))}
         </div>
@@ -175,9 +173,9 @@ export function ShopFiltersPanel({ categories, values, onChange }: PanelProps) {
           >
             همه
           </button>
-          {colorFilters.map((c) => {
+          {colorOptions.map((c) => {
             const active = values.color === c.id;
-            const label = COLOR_LABELS[c.id] ?? c.label;
+            const label = colorShortLabel(c);
             return (
               <button
                 key={c.id}
@@ -198,7 +196,14 @@ export function ShopFiltersPanel({ categories, values, onChange }: PanelProps) {
         </div>
         {values.color && (
           <p className="mt-2 text-center text-[11px] text-[var(--sa-text-muted)]">
-            {COLOR_LABELS[values.color] ?? values.color}
+            {colorShortLabel(
+              activeColor ?? {
+                id: values.color,
+                label: values.color,
+                hex: "#ccc",
+                image: "",
+              },
+            )}
           </p>
         )}
       </Accordion>
@@ -234,6 +239,8 @@ export function ShopFiltersMobile({
   values,
   onChange,
   resultCount,
+  shanehOptions,
+  colorOptions,
 }: MobileProps) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<ShopFilterValues>(values);
@@ -310,6 +317,8 @@ export function ShopFiltersMobile({
                   categories={categories}
                   values={draft}
                   onChange={setDraft}
+                  shanehOptions={shanehOptions}
+                  colorOptions={colorOptions}
                 />
               </div>
 

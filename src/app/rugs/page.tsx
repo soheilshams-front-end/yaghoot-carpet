@@ -8,6 +8,7 @@ import { getSupportPhone } from "@/lib/support";
 import type { SortKey } from "@/components/rugs/SortDropdown";
 import { BRAND_NAME } from "@/lib/brand";
 import { absoluteUrl } from "@/lib/site-url";
+import { getShopFilterTaxonomy } from "@/lib/filters";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +45,7 @@ export default async function RugsPage({ searchParams }: Props) {
     ? (params.sort as SortKey)
     : "newest";
 
-  const [filtered, total, cats, support] = await Promise.all([
+  const [filtered, total, cats, support, filters] = await Promise.all([
     listProducts({
       shaneh: Number.isFinite(shaneh) ? shaneh : null,
       collection,
@@ -54,6 +55,7 @@ export default async function RugsPage({ searchParams }: Props) {
     countProducts(),
     listCategories({ homeOnly: true, activeOnly: true }),
     getSupportPhone(),
+    getShopFilterTaxonomy(),
   ]);
 
   return (
@@ -75,6 +77,8 @@ export default async function RugsPage({ searchParams }: Props) {
         supportPhone={support.phone}
         supportPhoneDisplay={support.phoneDisplay}
         categories={cats.map((c) => ({ id: c.slug, title: c.title }))}
+        shanehOptions={filters.shaneh}
+        colorOptions={filters.colors}
       />
     </Suspense>
   );

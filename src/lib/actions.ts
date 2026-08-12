@@ -5,7 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { auth } from "@/auth";
 import { normalizePhone, isValidIranMobile } from "@/lib/phone";
-import { resolveSize } from "@/lib/sizes";
+import { resolveSize, parseAvailableSizes } from "@/lib/sizes";
 import { markOrderPaid } from "@/lib/order-payment";
 
 export type CheckoutItemInput = {
@@ -104,9 +104,7 @@ export async function createOrderAction(input: {
     if (!product) {
       return { ok: false as const, error: "محصول یافت نشد یا غیرفعال است" };
     }
-    if (product.stock < qty) {
-      return { ok: false as const, error: `موجودی «${product.title}» کافی نیست` };
-    }
+    void qty;
   }
 
   let total = 0;
@@ -122,7 +120,14 @@ export async function createOrderAction(input: {
 
   for (const item of items) {
     const product = byId.get(item.productId)!;
-    const size = resolveSize(item.sizeId)!;
+    const size = resolveSize(item.sizeId);
+    if (!size) {
+      return { ok: false as const, error: "سایز نامعتبر است" };
+    }
+    const allowed = parseAvailableSizes(product.availableSizes);
+    if (!allowed.includes(size.id)) {
+      return { ok: false as const, error: `سایز انتخابی برای «${product.title}» فعال نیست` };
+    }
     const lineTotal = Math.round(product.price * size.factor * item.qty);
     total += lineTotal;
     lines.push({
@@ -225,9 +230,6 @@ export async function confirmPaymentAction(authority: string, success: boolean) 
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "";
-    if (msg === "INSUFFICIENT_STOCK") {
-      return { ok: false as const, error: "موجودی کافی نیست", orderId: order.id };
-    }
     if (msg === "STATUS_RACE") {
       const fresh = await prisma.order.findUnique({ where: { id: order.id } });
       if (fresh && fresh.status !== "PENDING_PAYMENT" && fresh.status !== "CANCELLED") {
