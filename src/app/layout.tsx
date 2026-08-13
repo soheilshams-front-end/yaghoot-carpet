@@ -67,6 +67,9 @@ export const metadata: Metadata = {
   verification: {
     google: "l57wlc8o-iecwjIaQecZdBUPeO_oDM6MvU3Z4yMlyeY",
   },
+  other: {
+    enamad: "76589870",
+  },
 };
 
 export default async function RootLayout({
